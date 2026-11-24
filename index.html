@@ -2933,9 +2933,30 @@ function wait(ms) {
 
 }
 
+const MASCOT_IMAGES = {
+  polcasan: {
+    cover: "IMG_6308.jpeg",
+    profile: "07C074C9-5D0F-40F8-8200-B285C5A7CA1E.jpeg",
+    student: "IMG_6316.jpeg",
+    2: "IMG_6310.jpeg",
+    4: "IMG_6309.jpeg",
+    8: "IMG_6311.jpeg",
+    16: "IMG_6313.jpeg",
+    32: "IMG_6317.jpeg",
+    64: "IMG_6319.jpeg",
+    128: "IMG_6322.jpeg",
+    256: "IMG_6320.jpeg",
+    512: "IMG_6324.jpeg",
+    1024: "IMG_6321.jpeg",
+    2048: "IMG_6323.jpeg"
+  }
+};
+
 function imagePath(id,type) {
 
-  return `images/${id}/${type}.jpg`;
+  const filename = MASCOT_IMAGES[id]?.[type] || `${type}.jpg`;
+
+  return `images/${id}/${filename}`;
 
 }
 
