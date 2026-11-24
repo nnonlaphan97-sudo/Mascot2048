@@ -1501,6 +1501,21 @@ html[lang="en"] .score-label {
   }
 }
 
+
+.game-actions { padding-top:0; margin:14px 0 12px; }
+.game-actions .cute-btn { height:104px; padding:5px 4px 8px; gap:2px; overflow:hidden; background:color-mix(in srgb,var(--theme) 52%,white); box-shadow:0 5px 0 color-mix(in srgb,var(--theme) 78%,#70859b); color:#425b75; }
+.game-actions .mascot-decoration { position:static; height:65px; width:100%; flex:0 0 65px; align-items:center; }
+.game-actions .mascot-decoration svg { height:65px; width:100%; max-width:96px; }
+.game-actions .cute-btn span { line-height:1.2; white-space:nowrap; }
+.game-actions .cute-btn:disabled .mascot-decoration { opacity:.4; }
+#undoBtn.character-play .mascot-decoration svg { animation: schoolHat .44s ease; }
+#restartBtn.character-play .mascot-decoration svg { animation: schoolBus .44s ease; }
+#rankingBtn.character-play .mascot-decoration svg { animation: schoolCup .44s ease; }
+@keyframes schoolHat { 25%{transform:rotate(-9deg)} 65%{transform:rotate(8deg)} }
+@keyframes schoolBus { 30%{transform:translateX(-5px)} 70%{transform:translateX(5px)} }
+@keyframes schoolCup { 45%{transform:translateY(-4px) scale(1.04)} }
+@media(prefers-reduced-motion:reduce){.game-actions .mascot-decoration svg{animation:none!important}}
+#profileModal label { display:block; text-align:left; font-size:14px; margin:8px 0 4px; color:#527ca8; }
 </style>
 </head>
 
@@ -1680,19 +1695,9 @@ html[lang="en"] .score-label {
 
   <header class="game-header">
 
-    <button class="back-button"
+    <button class="back-button" aria-label="Back / ย้อนกลับ"
       onclick="showPage('home')">
-
-      <svg viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-
-        <path d="M15 5L8 12L15 19"/>
-
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5L8 12L15 19"/></svg>
 
     </button>
 
@@ -1814,21 +1819,7 @@ html[lang="en"] .score-label {
       onclick="undoMove()">
 
       <div id="undoDecoration"
-        class="mascot-decoration">
-      </div>
-
-      <svg class="action-icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.4"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-
-        <path d="M9 5L3 11L9 17"/>
-        <path d="M3 11H15Q22 11 21 20"/>
-
-      </svg>
+        class="mascot-decoration"><svg viewBox="0 12 120 76" aria-hidden="true"><g transform="rotate(-8 60 50)"><path d="M30 59Q25 23 60 23Q95 23 90 59Z" fill="#f9df92" stroke="#d7b66f" stroke-width="1.5"/><path d="M60 24Q42 29 43 56M60 24Q78 29 77 56" stroke="#e7c87d" fill="none"/><ellipse cx="60" cy="60" rx="44" ry="12" fill="#fff0b8" stroke="#d7b66f"/><path d="M30 49Q60 58 90 49V57Q60 67 30 57Z" fill="var(--theme)"/><path d="M81 56L95 48L94 64Z M81 56L69 49L69 65Z" fill="var(--theme)" stroke="#8ba7bd"/><circle cx="81" cy="56" r="4" fill="#fff"/><circle cx="60" cy="23" r="3.5" fill="#e5bd70"/><path d="M36 38Q40 30 47 29" stroke="#fff6d6" stroke-width="4" stroke-linecap="round" fill="none"/></g></svg></div>
 
       <span data-i18n="undo"></span>
 
@@ -1839,21 +1830,7 @@ html[lang="en"] .score-label {
       onclick="restartGame()">
 
       <div id="restartDecoration"
-        class="mascot-decoration">
-      </div>
-
-      <svg class="action-icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.4"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-
-        <path d="M20 10A8 8 0 1 0 19 17"/>
-        <path d="M20 3V11H12"/>
-
-      </svg>
+        class="mascot-decoration"><svg viewBox="0 12 120 76" aria-hidden="true"><rect x="19" y="29" width="82" height="43" rx="13" fill="#f8d88c" stroke="#d9b66b" stroke-width="1.5"/><rect x="25" y="34" width="70" height="20" rx="5" fill="#ffebae"/><rect x="28" y="36" width="13" height="16" rx="3" fill="#d9efff" stroke="#c8b58c"/><path d="M31 40l4 -2" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="45" y="36" width="13" height="16" rx="3" fill="#d9efff" stroke="#c8b58c"/><path d="M48 40l4 -2" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="62" y="36" width="13" height="16" rx="3" fill="#d9efff" stroke="#c8b58c"/><path d="M65 40l4 -2" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M79 36H85Q94 36 94 52H79Z" fill="#d9efff" stroke="#c8b58c"/><path d="M20 57H100" stroke="#e7b95e" stroke-width="3"/><g fill="#71869c"><circle cx="36" cy="72" r="9"/><circle cx="84" cy="72" r="9"/></g><g fill="#e5eff9"><circle cx="36" cy="72" r="4"/><circle cx="84" cy="72" r="4"/></g><text x="60" y="65" font-size="6" font-weight="bold" fill="#a4874e" text-anchor="middle">SCHOOL BUS</text></svg></div>
 
       <span data-i18n="restart"></span>
 
@@ -1864,22 +1841,7 @@ html[lang="en"] .score-label {
       onclick="openMascotRanking()">
 
       <div id="rankingDecoration"
-        class="mascot-decoration">
-      </div>
-
-      <svg class="action-icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round">
-
-        <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
-        <path d="M7 5H3V8Q3 13 8 13"/>
-        <path d="M17 5H21V8Q21 13 16 13"/>
-        <path d="M12 15V21M7 21H17"/>
-
-      </svg>
+        class="mascot-decoration"><svg viewBox="0 12 120 76" aria-hidden="true"><path d="M36 32H24Q20 54 43 57M84 32H96Q100 54 77 57" fill="none" stroke="#dfba70" stroke-width="8" stroke-linecap="round"/><path d="M36 32H24Q20 54 43 57M84 32H96Q100 54 77 57" fill="none" stroke="#ffebad" stroke-width="4" stroke-linecap="round"/><rect x="55" y="61" width="10" height="17" rx="4" fill="#dfb76c"/><rect x="42" y="74" width="36" height="9" rx="4" fill="#eac77c"/><path d="M34 24Q60 20 86 24L82 46Q78 66 60 68Q42 66 38 46Z" fill="#ffe6a0" stroke="#dcb66b"/><path d="M42 30L45 43" stroke="#fff8da" stroke-width="4" stroke-linecap="round"/><path d="M60 31L65 41L76 42L68 50L70 61L60 56L50 61L52 50L44 42L55 41Z" fill="#fff9de" stroke="#e7c57a"/><circle cx="56" cy="46" r="1.5" fill="#aa8a55"/><circle cx="64" cy="46" r="1.5" fill="#aa8a55"/><path d="M57 50Q60 54 63 50" fill="none" stroke="#aa8a55" stroke-width="1.5"/><ellipse cx="48" cy="52" rx="4" ry="2.5" fill="#f0b6ac"/><ellipse cx="72" cy="52" rx="4" ry="2.5" fill="#f0b6ac"/><path d="M22 18V28M17 23H27M96 15V25M91 20H101" stroke="#91b8df" stroke-width="2.5" stroke-linecap="round"/></svg></div>
 
       <span data-i18n="ranking"></span>
 
@@ -1906,17 +1868,9 @@ html[lang="en"] .score-label {
 
   <header class="header">
 
-    <button class="back-button"
+    <button class="back-button" aria-label="Back / ย้อนกลับ"
       onclick="returnFromRanking()">
-
-      <svg viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2">
-
-        <path d="M15 5L8 12L15 19"/>
-
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5L8 12L15 19"/></svg>
 
     </button>
 
@@ -2167,6 +2121,9 @@ html[lang="en"] .score-label {
       data-i18n="profileHint">
     </div>
 
+    <label for="playerTitleInput" data-i18n="playerTitleLabel"></label>
+    <input id="playerTitleInput" class="name-input" maxlength="24" data-placeholder="playerTitle" autocomplete="off">
+    <label for="playerNameInput" data-i18n="playerNameLabel"></label>
     <input id="playerNameInput"
       class="name-input"
       maxlength="24"
@@ -2328,12 +2285,12 @@ const LANG = {
 
     language: "ภาษา",
 
-    askName: "คุณอุนยายชื่ออะไรคะ?",
+    askName: "หลานจะเรียกคุณว่าอะไรดี?",
 
     profileHint:
       "ตั้งชื่อและเลือกภาพหลานที่ชอบ สำหรับแสดงบนตารางอันดับ",
 
-    yourName: "ชื่อคุณอุนยาย",
+    yourName: "ชื่อของคุณ",
 
     cancel: "ยกเลิก",
     save: "บันทึก",
@@ -2365,6 +2322,11 @@ const LANG = {
     studentCard: "บัตรประจำตัวนักเรียน",
 
     studentNo: "เลขประจำตัวนักเรียน",
+    birthday: "วันเกิด",
+    surname: "นามสกุล",
+    playerTitle: "คำเรียก (เช่น อุนยาย อุนยา)",
+    playerTitleLabel: "คำเรียก",
+    playerNameLabel: "ชื่อของคุณ",
 
     designer: "ออกแบบโดย ปังปุง",
 
@@ -2435,7 +2397,7 @@ const LANG = {
 
     language: "Language",
 
-    askName: "What's your name, Grandma?",
+    askName: "What should we call you?",
 
     profileHint:
       "Enter your name and choose your favorite mascot as your leaderboard avatar.",
@@ -2470,6 +2432,11 @@ const LANG = {
     studentCard: "Student ID Card",
 
     studentNo: "Student No.",
+    birthday: "Birthday",
+    surname: "Surname",
+    playerTitle: "Title (e.g. Grandma)",
+    playerTitleLabel: "Title",
+    playerNameLabel: "Your name",
 
     designer: "Designed by Pangpung",
 
@@ -2533,6 +2500,8 @@ const MASCOTS = [
     en: "Polcasan",
     color: "#a8d4f5",
     studentId: "001",
+    birthday: {th: "", en: ""},
+    surname: {th: "", en: ""},
 
     parents: [
 
@@ -3060,6 +3029,7 @@ function loadSave() {
 
     playerId: createId(),
     playerName: "",
+    playerTitle: "",
     avatarMascot: "polcasan",
     games: {},
     records: [],
@@ -3318,10 +3288,13 @@ function getPersonalBest(id) {
 
 }
 
+function playerDisplayName(person = save) {
+  return [person.playerTitle, person.playerName || person.name].filter(Boolean).join(currentLanguage === "en" ? " " : "");
+}
+
 function recordName(record) {
 
-  return record?.playerName
-    || record?.name
+  return (record && playerDisplayName(record))
     || t("grandma");
 
 }
@@ -3344,6 +3317,7 @@ function updateRecord() {
   if (existing) {
 
     existing.playerName = save.playerName;
+    existing.playerTitle = save.playerTitle;
 
     existing.avatarMascot = save.avatarMascot;
 
@@ -3362,6 +3336,7 @@ function updateRecord() {
       playerId: save.playerId,
 
       playerName: save.playerName,
+      playerTitle: save.playerTitle,
 
       avatarMascot: save.avatarMascot,
 
@@ -3703,6 +3678,9 @@ function renderStudentCard() {
 
         </div>
 
+        <div class="parent-row">${t("surname")} : <strong>${escapeHTML(mascot.surname?.[currentLanguage] || "—")}</strong></div>
+        <div class="parent-row">${t("birthday")} : <strong>${escapeHTML(mascot.birthday?.[currentLanguage] || "—")}</strong></div>
+
         ${mascot.parents.length
 
           ? mascot.parents.map(parent => `
@@ -3769,35 +3747,9 @@ function renderStudentCard() {
 ======================================== */
 
 function renderMascotButtons() {
-
   if (!currentMascot) return;
-
-  const icons =
-    currentMascot.decorations || [];
-
-  const actions = $("mascotActions");
-
-  actions.dataset.mascot = currentMascot.id;
-
-  actions.classList.toggle(
-    "no-decoration",
-    icons.length === 0
-  );
-
-  [
-
-    "undoDecoration",
-    "restartDecoration",
-    "rankingDecoration"
-
-  ].forEach((id,index) => {
-
-    $(id).innerHTML =
-
-      DECORATIONS[icons[index]] || "";
-
-  });
-
+  $("mascotActions").dataset.mascot = currentMascot.id;
+  $("mascotActions").classList.remove("no-decoration");
 }
 
 function animateCharacter(button) {
@@ -3883,8 +3835,7 @@ function renderGameHeader() {
 
   $("gamePlayer").textContent =
 
-    t("grandma") + " : "
-    + (save.playerName || t("grandma"));
+    playerDisplayName() || t("grandma");
 
   $("gameAvatar").innerHTML =
 
@@ -3900,7 +3851,7 @@ function selectMascot(id) {
 
   if (busy) return;
 
-  if (!save.playerName) {
+  if (!save.playerName || !save.playerTitle) {
 
     pendingMascot = id;
 
@@ -5666,7 +5617,7 @@ function renderProfile() {
 
   $("profileName").textContent =
 
-    save.playerName || t("grandma");
+    playerDisplayName() || t("grandma");
 
   $("profileStats").innerHTML =
 
@@ -5715,6 +5666,7 @@ function openProfileModal() {
   if (busy) return;
 
   selectedAvatar = save.avatarMascot;
+  $("playerTitleInput").value = save.playerTitle || "";
 
   $("playerNameInput").value =
 
@@ -5772,6 +5724,8 @@ function cancelProfile() {
 function saveProfile() {
 
   const name = $("playerNameInput").value.trim();
+  const title = $("playerTitleInput").value.trim();
+  if (!title) { $("playerTitleInput").focus(); return; }
 
   if (!name) {
 
@@ -5782,6 +5736,7 @@ function saveProfile() {
   }
 
   save.playerName = name;
+  save.playerTitle = title;
 
   save.avatarMascot = selectedAvatar;
 
@@ -5790,6 +5745,7 @@ function saveProfile() {
     if (record.playerId === save.playerId) {
 
       record.playerName = name;
+      record.playerTitle = title;
 
       record.avatarMascot = selectedAvatar;
 
@@ -5903,6 +5859,8 @@ document.addEventListener(
 
 );
 
+$("playerTitleInput").addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();$("playerNameInput").focus();}});
+
 $("playerNameInput").addEventListener(
 
   "keydown",
@@ -5925,7 +5883,7 @@ renderHome();
 
 persist();
 
-if (!save.playerName) {
+if (!save.playerName || !save.playerTitle) {
 
   openProfileModal();
 
