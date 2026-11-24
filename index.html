@@ -1665,6 +1665,23 @@ html[data-mode="dark"] .samruay-theme .board-cell {background:#50473E!important;
 html[data-mode="dark"] .samruay-theme .score-card:not(.current),html[data-mode="dark"] .samruay-theme .game-actions .cute-btn:first-child {background:#63512D!important;}
 html[data-mode="dark"] .samruay-theme .score-card.current,html[data-mode="dark"] .samruay-theme .game-actions .cute-btn:nth-child(2) {background:#49423B!important;}
 html[data-mode="dark"] .samruay-theme .game-actions .cute-btn:nth-child(3) {background:#49423B!important;}
+body.kingman-theme { --bg:#F5EBD9; --number-bg:#765332; --number-ink:#FFFFFF; --score-ink:#59482E; }
+.kingman-theme .board { background:#B58A59; box-shadow:0 5px 0 #987146; }
+.kingman-theme .board-cell { background:#DCE8BF; }
+.kingman-theme .score-card.current { background:#DCE8BF; }
+.kingman-theme .score-card:not(.current) { background:#E4C9A7; box-shadow:0 3px 0 #B58A59; }
+.kingman-theme .score-card:last-child { background:#F7E3A2; }
+.kingman-theme .game-actions .cute-btn { background:#DCE8BF; color:#59482E; box-shadow:0 5px 0 #A3BD77; }
+.kingman-theme .game-actions .cute-btn:nth-child(2) { background:#E4C9A7; box-shadow:0 5px 0 #B58A59; }
+.kingman-theme .game-actions .cute-btn:nth-child(3) { background:#F7E3A2; box-shadow:0 5px 0 #D6AC39; }
+.kingman-theme .game-message { background:#F5EBD9E6; }
+.kingman-theme .mascot-decoration { --theme:#A3BD77; }
+html[data-mode="dark"] body.kingman-theme {background:#292C23!important;}
+html[data-mode="dark"] .kingman-theme .board {background:#665039!important;}
+html[data-mode="dark"] .kingman-theme .board-cell {background:#414C34!important;}
+html[data-mode="dark"] .kingman-theme .score-card.current,html[data-mode="dark"] .kingman-theme .game-actions .cute-btn:first-child {background:#465637!important;}
+html[data-mode="dark"] .kingman-theme .score-card:not(.current),html[data-mode="dark"] .kingman-theme .game-actions .cute-btn:nth-child(2) {background:#64503A!important;}
+html[data-mode="dark"] .kingman-theme .score-card:last-child,html[data-mode="dark"] .kingman-theme .game-actions .cute-btn:nth-child(3) {background:#665831!important;}
 </style>
 </head>
 
@@ -2828,6 +2845,20 @@ const MASCOTS = [
     decorations: []
   }
 
+  ,{
+    id: "kingman",
+    name: "คิงแมน",
+    en: "King Man",
+    color: "#A3BD77",
+    birthday: {th: "1 พฤษภาคม 2567", en: "1 May 2024"},
+    surname: {th: "แสงโพธิรัตน์เรืองโรจน์", en: "Sangpotirat Ruangroj"},
+    parents: [
+      {role: "บีบี๋", roleEn: "Bibi", name: "พีรวัส แสงโพธิรัตน์", nameEn: "Perawat Sangpotirat"},
+      {role: "บูบู๋", roleEn: "Bubu", name: "ปราชญา เรืองโรจน์", nameEn: "Prachaya Ruangroj"}
+    ],
+    decorations: []
+  }
+
 ];
 
 // Display-only student numbers; mascot IDs and saved scores are unchanged.
@@ -3158,6 +3189,7 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  kingman: {"profile": "IMG_6778.jpeg", "student": "IMG_6783.jpeg", "cover": "IMG_6779.jpeg", "2": "IMG_6780.jpeg", "4": "IMG_6781.jpeg", "8": "IMG_6784.jpeg", "16": "IMG_6787.jpeg", "32": "IMG_6789.jpeg", "64": "IMG_6788.jpeg", "128": "IMG_6790.jpeg", "256": "IMG_6791.jpeg", "512": "IMG_6785.jpeg", "1024": "IMG_6786.jpeg", "2048": "IMG_6782.jpeg"},
   samruay: {"profile": "IMG_6744.jpeg", "student": "IMG_6748.jpeg", "cover": "IMG_6745.jpeg", "2": "IMG_6755.jpeg", "4": "IMG_6756.jpeg", "8": "IMG_6751.jpeg", "16": "IMG_6747.jpeg", "32": "IMG_6746.jpeg", "64": "IMG_6750.jpeg", "128": "IMG_6754.jpeg", "256": "IMG_6757.jpeg", "512": "IMG_6752.jpeg", "1024": "IMG_6753.jpeg", "2048": "IMG_6749.jpeg"},
   lookkhunnoo: {"profile": "IMG_6719.jpeg", "student": "IMG_6716.jpeg", "cover": "IMG_6713.jpeg", "2": "IMG_6715.jpeg", "4": "IMG_6717.jpeg", "8": "IMG_6714.jpeg", "16": "IMG_6710.jpeg", "32": "IMG_6711.jpeg", "64": "IMG_6709.jpeg", "128": "IMG_6712.jpeg", "256": "IMG_6720.jpeg", "512": "IMG_6721.jpeg", "1024": "IMG_6722.jpeg", "2048": "IMG_6718.jpeg"},
   babii: {"profile": "IMG_6674.jpeg", "student": "IMG_6669.jpeg", "cover": "IMG_6675.jpeg", "2": "IMG_6681.jpeg", "4": "IMG_6680.jpeg", "8": "IMG_6679.jpeg", "16": "IMG_6670.jpeg", "32": "IMG_6673.jpeg", "64": "IMG_6668.jpeg", "128": "IMG_6672.jpeg", "256": "IMG_6677.jpeg", "512": "IMG_6676.jpeg", "1024": "IMG_6678.jpeg", "2048": "IMG_6671.jpeg"},
@@ -3701,6 +3733,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("kingman-theme", page === "game" && currentMascot?.id === "kingman");
   document.body.classList.toggle("samruay-theme", page === "game" && currentMascot?.id === "samruay");
   document.body.classList.toggle("lookkhunnoo-theme", page === "game" && currentMascot?.id === "lookkhunnoo");
   document.body.classList.toggle("babii-theme", page === "game" && currentMascot?.id === "babii");
@@ -3922,7 +3955,7 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-  const palette = {samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {kingman:['#987146','#F5EBD9','#765332','#A3BD77'],samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4566,6 +4599,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "kingman") return Math.log2(value) % 2 === 0 ? "#F3D16C" : "#A3BD77";
   if (currentMascot?.id === "samruay") return Math.log2(value) % 2 === 0 ? "#E7BD60" : "#D9C5AD";
   if (currentMascot?.id === "lookkhunnoo") return Math.log2(value) % 2 === 0 ? "#E8A6C5" : "#EBC58C";
   if (currentMascot?.id === "babii") return Math.log2(value) % 2 === 0 ? "#F8DCE7" : "#D2E8B8";
