@@ -583,6 +583,15 @@ h1,h2,h3,p {
   margin-bottom: 9px;
 }
 
+.student-surname {
+  font-size: 17px;
+  font-weight: 700;
+  color: #537eae;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  margin-bottom: 8px;
+}
+
 .parent-row {
   font-size: 14px;
   line-height: 1.7;
@@ -2500,23 +2509,23 @@ const MASCOTS = [
     en: "Polcasan",
     color: "#a8d4f5",
     studentId: "001",
-    birthday: {th: "", en: ""},
-    surname: {th: "", en: ""},
+    birthday: {th: "06 มีนาคม 2567", en: "06 March 2024"},
+    surname: {th: "วิหครัตน์เตชะอภัยคุณ", en: "Vihokratana Techaapaikhun"},
 
     parents: [
 
       {
-        role: "ปะป๊า",
+        role: "ปะป๊าเต",
         roleEn: "Papa",
-        name: "เต ตะวัน",
-        nameEn: "Tay Tawan"
+        name: "ตะวัน วิหครัตน์",
+        nameEn: "Tay Tawan Vihokratana"
       },
 
       {
-        role: "พ่อพ่อ",
+        role: "พ่อพ่อนิว",
         roleEn: "Daddy",
-        name: "นิว ฐิติภูมิ",
-        nameEn: "New Thitipoom"
+        name: "ฐิติภูมิ เตชะอภัยคุณ",
+        nameEn: "New Thitipoom Techaapaikhun"
       }
 
     ],
@@ -3666,19 +3675,12 @@ function renderStudentCard() {
 
         <div class="student-name">
 
-          ${escapeHTML(mascotName(mascot))}
+          ${escapeHTML(currentLanguage === "th" ? mascot.name : mascot.en)}
 
         </div>
 
-        <div class="student-en">
+        <div class="student-surname">${escapeHTML(mascot.surname?.[currentLanguage] || "—")}</div>
 
-          ${currentLanguage === "th"
-            ? escapeHTML(mascot.en.toUpperCase())
-            : escapeHTML(mascot.name)}
-
-        </div>
-
-        <div class="parent-row">${t("surname")} : <strong>${escapeHTML(mascot.surname?.[currentLanguage] || "—")}</strong></div>
         <div class="parent-row">${t("birthday")} : <strong>${escapeHTML(mascot.birthday?.[currentLanguage] || "—")}</strong></div>
 
         ${mascot.parents.length
@@ -3693,7 +3695,7 @@ function renderStudentCard() {
                   ? parent.roleEn || parent.role
                   : parent.role
 
-              )} :
+              )}
 
               <strong>
 
