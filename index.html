@@ -3,21 +3,30 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
- content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#edf5ff">
-
 <title>MASCOT 2048</title>
 
 <style>
 
 /* ========================================
-   1. GLOBAL
+   01. FONT
+======================================== */
+
+@font-face {
+  font-family: "Srinakharinwirot";
+  src: url("./images/polcasan/Srinakharinwirot-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ========================================
+   02. GLOBAL
 ======================================== */
 
 :root {
-  --background: #edf5ff;
+  --bg: #edf5ff;
   --text: #354b65;
   --muted: #91a2b7;
   --blue: #82b1e4;
@@ -32,53 +41,59 @@
 html {
   touch-action: manipulation;
   overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--background);
+  background: var(--bg);
   color: var(--text);
-  font-family: Arial, Tahoma, sans-serif;
-  -webkit-user-select: none;
+  font-family: "Srinakharinwirot", Arial, sans-serif;
   user-select: none;
+  -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
 
-button, input {
-  font: inherit;
+button, input, select, textarea {
+  font-family: inherit;
 }
 
 button {
-  cursor: pointer;
   border: 0;
   color: inherit;
+  cursor: pointer;
   touch-action: manipulation;
-}
-
-button, a, img {
-  -webkit-user-drag: none;
 }
 
 button:disabled {
   cursor: default;
 }
 
+input {
+  font-size: 16px;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 img {
   display: block;
   object-fit: cover;
   pointer-events: none;
-}
-
-input {
-  font-size: 16px;
-  user-select: text;
-  -webkit-user-select: text;
-  outline: none;
+  -webkit-user-drag: none;
 }
 
 svg {
   display: block;
   pointer-events: none;
+}
+
+h1,h2,h3,p {
+  margin: 0;
+}
+
+.hidden {
+  display: none !important;
 }
 
 #app {
@@ -94,71 +109,70 @@ svg {
 
 .page.active {
   display: block;
-  animation: pageIn 160ms ease;
+  animation: pageIn 150ms ease;
 }
 
 @keyframes pageIn {
-  from { opacity: .5; }
+  from { opacity: .6; }
   to { opacity: 1; }
 }
 
-h1,h2,h3,p {
-  margin: 0;
-}
-
 .section-title {
-  font-size: 17px;
-  font-weight: 800;
-  margin: 23px 0 12px;
+  font-size: 19px;
+  font-weight: 700;
+  margin: 24px 0 12px;
 }
 
 .muted {
   color: var(--muted);
 }
 
-.hidden {
-  display: none !important;
-}
-
-
 /* ========================================
-   2. HEADER
+   03. HEADER
 ======================================== */
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   margin: 8px 0 22px;
 }
 
 .brand-small {
   font-size: 10px;
-  letter-spacing: 2px;
-  font-weight: 800;
+  letter-spacing: 1.4px;
+  font-weight: 700;
   color: #8aafd5;
 }
 
 .brand-title {
-  font-size: 29px;
-  letter-spacing: -1px;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -.8px;
   color: #4c78a8;
+  white-space: nowrap;
 }
 
 .brand-subtitle {
-  font-size: 11px;
+  font-size: 12px;
   color: #91a5bd;
   margin-top: 3px;
 }
 
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
 .avatar-button {
-  width: 49px;
-  height: 49px;
-  border-radius: 50%;
+  width: 45px;
+  height: 45px;
   padding: 3px;
   background: white;
+  border-radius: 50%;
   box-shadow: 0 3px 12px #648dbb22;
   flex-shrink: 0;
 }
@@ -172,7 +186,7 @@ h1,h2,h3,p {
 .back-button {
   width: 38px;
   height: 38px;
-  border-radius: 14px;
+  border-radius: 13px;
   background: white;
   display: grid;
   place-items: center;
@@ -180,13 +194,42 @@ h1,h2,h3,p {
 }
 
 .back-button svg {
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
 }
 
+/* ========================================
+   04. LANGUAGE SWITCH
+======================================== */
+
+.language-switch {
+  display: flex;
+  align-items: center;
+  background: #dceafa;
+  border: 2px solid white;
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.language-button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #91a8c0;
+  font-size: 12px;
+  transition: background 150ms,color 150ms;
+}
+
+.language-button.active {
+  background: white;
+  color: #527eac;
+  box-shadow: 0 2px 5px #7697bb22;
+}
 
 /* ========================================
-   3. PHOTO COMPONENT
+   05. PHOTO
 ======================================== */
 
 .photo {
@@ -199,9 +242,9 @@ h1,h2,h3,p {
 
 .photo img {
   position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  inset: 0;
 }
 
 .photo-fallback {
@@ -209,8 +252,8 @@ h1,h2,h3,p {
   place-items: center;
   width: 100%;
   height: 100%;
-  font-weight: 900;
-  color: #ffffff;
+  color: white;
+  font-weight: 700;
 }
 
 .photo-fallback svg {
@@ -218,9 +261,8 @@ h1,h2,h3,p {
   height: 55%;
 }
 
-
 /* ========================================
-   4. WORLD CHAMPION
+   06. GRAND CHAMPION
 ======================================== */
 
 .world-card {
@@ -229,9 +271,7 @@ h1,h2,h3,p {
   border: 2px solid white;
   border-radius: 25px;
   padding: 17px;
-  background: linear-gradient(
-    135deg,#fff8dd,#ffedbd
-  );
+  background: linear-gradient(135deg,#fff8dd,#ffedbd);
   box-shadow: 0 5px 0 #e8d6a5;
 }
 
@@ -251,29 +291,29 @@ h1,h2,h3,p {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 1.3px;
   color: #b3944b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .world-label svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .world-content {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
   margin-top: 15px;
 }
 
 .world-avatar .photo {
-  width: 66px;
-  height: 66px;
-  border-radius: 50%;
+  width: 65px;
+  height: 65px;
   border: 3px solid white;
+  border-radius: 50%;
 }
 
 .world-details {
@@ -282,50 +322,49 @@ h1,h2,h3,p {
 }
 
 .world-name {
-  font-size: 19px;
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .world-mascot {
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 13px;
   color: #9c874e;
+  margin-top: 4px;
 }
 
 .world-score {
-  font-size: 29px;
-  font-weight: 900;
+  font-size: 32px;
+  font-weight: 700;
   color: #a47b2d;
   margin-top: 4px;
   font-variant-numeric: tabular-nums;
 }
 
 .world-mascot-photo .photo {
-  width: 62px;
+  width: 60px;
   height: 70px;
   border: 3px solid white;
-  border-radius: 17px;
+  border-radius: 16px;
 }
 
 .world-caption {
   margin-top: 12px;
-  font-size: 10px;
+  font-size: 11px;
   color: #a48e59;
 }
 
-
 /* ========================================
-   5. SEARCH & MASCOT GRID
+   07. SEARCH
 ======================================== */
 
 .search-box {
   display: flex;
   align-items: center;
   gap: 9px;
-  background: white;
   padding: 12px;
   border-radius: 15px;
+  background: white;
   margin-bottom: 14px;
 }
 
@@ -333,19 +372,23 @@ h1,h2,h3,p {
   width: 18px;
   height: 18px;
   color: #9ab3ce;
+  flex-shrink: 0;
 }
 
 .search-box input {
+  width: 100%;
   border: 0;
   background: transparent;
-  width: 100%;
   color: var(--text);
 }
 
 .search-box input::placeholder {
   color: #b1bfce;
-  font-size: 13px;
 }
+
+/* ========================================
+   08. MASCOT GRID
+======================================== */
 
 .mascot-grid {
   display: grid;
@@ -356,10 +399,10 @@ h1,h2,h3,p {
 .mascot-card {
   position: relative;
   min-width: 0;
-  text-align: center;
   padding: 5px;
-  background: white;
   border-radius: 15px;
+  background: white;
+  text-align: center;
   box-shadow: 0 3px 0 #dce7f3;
   transition: transform 100ms;
 }
@@ -379,11 +422,11 @@ h1,h2,h3,p {
   left: 8px;
   background: #ffffffeb;
   color: #5b80a6;
-  border-radius: 8px;
+  border-radius: 7px;
   min-width: 20px;
-  padding: 4px;
-  font-size: 9px;
-  font-weight: 900;
+  padding: 3px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .mascot-position.first {
@@ -392,16 +435,16 @@ h1,h2,h3,p {
 }
 
 .mascot-name {
-  font-size: 12px;
-  font-weight: 800;
-  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 7px;
   overflow-wrap: anywhere;
 }
 
 .mascot-en {
-  font-size: 8px;
+  font-size: 9px;
   color: #a0aec0;
-  margin-top: 3px;
+  margin-top: 2px;
   overflow-wrap: anywhere;
 }
 
@@ -412,13 +455,12 @@ h1,h2,h3,p {
 }
 
 .record-label {
-  font-size: 8px;
+  font-size: 10px;
   color: #a4b2c2;
 }
 
 .record-name {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -426,23 +468,50 @@ h1,h2,h3,p {
 }
 
 .record-score {
-  font-size: 14px;
-  font-weight: 900;
+  font-size: 16px;
+  font-weight: 700;
   color: #719bc9;
   margin-top: 4px;
 }
 
+/* ========================================
+   09. DESIGNER CREDIT
+======================================== */
+
+.designer-credit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-top: 30px;
+  padding: 20px 0 15px;
+  text-align: center;
+}
+
+.credit-decoration {
+  width: 85px;
+  height: 24px;
+}
+
+.credit-name {
+  font-size: 14px;
+  color: #7798bc;
+}
+
+.credit-copyright {
+  font-size: 11px;
+  color: #a0b4ca;
+}
 
 /* ========================================
-   6. STUDENT CARD
+   10. STUDENT CARD
 ======================================== */
 
 .student-card {
-  position: relative;
   overflow: hidden;
   border-radius: 19px;
-  background: #fff;
-  border: 2px solid #fff;
+  background: white;
+  border: 2px solid white;
   box-shadow: 0 4px 0 #cddff1;
   margin-bottom: 17px;
 }
@@ -463,14 +532,14 @@ h1,h2,h3,p {
 }
 
 .school-name {
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .school-en {
-  font-size: 8px;
-  letter-spacing: 1.4px;
-  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 1.3px;
+  margin-top: 3px;
 }
 
 .student-body {
@@ -478,9 +547,7 @@ h1,h2,h3,p {
   align-items: center;
   gap: 15px;
   padding: 15px;
-  background: linear-gradient(
-    125deg,#fff,#edf6ff
-  );
+  background: linear-gradient(125deg,#fff,#edf6ff);
 }
 
 .student-picture .photo {
@@ -497,29 +564,28 @@ h1,h2,h3,p {
 }
 
 .student-label {
-  font-size: 9px;
+  font-size: 11px;
   color: #8da9c5;
   letter-spacing: 1px;
-  font-weight: 700;
 }
 
 .student-name {
-  font-size: 21px;
-  font-weight: 900;
+  font-size: 24px;
+  font-weight: 700;
   color: #537eae;
-  margin: 5px 0 2px;
+  margin: 4px 0 2px;
 }
 
 .student-en {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   color: #94a9be;
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 }
 
 .parent-row {
-  font-size: 12px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .student-footer {
@@ -528,7 +594,7 @@ h1,h2,h3,p {
   justify-content: space-between;
   padding: 9px 15px;
   background: #e1effe;
-  font-size: 10px;
+  font-size: 11px;
   color: #7795b6;
 }
 
@@ -548,9 +614,8 @@ h1,h2,h3,p {
   );
 }
 
-
 /* ========================================
-   7. GAME HEADER & SCORE
+   11. GAME HEADER
 ======================================== */
 
 .game-header {
@@ -566,16 +631,20 @@ h1,h2,h3,p {
 }
 
 .game-title {
-  font-size: 20px;
-  font-weight: 900;
+  font-size: 22px;
+  font-weight: 700;
   color: #557eab;
 }
 
 .game-player {
-  font-size: 11px;
+  font-size: 13px;
   color: #92a7bf;
   margin-top: 4px;
 }
+
+/* ========================================
+   12. SCORE
+======================================== */
 
 .score-grid {
   display: grid;
@@ -585,6 +654,7 @@ h1,h2,h3,p {
 }
 
 .score-card {
+  position: relative;
   padding: 11px 5px;
   background: white;
   border-radius: 15px;
@@ -597,20 +667,19 @@ h1,h2,h3,p {
 }
 
 .score-label {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
   color: #7893af;
 }
 
 .score-value {
-  font-size: 23px;
-  font-weight: 900;
-  margin-top: 5px;
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 4px;
   font-variant-numeric: tabular-nums;
 }
 
 .score-champion-name {
-  font-size: 9px;
+  font-size: 10px;
   margin-top: 3px;
   color: #8fa4bb;
   overflow: hidden;
@@ -626,9 +695,31 @@ h1,h2,h3,p {
   50% { transform: scale(1.12); }
 }
 
+.score-floating {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 10;
+  color: #477cae;
+  font-size: 20px;
+  font-weight: 700;
+  pointer-events: none;
+  animation: scoreFloat 650ms ease-out forwards;
+}
+
+@keyframes scoreFloat {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-38px);
+    opacity: 0;
+  }
+}
 
 /* ========================================
-   8. SMOOTH GAME BOARD
+   13. GAME BOARD
 ======================================== */
 
 .board {
@@ -636,7 +727,7 @@ h1,h2,h3,p {
   width: 100%;
   aspect-ratio: 1;
   background: var(--theme);
-  border: 3px solid #ffffff;
+  border: 3px solid white;
   border-radius: 23px;
   box-shadow: 0 5px 0 #a7c4df;
   overflow: hidden;
@@ -702,12 +793,11 @@ h1,h2,h3,p {
   bottom: 3px;
   right: 3px;
   border-radius: 7px;
-  padding: 3px 5px;
+  padding: 3px 6px;
   background: #ffffffdf;
   color: #415b78;
-  font-size: clamp(10px,3vw,14px);
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .tile-face.spawn {
@@ -755,19 +845,18 @@ h1,h2,h3,p {
 }
 
 .game-message-title {
-  font-size: 25px;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 700;
   color: #567fae;
 }
 
 .game-message-text {
-  font-size: 13px;
+  font-size: 15px;
   margin: 10px 0 18px;
 }
 
-
 /* ========================================
-   9. MASCOT CLINGING BUTTONS
+   14. MASCOT BUTTONS
 ======================================== */
 
 .game-actions {
@@ -795,9 +884,7 @@ h1,h2,h3,p {
   align-items: center;
   gap: 5px;
   overflow: visible;
-  transition:
-    transform 90ms ease,
-    box-shadow 90ms ease;
+  transition: transform 90ms,box-shadow 90ms;
 }
 
 .cute-undo {
@@ -824,8 +911,8 @@ h1,h2,h3,p {
 }
 
 .cute-btn span {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   pointer-events: none;
 }
 
@@ -908,8 +995,8 @@ h1,h2,h3,p {
 }
 
 @keyframes bubbleFloat {
-  0% { opacity: .5; }
-  100% {
+  from { opacity: .5; }
+  to {
     opacity: 0;
     transform: translateY(-15px);
   }
@@ -933,16 +1020,15 @@ h1,h2,h3,p {
 }
 
 .instructions {
-  font-size: 11px;
+  font-size: 13px;
   text-align: center;
   color: #92a6bb;
   line-height: 1.8;
   padding: 6px 0;
 }
 
-
 /* ========================================
-   10. RANKING
+   15. RANKING
 ======================================== */
 
 .filter-row {
@@ -958,8 +1044,7 @@ h1,h2,h3,p {
   padding: 9px 14px;
   border-radius: 20px;
   background: white;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 14px;
 }
 
 .filter-chip.active {
@@ -988,8 +1073,8 @@ h1,h2,h3,p {
 .rank-number {
   width: 25px;
   text-align: center;
-  font-size: 17px;
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
   color: #89a7c7;
 }
 
@@ -1009,20 +1094,20 @@ h1,h2,h3,p {
 }
 
 .rank-name {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .rank-mascot {
-  font-size: 10px;
+  font-size: 12px;
   color: #95a7ba;
   margin-top: 5px;
 }
 
 .rank-score {
-  font-size: 17px;
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
   color: #608ab7;
 }
 
@@ -1030,14 +1115,13 @@ h1,h2,h3,p {
   padding: 30px 15px;
   text-align: center;
   color: #99adc1;
-  font-size: 13px;
+  font-size: 15px;
   background: white;
   border-radius: 20px;
 }
 
-
 /* ========================================
-   11. PROFILE
+   16. PROFILE
 ======================================== */
 
 .profile-card {
@@ -1062,12 +1146,12 @@ h1,h2,h3,p {
 }
 
 .profile-name {
-  font-size: 22px;
-  font-weight: 900;
+  font-size: 25px;
+  font-weight: 700;
 }
 
 .profile-label {
-  font-size: 11px;
+  font-size: 13px;
   color: #9aacc0;
   margin-top: 6px;
 }
@@ -1078,8 +1162,7 @@ h1,h2,h3,p {
   border-radius: 14px;
   background: #dcecff;
   color: #638ab4;
-  font-weight: 800;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .profile-stat {
@@ -1096,8 +1179,7 @@ h1,h2,h3,p {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 15px;
 }
 
 .profile-stat .photo {
@@ -1107,14 +1189,23 @@ h1,h2,h3,p {
 }
 
 .profile-stat-score {
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 19px;
+  font-weight: 700;
   color: #7098c4;
 }
 
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 14px;
+  border-radius: 15px;
+  margin-top: 15px;
+}
 
 /* ========================================
-   12. COLLECTION
+   17. COLLECTION
 ======================================== */
 
 .collection-grid {
@@ -1136,13 +1227,12 @@ h1,h2,h3,p {
 }
 
 .collection-item.locked .photo {
-  filter: grayscale(1);
-  opacity: .35;
+  opacity: .5;
 }
 
 .collection-number {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
   margin: 7px 0 3px;
 }
 
@@ -1160,9 +1250,8 @@ h1,h2,h3,p {
   background: #8db8e7;
 }
 
-
 /* ========================================
-   13. BOTTOM NAVIGATION
+   18. BOTTOM NAVIGATION
 ======================================== */
 
 .bottom-nav {
@@ -1188,8 +1277,7 @@ h1,h2,h3,p {
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
 }
 
 .nav-button svg {
@@ -1201,9 +1289,8 @@ h1,h2,h3,p {
   color: #6797ca;
 }
 
-
 /* ========================================
-   14. MODALS
+   19. MODALS
 ======================================== */
 
 .modal {
@@ -1244,14 +1331,14 @@ h1,h2,h3,p {
 
 .modal-title {
   text-align: center;
-  font-size: 20px;
-  font-weight: 900;
+  font-size: 23px;
+  font-weight: 700;
   color: #6088b6;
 }
 
 .modal-text {
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
   color: #8a9fb6;
   margin: 12px 0 17px;
@@ -1305,8 +1392,9 @@ h1,h2,h3,p {
 }
 
 .avatar-option-name {
-  font-size: 9px;
+  font-size: 11px;
   margin-top: 5px;
+  overflow-wrap: anywhere;
 }
 
 .modal-actions {
@@ -1319,8 +1407,8 @@ h1,h2,h3,p {
 .secondary-btn {
   border-radius: 15px;
   padding: 13px 10px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .primary-btn {
@@ -1334,19 +1422,32 @@ h1,h2,h3,p {
   color: #7795b5;
 }
 
-.full-width {
-  width: 100%;
-}
-
-
 /* ========================================
-   15. RESPONSIVE
+   20. RESPONSIVE
 ======================================== */
 
-@media(max-width:360px) {
+@media(max-width:380px) {
   #app {
     padding-left: 10px;
     padding-right: 10px;
+  }
+
+  .brand-title {
+    font-size: 23px;
+  }
+
+  .header-tools {
+    gap: 4px;
+  }
+
+  .language-button {
+    width: 24px;
+    height: 26px;
+  }
+
+  .avatar-button {
+    width: 39px;
+    height: 39px;
   }
 
   .mascot-grid {
@@ -1354,11 +1455,11 @@ h1,h2,h3,p {
   }
 
   .mascot-name {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .record-score {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .game-actions {
@@ -1366,7 +1467,7 @@ h1,h2,h3,p {
   }
 
   .cute-btn span {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .student-picture .photo {
@@ -1375,11 +1476,28 @@ h1,h2,h3,p {
   }
 }
 
+html[lang="en"] .record-label {
+  font-size: 10px;
+}
+
+html[lang="en"] .mascot-name {
+  font-size: 12px;
+}
+
+html[lang="en"] .score-label {
+  font-size: 11px;
+}
+
 @media(prefers-reduced-motion:reduce) {
   .mascot-decoration *,
   .page,
-  .modal-card {
+  .modal-card,
+  .tile-face {
     animation: none !important;
+  }
+
+  .tile {
+    transition-duration: 0ms;
   }
 }
 
@@ -1390,9 +1508,7 @@ h1,h2,h3,p {
 
 <div id="app">
 
-<!-- =====================================
-     HOME PAGE
-===================================== -->
+<!-- HOME -->
 
 <section id="homePage" class="page active">
 
@@ -1407,15 +1523,35 @@ h1,h2,h3,p {
         MASCOT 2048
       </h1>
 
-      <div class="brand-subtitle">
-        โรงเรียนอนุบาลสีฟ้า
+      <div class="brand-subtitle"
+        data-i18n="school">
       </div>
     </div>
 
-    <button class="avatar-button"
-      id="homeAvatar"
-      onclick="showPage('profile')">
-    </button>
+    <div class="header-tools">
+
+      <div class="language-switch">
+
+        <button class="language-button"
+          data-language="th"
+          onclick="setLanguage('th')">
+          TH
+        </button>
+
+        <button class="language-button"
+          data-language="en"
+          onclick="setLanguage('en')">
+          EN
+        </button>
+
+      </div>
+
+      <button id="homeAvatar"
+        class="avatar-button"
+        onclick="showPage('profile')">
+      </button>
+
+    </div>
 
   </header>
 
@@ -1450,12 +1586,10 @@ h1,h2,h3,p {
 
         <div id="worldName"
           class="world-name">
-          ยังไม่มีแชมป์
         </div>
 
         <div id="worldMascot"
           class="world-mascot">
-          มาเริ่มเล่นกันเลย
         </div>
 
         <div id="worldScore"
@@ -1471,14 +1605,14 @@ h1,h2,h3,p {
 
     </div>
 
-    <div class="world-caption">
-      คะแนนสูงสุดจากหลานทุกคน · ภายในเครื่อง
+    <div class="world-caption"
+      data-i18n="worldCaption">
     </div>
 
   </div>
 
-  <h2 class="section-title">
-    เลือกหลานที่อยากเล่น
+  <h2 class="section-title"
+    data-i18n="chooseMascot">
   </h2>
 
   <div class="search-box">
@@ -1493,9 +1627,8 @@ h1,h2,h3,p {
 
     </svg>
 
-    <input
-      id="mascotSearch"
-      placeholder="ค้นหาชื่อหลาน"
+    <input id="mascotSearch"
+      data-placeholder="searchMascot"
       autocomplete="off"
       oninput="renderHome()">
 
@@ -1505,12 +1638,43 @@ h1,h2,h3,p {
     class="mascot-grid">
   </div>
 
+  <footer class="designer-credit">
+
+    <svg class="credit-decoration"
+      viewBox="0 0 100 26">
+
+      <path d="M4 13H34M66 13H96"
+        stroke="#b5cce4"/>
+
+      <circle cx="30" cy="13"
+        r="2" fill="#b5cce4"/>
+
+      <circle cx="70" cy="13"
+        r="2" fill="#b5cce4"/>
+
+      <path d="M50 23
+        C44 18 36 13 39 7
+        Q44 0 50 8
+        Q56 0 61 7
+        C64 13 56 18 50 23Z"
+        fill="#eabacb"/>
+
+    </svg>
+
+    <div class="credit-name"
+      data-i18n="designer">
+    </div>
+
+    <div class="credit-copyright">
+      © 2026 MASCOT 2048
+    </div>
+
+  </footer>
+
 </section>
 
 
-<!-- =====================================
-     GAME PAGE
-===================================== -->
+<!-- GAME -->
 
 <section id="gamePage" class="page">
 
@@ -1557,10 +1721,11 @@ h1,h2,h3,p {
 
   <div class="score-grid">
 
-    <div class="score-card current">
+    <div id="currentScoreCard"
+      class="score-card current">
 
-      <div class="score-label">
-        คะแนน
+      <div class="score-label"
+        data-i18n="score">
       </div>
 
       <div id="currentScore"
@@ -1572,8 +1737,8 @@ h1,h2,h3,p {
 
     <div class="score-card">
 
-      <div class="score-label">
-        สถิติของเรา
+      <div class="score-label"
+        data-i18n="personalBest">
       </div>
 
       <div id="personalBest"
@@ -1585,8 +1750,8 @@ h1,h2,h3,p {
 
     <div class="score-card">
 
-      <div class="score-label">
-        แชมป์ของหลาน
+      <div class="score-label"
+        data-i18n="mascotChampion">
       </div>
 
       <div id="mascotBest"
@@ -1603,16 +1768,16 @@ h1,h2,h3,p {
 
   </div>
 
-  <div class="board" id="board">
+  <div id="board" class="board">
 
     <div class="board-inner">
 
-      <div class="board-grid"
-        id="boardGrid">
+      <div id="boardGrid"
+        class="board-grid">
       </div>
 
-      <div class="tile-layer"
-        id="tileLayer">
+      <div id="tileLayer"
+        class="tile-layer">
       </div>
 
     </div>
@@ -1631,8 +1796,8 @@ h1,h2,h3,p {
         </div>
 
         <button class="primary-btn"
-          onclick="newGame()">
-          เล่นอีกครั้ง
+          onclick="newGame()"
+          data-i18n="playAgain">
         </button>
 
       </div>
@@ -1641,13 +1806,10 @@ h1,h2,h3,p {
 
   </div>
 
-  <!-- ปุ่มตุ๊กตาเกาะขอบ -->
+  <div id="mascotActions"
+    class="game-actions">
 
-  <div class="game-actions"
-    id="mascotActions">
-
-    <button
-      id="undoBtn"
+    <button id="undoBtn"
       class="cute-btn cute-undo"
       onclick="undoMove()">
 
@@ -1668,12 +1830,11 @@ h1,h2,h3,p {
 
       </svg>
 
-      <span>ย้อนกลับ</span>
+      <span data-i18n="undo"></span>
 
     </button>
 
-    <button
-      id="restartBtn"
+    <button id="restartBtn"
       class="cute-btn cute-restart"
       onclick="restartGame()">
 
@@ -1694,11 +1855,11 @@ h1,h2,h3,p {
 
       </svg>
 
-      <span>เริ่มใหม่</span>
+      <span data-i18n="restart"></span>
 
     </button>
 
-    <button
+    <button id="rankingBtn"
       class="cute-btn cute-ranking"
       onclick="openMascotRanking()">
 
@@ -1711,8 +1872,7 @@ h1,h2,h3,p {
         fill="none"
         stroke="currentColor"
         stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round">
+        stroke-linecap="round">
 
         <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
         <path d="M7 5H3V8Q3 13 8 13"/>
@@ -1721,24 +1881,26 @@ h1,h2,h3,p {
 
       </svg>
 
-      <span>อันดับ</span>
+      <span data-i18n="ranking"></span>
 
     </button>
 
   </div>
 
   <div class="instructions">
-    ปัดขึ้น ลง ซ้าย หรือขวา เพื่อรวมภาพที่เหมือนกัน
+
+    <span data-i18n="instructions"></span>
+
     <br>
-    ย้อนกลับได้ 1 ครั้งต่อเกม
+
+    <span data-i18n="undoLimit"></span>
+
   </div>
 
 </section>
 
 
-<!-- =====================================
-     RANKING PAGE
-===================================== -->
+<!-- RANKING -->
 
 <section id="rankingPage" class="page">
 
@@ -1764,10 +1926,10 @@ h1,h2,h3,p {
         LEADERBOARD
       </div>
 
-      <h2>อันดับคุณอุนยาย</h2>
+      <h2 data-i18n="grandmaRanking"></h2>
 
-      <div class="brand-subtitle">
-        สถิติภายในเครื่อง
+      <div class="brand-subtitle"
+        data-i18n="localRanking">
       </div>
 
     </div>
@@ -1785,9 +1947,7 @@ h1,h2,h3,p {
 </section>
 
 
-<!-- =====================================
-     COLLECTION PAGE
-===================================== -->
+<!-- COLLECTION -->
 
 <section id="collectionPage" class="page">
 
@@ -1799,10 +1959,10 @@ h1,h2,h3,p {
         MASCOT COLLECTION
       </div>
 
-      <h2>อัลบั้มหลาน</h2>
+      <h2 data-i18n="mascotCollection"></h2>
 
-      <div class="brand-subtitle">
-        สะสมภาพจากการรวมช่อง
+      <div class="brand-subtitle"
+        data-i18n="collectionHint">
       </div>
 
     </div>
@@ -1822,9 +1982,7 @@ h1,h2,h3,p {
 </section>
 
 
-<!-- =====================================
-     PROFILE PAGE
-===================================== -->
+<!-- PROFILE -->
 
 <section id="profilePage" class="page">
 
@@ -1836,7 +1994,7 @@ h1,h2,h3,p {
         MY PROFILE
       </div>
 
-      <h2>คุณอุนยาย</h2>
+      <h2 data-i18n="grandma"></h2>
 
     </div>
 
@@ -1852,31 +2010,63 @@ h1,h2,h3,p {
       class="profile-name">
     </div>
 
-    <div class="profile-label">
-      คุณอุนยายแห่งโรงเรียนอนุบาลสีฟ้า
+    <div class="profile-label"
+      data-i18n="profileSubtitle">
     </div>
 
     <button class="profile-edit"
-      onclick="openProfileModal()">
-      แก้ไขชื่อและรูปโปรไฟล์
+      onclick="openProfileModal()"
+      data-i18n="editProfile">
     </button>
 
   </div>
 
-  <h2 class="section-title">
-    สถิติของฉัน
+  <div class="settings-row">
+
+    <span data-i18n="language"></span>
+
+    <div class="language-switch">
+
+      <button class="language-button"
+        data-language="th"
+        onclick="setLanguage('th')">
+        TH
+      </button>
+
+      <button class="language-button"
+        data-language="en"
+        onclick="setLanguage('en')">
+        EN
+      </button>
+
+    </div>
+
+  </div>
+
+  <h2 class="section-title"
+    data-i18n="myRecords">
   </h2>
 
   <div id="profileStats"></div>
+
+  <footer class="designer-credit">
+
+    <div class="credit-name"
+      data-i18n="designer">
+    </div>
+
+    <div class="credit-copyright">
+      © 2026 MASCOT 2048
+    </div>
+
+  </footer>
 
 </section>
 
 </div>
 
 
-<!-- =====================================
-     BOTTOM NAVIGATION
-===================================== -->
+<!-- BOTTOM NAV -->
 
 <nav id="bottomNav" class="bottom-nav">
 
@@ -1894,7 +2084,7 @@ h1,h2,h3,p {
 
     </svg>
 
-    หน้าหลัก
+    <span data-i18n="home"></span>
 
   </button>
 
@@ -1905,8 +2095,7 @@ h1,h2,h3,p {
     <svg viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.9"
-      stroke-linecap="round">
+      stroke-width="1.9">
 
       <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
       <path d="M7 5H3V8Q3 13 8 13"/>
@@ -1915,7 +2104,7 @@ h1,h2,h3,p {
 
     </svg>
 
-    อันดับ
+    <span data-i18n="ranking"></span>
 
   </button>
 
@@ -1926,8 +2115,7 @@ h1,h2,h3,p {
     <svg viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.9"
-      stroke-linejoin="round">
+      stroke-width="1.9">
 
       <rect x="3" y="3"
         width="18" height="18" rx="4"/>
@@ -1938,7 +2126,7 @@ h1,h2,h3,p {
 
     </svg>
 
-    อัลบั้ม
+    <span data-i18n="collection"></span>
 
   </button>
 
@@ -1957,36 +2145,32 @@ h1,h2,h3,p {
 
     </svg>
 
-    โปรไฟล์
+    <span data-i18n="profile"></span>
 
   </button>
 
 </nav>
 
 
-<!-- =====================================
-     PROFILE MODAL
-===================================== -->
+<!-- PROFILE MODAL -->
 
 <div id="profileModal"
   class="modal hidden">
 
   <div class="modal-card">
 
-    <div class="modal-title">
-      คุณอุนยายชื่ออะไรคะ?
+    <div class="modal-title"
+      data-i18n="askName">
     </div>
 
-    <div class="modal-text">
-      ตั้งชื่อและเลือกภาพหลานที่ชอบ
-      <br>
-      สำหรับแสดงบนตารางอันดับ
+    <div class="modal-text"
+      data-i18n="profileHint">
     </div>
 
     <input id="playerNameInput"
       class="name-input"
       maxlength="24"
-      placeholder="ชื่อคุณอุนยาย"
+      data-placeholder="yourName"
       autocomplete="off">
 
     <div id="avatarOptions"
@@ -1996,13 +2180,13 @@ h1,h2,h3,p {
     <div class="modal-actions">
 
       <button class="secondary-btn"
-        onclick="closeModal('profileModal')">
-        ยกเลิก
+        onclick="cancelProfile()"
+        data-i18n="cancel">
       </button>
 
       <button class="primary-btn"
-        onclick="saveProfile()">
-        บันทึก
+        onclick="saveProfile()"
+        data-i18n="save">
       </button>
 
     </div>
@@ -2012,9 +2196,7 @@ h1,h2,h3,p {
 </div>
 
 
-<!-- =====================================
-     RESTART MODAL
-===================================== -->
+<!-- RESTART MODAL -->
 
 <div id="restartModal"
   class="modal hidden">
@@ -2025,28 +2207,24 @@ h1,h2,h3,p {
       class="modal-decoration">
     </div>
 
-    <div class="modal-title">
-      เริ่มเล่นใหม่ไหมคะ?
+    <div class="modal-title"
+      data-i18n="restartTitle">
     </div>
 
-    <div class="modal-text">
-      คะแนนรอบนี้จะเริ่มใหม่
-      <br>
-      แต่สถิติสูงสุดและภาพสะสม
-      <br>
-      ของคุณอุนยายจะยังอยู่เหมือนเดิม
+    <div class="modal-text"
+      data-i18n="restartHint">
     </div>
 
     <div class="modal-actions">
 
       <button class="secondary-btn"
-        onclick="closeModal('restartModal')">
-        เล่นต่อก่อน
+        onclick="closeModal('restartModal')"
+        data-i18n="keepPlaying">
       </button>
 
       <button class="primary-btn"
-        onclick="confirmRestart()">
-        เริ่มใหม่เลย
+        onclick="confirmRestart()"
+        data-i18n="newGame">
       </button>
 
     </div>
@@ -2056,14 +2234,295 @@ h1,h2,h3,p {
 </div>
 
 
+<!-- MESSAGE MODAL -->
+
+<div id="messageModal"
+  class="modal hidden">
+
+  <div class="modal-card">
+
+    <div id="messageDecoration"
+      class="modal-decoration">
+    </div>
+
+    <div id="messageTitle"
+      class="modal-title">
+    </div>
+
+    <div id="messageText"
+      class="modal-text">
+    </div>
+
+    <button class="primary-btn"
+      style="width:100%"
+      onclick="closeModal('messageModal')"
+      data-i18n="continue">
+    </button>
+
+  </div>
+
+</div>
+
+
 <script>
 
 /* ========================================
-   1. MASCOT CONFIGURATION
+   01. LANGUAGE DICTIONARY
+======================================== */
 
-   เพิ่มหลานทั้งหมดในส่วนนี้
-   ข้อมูลหลานอื่นเป็นตัวอย่าง
-   แก้ชื่อและชื่อคุณพ่อคุณแม่ได้
+const LANG = {
+
+  th: {
+
+    school: "โรงเรียนอนุบาลสีฟ้า",
+
+    worldCaption:
+      "คะแนนสูงสุดจากหลานทุกคน · ภายในเครื่อง",
+
+    chooseMascot: "เลือกหลานที่อยากเล่น",
+    searchMascot: "ค้นหาชื่อหลาน",
+
+    noChampion: "ยังไม่มีแชมป์",
+    startPlaying: "มาเริ่มเล่นกันเลย",
+
+    mascotChampion: "แชมป์ของหลาน",
+
+    playingWith: "เล่นกับ",
+    grandma: "คุณอุนยาย",
+
+    score: "คะแนน",
+    personalBest: "สถิติของเรา",
+
+    undo: "ย้อนกลับ",
+    restart: "เริ่มใหม่",
+    ranking: "อันดับ",
+
+    home: "หน้าหลัก",
+    collection: "อัลบั้ม",
+    profile: "โปรไฟล์",
+
+    grandmaRanking: "อันดับคุณอุนยาย",
+    localRanking: "สถิติภายในเครื่อง",
+
+    all: "ทั้งหมด",
+    noScores: "ยังไม่มีคะแนน",
+
+    firstChampion:
+      "มาเป็นแชมป์คนแรกกันนะ",
+
+    mascotCollection: "อัลบั้มหลาน",
+
+    collectionHint:
+      "สะสมภาพจากการรวมช่อง",
+
+    collected: "สะสมแล้ว",
+    photos: "ภาพ",
+
+    profileSubtitle:
+      "คุณอุนยายแห่งโรงเรียนอนุบาลสีฟ้า",
+
+    editProfile:
+      "แก้ไขชื่อและรูปโปรไฟล์",
+
+    myRecords: "สถิติของฉัน",
+
+    language: "ภาษา",
+
+    askName: "คุณอุนยายชื่ออะไรคะ?",
+
+    profileHint:
+      "ตั้งชื่อและเลือกภาพหลานที่ชอบ สำหรับแสดงบนตารางอันดับ",
+
+    yourName: "ชื่อคุณอุนยาย",
+
+    cancel: "ยกเลิก",
+    save: "บันทึก",
+
+    restartTitle:
+      "เริ่มเล่นใหม่ไหมคะ?",
+
+    restartHint:
+      "คะแนนรอบนี้จะเริ่มใหม่ แต่สถิติสูงสุดและภาพสะสมของคุณอุนยายจะยังอยู่เหมือนเดิม",
+
+    keepPlaying: "เล่นต่อก่อน",
+    newGame: "เริ่มใหม่เลย",
+    playAgain: "เล่นอีกครั้ง",
+
+    gameOver:
+      "เก่งมากเลยคุณอุนยาย!",
+
+    finalScore: "คะแนนรอบนี้",
+
+    instructions:
+      "ปัดขึ้น ลง ซ้าย หรือขวา เพื่อรวมภาพที่เหมือนกัน",
+
+    undoLimit:
+      "ย้อนกลับได้ 1 ครั้งต่อเกม",
+
+    noParents:
+      "ยังไม่ได้ระบุข้อมูลผู้ปกครอง",
+
+    studentCard: "บัตรประจำตัวนักเรียน",
+
+    studentNo: "เลขประจำตัวนักเรียน",
+
+    designer: "ออกแบบโดย ปังปุง",
+
+    winTitle: "คุณอุนยายทำได้แล้ว!",
+
+    winText:
+      "ปลดล็อกภาพระดับ 2048 สำเร็จ เล่นต่อเพื่อทำคะแนนสูงขึ้นได้เลย",
+
+    continue: "เล่นต่อ",
+
+    noResults: "ไม่พบหลานที่ค้นหา"
+
+  },
+
+  en: {
+
+    school: "Blue Kindergarten",
+
+    worldCaption:
+      "Highest score across all mascots · Local",
+
+    chooseMascot: "Choose your mascot",
+    searchMascot: "Search mascots",
+
+    noChampion: "No champion yet",
+    startPlaying: "Let's start playing!",
+
+    mascotChampion: "Mascot Champion",
+
+    playingWith: "Playing with",
+    grandma: "Grandma",
+
+    score: "Score",
+    personalBest: "Personal Best",
+
+    undo: "Undo",
+    restart: "Restart",
+    ranking: "Ranking",
+
+    home: "Home",
+    collection: "Collection",
+    profile: "Profile",
+
+    grandmaRanking: "Grandma Rankings",
+    localRanking: "Local Leaderboard",
+
+    all: "All",
+    noScores: "No scores yet",
+
+    firstChampion:
+      "Become the first champion!",
+
+    mascotCollection: "Mascot Collection",
+
+    collectionHint:
+      "Collect photos by merging tiles",
+
+    collected: "Collected",
+    photos: "photos",
+
+    profileSubtitle:
+      "Grandma of Blue Kindergarten",
+
+    editProfile:
+      "Edit name and avatar",
+
+    myRecords: "My Records",
+
+    language: "Language",
+
+    askName: "What's your name, Grandma?",
+
+    profileHint:
+      "Enter your name and choose your favorite mascot as your leaderboard avatar.",
+
+    yourName: "Your name",
+
+    cancel: "Cancel",
+    save: "Save",
+
+    restartTitle:
+      "Start a new game?",
+
+    restartHint:
+      "Your current score will reset, but your high scores and photo collection will be kept.",
+
+    keepPlaying: "Keep Playing",
+    newGame: "New Game",
+    playAgain: "Play Again",
+
+    gameOver: "Great job, Grandma!",
+
+    finalScore: "Final score",
+
+    instructions:
+      "Swipe up, down, left or right to merge matching tiles.",
+
+    undoLimit: "One undo per game.",
+
+    noParents:
+      "Parent information unavailable",
+
+    studentCard: "Student ID Card",
+
+    studentNo: "Student No.",
+
+    designer: "Designed by Pangpung",
+
+    winTitle: "You did it, Grandma!",
+
+    winText:
+      "You've unlocked the 2048 photo! Keep playing to reach a higher score.",
+
+    continue: "Continue",
+
+    noResults: "No matching mascots"
+
+  }
+
+};
+
+const LANGUAGE_KEY = "mascot2048_language";
+
+let currentLanguage = "th";
+
+try {
+
+  const storedLanguage =
+    localStorage.getItem(LANGUAGE_KEY);
+
+  if (storedLanguage === "th"
+    || storedLanguage === "en") {
+
+    currentLanguage = storedLanguage;
+
+  } else {
+
+    currentLanguage =
+      navigator.language.toLowerCase()
+        .startsWith("th")
+        ? "th"
+        : "en";
+
+  }
+
+} catch(error) {}
+
+function t(key) {
+
+  return LANG[currentLanguage][key]
+    || LANG.th[key]
+    || key;
+
+}
+
+
+/* ========================================
+   02. MASCOT CONFIGURATION
 ======================================== */
 
 const MASCOTS = [
@@ -2071,13 +2530,26 @@ const MASCOTS = [
   {
     id: "polcasan",
     name: "โพก้าซัง",
-    en: "POLCASAN",
+    en: "Polcasan",
     color: "#a8d4f5",
     studentId: "001",
 
     parents: [
-      { role: "ปะป๊า", name: "เต ตะวัน" },
-      { role: "พ่อพ่อ", name: "นิว ฐิติภูมิ" }
+
+      {
+        role: "ปะป๊า",
+        roleEn: "Papa",
+        name: "เต ตะวัน",
+        nameEn: "Tay Tawan"
+      },
+
+      {
+        role: "พ่อพ่อ",
+        roleEn: "Daddy",
+        name: "นิว ฐิติภูมิ",
+        nameEn: "New Thitipoom"
+      }
+
     ],
 
     decorations: [
@@ -2085,12 +2557,13 @@ const MASCOTS = [
       "orca",
       "whaleTail"
     ]
+
   },
 
   {
     id: "permpoon",
     name: "เพิ่มพูน",
-    en: "PERMPOON",
+    en: "Permpoon",
     color: "#f4c6d7",
     studentId: "002",
     parents: [],
@@ -2100,7 +2573,7 @@ const MASCOTS = [
   {
     id: "jummo",
     name: "จัมโม่",
-    en: "JUMMO",
+    en: "Jummo",
     color: "#f5d7ac",
     studentId: "003",
     parents: [],
@@ -2110,7 +2583,7 @@ const MASCOTS = [
   {
     id: "babii",
     name: "เบบี๋",
-    en: "BABII",
+    en: "Babii",
     color: "#c7dcb8",
     studentId: "004",
     parents: [],
@@ -2120,7 +2593,7 @@ const MASCOTS = [
   {
     id: "lookkhunnoo",
     name: "ลูกคุณหนู",
-    en: "LOOKKHUNNOO",
+    en: "Lookkhunnoo",
     color: "#d9c8ef",
     studentId: "005",
     parents: [],
@@ -2130,7 +2603,7 @@ const MASCOTS = [
   {
     id: "samruay",
     name: "สำรวย",
-    en: "SAMRUAY",
+    en: "Samruay",
     color: "#f5e0a9",
     studentId: "006",
     parents: [],
@@ -2147,20 +2620,17 @@ const LEVELS = [
 const SAVE_KEY = "mascot2048_v1";
 
 const SLIDE_MS = 110;
-const MERGE_MS = 140;
-const SPAWN_MS = 120;
+
 const MAX_QUEUE = 2;
 
 const $ = id => document.getElementById(id);
 
 
 /* ========================================
-   2. MASCOT SVG DECORATIONS
+   03. SVG MASCOT DECORATIONS
 ======================================== */
 
 const DECORATIONS = {
-
-  /* หมีขาวเกาะปุ่ม */
 
   polarBear: `
 
@@ -2169,11 +2639,13 @@ const DECORATIONS = {
     <g class="pet-head">
 
       <circle cx="27" cy="28" r="12"
-        fill="#fff" stroke="#9cb3c7"
+        fill="#fff"
+        stroke="#9cb3c7"
         stroke-width="1.5"/>
 
       <circle cx="73" cy="28" r="12"
-        fill="#fff" stroke="#9cb3c7"
+        fill="#fff"
+        stroke="#9cb3c7"
         stroke-width="1.5"/>
 
       <circle cx="27" cy="28" r="6"
@@ -2226,8 +2698,6 @@ const DECORATIONS = {
 
     </g>
 
-    <!-- อุ้งเท้าพาดขอบปุ่ม -->
-
     <ellipse cx="20" cy="80"
       rx="13" ry="9"
       fill="#fff"
@@ -2240,9 +2710,8 @@ const DECORATIONS = {
       stroke="#9cb3c7"
       stroke-width="1.4"/>
 
-    <path
-      d="M15 81V85M20 82V86M25 81V85
-         M75 81V85M80 82V86M85 81V85"
+    <path d="M15 81V85M20 82V86M25 81V85
+      M75 81V85M80 82V86M85 81V85"
       stroke="#cad6e0"
       stroke-width="1.3"
       stroke-linecap="round"/>
@@ -2250,9 +2719,6 @@ const DECORATIONS = {
   </svg>
 
   `,
-
-
-  /* วาฬออร์กาเกาะปุ่ม */
 
   orca: `
 
@@ -2280,33 +2746,29 @@ const DECORATIONS = {
 
     <g class="pet-body">
 
-      <path
-        d="M43 28Q43 8 57 5Q63 14 66 31Z"
+      <path d="M43 28Q43 8 57 5Q63 14 66 31Z"
         fill="#283642"/>
 
-      <path
-        d="M79 46Q91 49 96 33
-           Q103 30 108 31
-           Q107 45 100 51
-           Q105 55 106 65
-           Q93 63 83 56Z"
+      <path d="M79 46Q91 49 96 33
+        Q103 30 108 31
+        Q107 45 100 51
+        Q105 55 106 65
+        Q93 63 83 56Z"
         fill="#283642"/>
 
-      <path
-        d="M12 51
-           C7 28 30 20 51 22
-           C75 22 89 39 88 55
-           C87 76 64 84 40 79
-           C21 76 10 66 12 51Z"
+      <path d="M12 51
+        C7 28 30 20 51 22
+        C75 22 89 39 88 55
+        C87 76 64 84 40 79
+        C21 76 10 66 12 51Z"
         fill="#283642"
         stroke="#1c2934"
         stroke-width="1.2"/>
 
-      <path
-        d="M13 57Q28 72 48 70
-           Q71 69 86 55
-           C82 76 63 84 40 79
-           Q20 76 13 57Z"
+      <path d="M13 57Q28 72 48 70
+        Q71 69 86 55
+        C82 76 63 84 40 79
+        Q20 76 13 57Z"
         fill="#fff"/>
 
       <ellipse cx="34" cy="41"
@@ -2332,18 +2794,15 @@ const DECORATIONS = {
 
     </g>
 
-    <!-- ครีบพาดขอบปุ่ม -->
-
     <g class="pet-fin">
 
-      <path
-        d="M29 67Q18 77 25 87Q37 91 47 74Z"
+      <path d="M29 67Q18 77 25 87
+        Q37 91 47 74Z"
         fill="#283642"
         stroke="#1c2934"/>
 
-      <path
-        d="M66 68Q82 73 83 83
-           Q80 91 69 86L57 76Z"
+      <path d="M66 68Q82 73 83 83
+        Q80 91 69 86L57 76Z"
         fill="#283642"
         stroke="#1c2934"/>
 
@@ -2353,9 +2812,6 @@ const DECORATIONS = {
 
   `,
 
-
-  /* หางวาฬเกาะปุ่มอันดับ */
-
   whaleTail: `
 
   <svg viewBox="0 0 100 90">
@@ -2363,15 +2819,13 @@ const DECORATIONS = {
     <g class="pet-stars"
       fill="#e7bf68">
 
-      <path
-        d="M17 8Q18 19 29 20
-           Q18 21 17 32
-           Q16 21 5 20Q16 19 17 8Z"/>
+      <path d="M17 8Q18 19 29 20
+        Q18 21 17 32
+        Q16 21 5 20Q16 19 17 8Z"/>
 
-      <path
-        d="M82 4Q83 13 92 14
-           Q83 15 82 24
-           Q81 15 72 14Q81 13 82 4Z"/>
+      <path d="M82 4Q83 13 92 14
+        Q83 15 82 24
+        Q81 15 72 14Q81 13 82 4Z"/>
 
       <circle cx="34" cy="9" r="2.5"/>
       <circle cx="94" cy="47" r="3"/>
@@ -2381,29 +2835,25 @@ const DECORATIONS = {
 
     <g class="pet-tail">
 
-      <path
-        d="M50 49
-           C38 30 19 24 4 26
-           C3 48 17 64 35 65
-           C44 66 47 77 50 89
-           C53 77 56 66 65 65
-           C83 64 97 48 96 26
-           C81 24 62 30 50 49Z"
+      <path d="M50 49
+        C38 30 19 24 4 26
+        C3 48 17 64 35 65
+        C44 66 47 77 50 89
+        C53 77 56 66 65 65
+        C83 64 97 48 96 26
+        C81 24 62 30 50 49Z"
         fill="#354b5c"
         stroke="#fff"
         stroke-width="2"
         stroke-linejoin="round"/>
 
-      <path
-        d="M50 50Q47 66 50 79"
+      <path d="M50 50Q47 66 50 79"
         stroke="#6c8799"
         stroke-width="1.5"
-        fill="none"
-        stroke-linecap="round"/>
+        fill="none"/>
 
-      <path
-        d="M10 32Q28 33 40 46
-           M60 46Q72 33 90 32"
+      <path d="M10 32Q28 33 40 46
+        M60 46Q72 33 90 32"
         stroke="#718b9d"
         stroke-width="2"
         opacity=".5"
@@ -2420,7 +2870,7 @@ const DECORATIONS = {
 
 
 /* ========================================
-   3. HELPERS
+   04. HELPERS
 ======================================== */
 
 function escapeHTML(value) {
@@ -2448,16 +2898,22 @@ function formatScore(value) {
 function getMascot(id) {
 
   return MASCOTS.find(
-    m => m.id === id
+    mascot => mascot.id === id
   ) || MASCOTS[0];
+
+}
+
+function mascotName(mascot) {
+
+  return currentLanguage === "en"
+    ? mascot.en
+    : mascot.name;
 
 }
 
 function clone(value) {
 
-  return JSON.parse(
-    JSON.stringify(value)
-  );
+  return JSON.parse(JSON.stringify(value));
 
 }
 
@@ -2483,19 +2939,39 @@ function imagePath(id,type) {
 
 }
 
+function handleImageError(image) {
+
+  const fallback = image.dataset.fallback;
+
+  if (fallback) {
+
+    image.removeAttribute("data-fallback");
+
+    image.src = fallback;
+
+  } else {
+
+    image.remove();
+
+  }
+
+}
+
 function photoHTML(id,type = "cover") {
 
   const mascot = getMascot(id);
 
   const fallback = typeof type === "number"
+
     ? `<span style="font-size:24px">${type}</span>`
+
     : `<svg viewBox="0 0 64 64">
 
-        <circle cx="15" cy="16" r="10"
-          fill="currentColor"/>
+        <circle cx="15" cy="16"
+          r="10" fill="currentColor"/>
 
-        <circle cx="49" cy="16" r="10"
-          fill="currentColor"/>
+        <circle cx="49" cy="16"
+          r="10" fill="currentColor"/>
 
         <ellipse cx="32" cy="34"
           rx="25" ry="23"
@@ -2518,10 +2994,15 @@ function photoHTML(id,type = "cover") {
 
       </svg>`;
 
+  const fallbackPath =
+    type === "profile" || type === "student"
+      ? imagePath(mascot.id,"cover")
+      : "";
+
   return `
 
     <div class="photo"
-      style="--photo-color:${mascot.color}">
+      style="--photo-color:${masotColor(mascot)}">
 
       <div class="photo-fallback">
         ${fallback}
@@ -2529,10 +3010,11 @@ function photoHTML(id,type = "cover") {
 
       <img
         src="${imagePath(mascot.id,type)}"
+        data-fallback="${fallbackPath}"
         alt=""
         draggable="false"
         decoding="async"
-        onerror="this.remove()">
+        onerror="handleImageError(this)">
 
     </div>
 
@@ -2540,9 +3022,15 @@ function photoHTML(id,type = "cover") {
 
 }
 
+function masotColor(mascot) {
+
+  return mascot.color;
+
+}
+
 
 /* ========================================
-   4. SAVE DATA
+   05. SAVE DATA
 ======================================== */
 
 function loadSave() {
@@ -2566,7 +3054,7 @@ function loadSave() {
 
     if (!old) return defaults;
 
-    return {
+    const result = {
 
       ...defaults,
       ...old,
@@ -2580,6 +3068,23 @@ function loadSave() {
       collections: old.collections || {}
 
     };
+
+    Object.entries(result.games)
+      .forEach(([id,stored]) => {
+
+        const unlocked = new Set([
+
+          ...(result.collections[id] || []),
+
+          ...(stored.unlocked || [])
+
+        ]);
+
+        result.collections[id] = [...unlocked];
+
+      });
+
+    return result;
 
   } catch(error) {
 
@@ -2610,12 +3115,14 @@ function persist() {
 
 
 /* ========================================
-   5. RUNTIME STATE
+   06. RUNTIME STATE
 ======================================== */
 
 let currentPage = "home";
 
 let currentMascot = null;
+
+let pendingMascot = null;
 
 let game = null;
 
@@ -2626,6 +3133,8 @@ let moveQueue = [];
 let gameSession = 0;
 
 let tileCounter = 0;
+
+let queueFrame = null;
 
 let rankingFilter = "all";
 
@@ -2643,7 +3152,101 @@ const buttonTimers = new WeakMap();
 
 
 /* ========================================
-   6. RECORDS & CHAMPIONS
+   07. LANGUAGE SYSTEM
+======================================== */
+
+function applyStaticLanguage() {
+
+  document.documentElement.lang =
+    currentLanguage;
+
+  document.querySelectorAll("[data-i18n]")
+    .forEach(element => {
+
+      element.textContent =
+        t(element.dataset.i18n);
+
+    });
+
+  document.querySelectorAll("[data-placeholder]")
+    .forEach(element => {
+
+      element.placeholder =
+        t(element.dataset.placeholder);
+
+    });
+
+  document.querySelectorAll("[data-language]")
+    .forEach(button => {
+
+      const active =
+        button.dataset.language === currentLanguage;
+
+      button.classList.toggle("active",active);
+
+      button.setAttribute(
+        "aria-pressed",
+        String(active)
+      );
+
+    });
+
+}
+
+function setLanguage(language) {
+
+  if (!["th","en"].includes(language)) return;
+
+  currentLanguage = language;
+
+  try {
+
+    localStorage.setItem(
+      LANGUAGE_KEY,
+      language
+    );
+
+  } catch(error) {}
+
+  applyStaticLanguage();
+
+  renderHome();
+
+  renderRanking();
+
+  renderCollection();
+
+  renderProfile();
+
+  if (currentMascot && game) {
+
+    renderGameHeader();
+
+    renderScores();
+
+    renderGameMessage();
+
+  }
+
+  if (!$("profileModal").classList.contains("hidden")) {
+
+    renderAvatarOptions();
+
+  }
+
+  if (!$("messageModal").classList.contains("hidden")) {
+
+    $("messageTitle").textContent = t("winTitle");
+
+    $("messageText").textContent = t("winText");
+
+  }
+
+}
+
+
+/* ========================================
+   08. RECORDS
 ======================================== */
 
 function getRecords(id = "all") {
@@ -2652,8 +3255,16 @@ function getRecords(id = "all") {
 
     .filter(record =>
 
-      id === "all"
-      || record.mascotId === id
+      Number.isFinite(Number(record.score))
+
+      && MASCOTS.some(
+        mascot => mascot.id === record.mascotId
+      )
+
+      && (
+        id === "all"
+        || record.mascotId === id
+      )
 
     )
 
@@ -2662,6 +3273,7 @@ function getRecords(id = "all") {
     .sort((a,b) =>
 
       Number(b.score) - Number(a.score)
+
       || Number(a.date || 0)
       - Number(b.date || 0)
 
@@ -2685,6 +3297,14 @@ function getPersonalBest(id) {
 
 }
 
+function recordName(record) {
+
+  return record?.playerName
+    || record?.name
+    || t("grandma");
+
+}
+
 function updateRecord() {
 
   if (!game || !currentMascot) return;
@@ -2695,21 +3315,21 @@ function updateRecord() {
 
     record =>
       record.playerId === save.playerId
+
       && record.mascotId === currentMascot.id
 
   );
 
   if (existing) {
 
-    existing.playerName =
-      save.playerName || "คุณอุนยาย";
+    existing.playerName = save.playerName;
 
-    existing.avatarMascot =
-      save.avatarMascot;
+    existing.avatarMascot = save.avatarMascot;
 
     if (game.score > existing.score) {
 
       existing.score = game.score;
+
       existing.date = Date.now();
 
     }
@@ -2720,8 +3340,7 @@ function updateRecord() {
 
       playerId: save.playerId,
 
-      playerName:
-        save.playerName || "คุณอุนยาย",
+      playerName: save.playerName,
 
       avatarMascot: save.avatarMascot,
 
@@ -2737,24 +3356,31 @@ function updateRecord() {
 
 }
 
-function recordName(record) {
 
-  return record?.playerName
-    || record?.name
-    || "คุณอุนยาย";
+/* ========================================
+   09. NAVIGATION
+======================================== */
+
+function clearQueue() {
+
+  moveQueue = [];
+
+  if (queueFrame !== null) {
+
+    cancelAnimationFrame(queueFrame);
+
+    queueFrame = null;
+
+  }
 
 }
 
-
-/* ========================================
-   7. PAGE NAVIGATION
-======================================== */
-
 function showPage(page) {
 
-  if (currentPage === "game" && page !== "game") {
+  if (currentPage === "game"
+    && page !== "game") {
 
-    moveQueue = [];
+    clearQueue();
 
     saveGame();
 
@@ -2776,15 +3402,8 @@ function showPage(page) {
     .forEach(button => {
 
       button.classList.toggle(
-
         "active",
-
         button.dataset.page === page
-        || (
-          page === "game"
-          && button.dataset.page === "home"
-        )
-
       );
 
     });
@@ -2808,17 +3427,14 @@ function showPage(page) {
 
 
 /* ========================================
-   8. HOME PAGE
+   10. HOME
 ======================================== */
 
 function renderHome() {
 
   $("homeAvatar").innerHTML =
 
-    photoHTML(
-      save.avatarMascot,
-      "profile"
-    );
+    photoHTML(save.avatarMascot,"profile");
 
   const champion = getChampion();
 
@@ -2826,14 +3442,14 @@ function renderHome() {
 
     ? recordName(champion)
 
-    : "ยังไม่มีแชมป์";
+    : t("noChampion");
 
   $("worldMascot").textContent = champion
 
-    ? "เล่นกับ "
-      + getMascot(champion.mascotId).name
+    ? t("playingWith") + " "
+      + mascotName(getMascot(champion.mascotId))
 
-    : "มาเริ่มเล่นกันเลย";
+    : t("startPlaying");
 
   $("worldScore").textContent =
 
@@ -2851,13 +3467,11 @@ function renderHome() {
 
     );
 
-  $("worldMascotPhoto").innerHTML =
+  $("worldMascotPhoto").innerHTML = champion
 
-    champion
+    ? photoHTML(champion.mascotId,"cover")
 
-      ? photoHTML(champion.mascotId,"cover")
-
-      : "";
+    : "";
 
   const query = $("mascotSearch").value
     .trim()
@@ -2873,20 +3487,41 @@ function renderHome() {
 
   );
 
-  $("mascotGrid").innerHTML = sorted
+  const filtered = sorted
 
     .map((mascot,index) => ({
+
       mascot,
       rank:index + 1
+
     }))
 
     .filter(({mascot}) =>
 
-      (mascot.name + mascot.en)
+      (mascot.name + " " + mascot.en)
         .toLowerCase()
         .includes(query)
 
-    )
+    );
+
+  if (!filtered.length) {
+
+    $("mascotGrid").innerHTML = `
+
+      <div class="empty-state"
+        style="grid-column:1/-1">
+
+        ${t("noResults")}
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  $("mascotGrid").innerHTML = filtered
 
     .map(({mascot,rank}) => {
 
@@ -2908,27 +3543,31 @@ function renderHome() {
 
           <div class="mascot-name">
 
-            ${escapeHTML(mascot.name)}
+            ${escapeHTML(mascotName(mascot))}
 
           </div>
 
           <div class="mascot-en">
 
-            ${escapeHTML(mascot.en)}
+            ${currentLanguage === "th"
+              ? escapeHTML(mascot.en.toUpperCase())
+              : escapeHTML(mascot.name)}
 
           </div>
 
           <div class="record">
 
             <div class="record-label">
-              แชมป์ของหลาน
+
+              ${t("mascotChampion")}
+
             </div>
 
             <div class="record-name">
 
               ${best
                 ? escapeHTML(recordName(best))
-                : "ยังไม่มีแชมป์"}
+                : t("noChampion")}
 
             </div>
 
@@ -2944,15 +3583,13 @@ function renderHome() {
 
       `;
 
-    })
-
-    .join("");
+    }).join("");
 
 }
 
 
 /* ========================================
-   9. STUDENT CARD
+   11. STUDENT CARD
 ======================================== */
 
 function renderStudentCard() {
@@ -2968,34 +3605,29 @@ function renderStudentCard() {
       <svg class="school-logo"
         viewBox="0 0 44 48">
 
-        <path
-          d="M22 2L41 9V24
-             Q41 38 22 46
-             Q3 38 3 24V9Z"
-          fill="#fff"
-          opacity=".95"/>
+        <path d="M22 2L41 9V24
+          Q41 38 22 46
+          Q3 38 3 24V9Z"
+          fill="#fff"/>
 
-        <path
-          d="M22 6L37 12V24
-             Q37 35 22 41
-             Q7 35 7 24V12Z"
+        <path d="M22 6L37 12V24
+          Q37 35 22 41
+          Q7 35 7 24V12Z"
           fill="#8eb7e3"/>
 
-        <path
-          d="M12 18Q17 15 22 19
-             Q27 15 32 18V29
-             Q27 26 22 30
-             Q17 26 12 29Z"
+        <path d="M12 18Q17 15 22 19
+          Q27 15 32 18V29
+          Q27 26 22 30
+          Q17 26 12 29Z"
           fill="#fff"/>
 
         <path d="M22 19V30"
           stroke="#8eb7e3"/>
 
-        <path
-          d="M22 9L23.5 12.5L27 14
-             L23.5 15.5L22 19
-             L20.5 15.5L17 14
-             L20.5 12.5Z"
+        <path d="M22 9L23.5 12.5L27 14
+          L23.5 15.5L22 19
+          L20.5 15.5L17 14
+          L20.5 12.5Z"
           fill="#fff2bf"/>
 
       </svg>
@@ -3003,11 +3635,17 @@ function renderStudentCard() {
       <div>
 
         <div class="school-name">
-          โรงเรียนอนุบาลสีฟ้า
+
+          ${t("school")}
+
         </div>
 
         <div class="school-en">
-          BLUE KINDERGARTEN
+
+          ${currentLanguage === "th"
+            ? "BLUE KINDERGARTEN"
+            : "โรงเรียนอนุบาลสีฟ้า"}
+
         </div>
 
       </div>
@@ -3025,18 +3663,22 @@ function renderStudentCard() {
       <div class="student-details">
 
         <div class="student-label">
-          STUDENT ID CARD
+
+          ${t("studentCard")}
+
         </div>
 
         <div class="student-name">
 
-          ${escapeHTML(mascot.name)}
+          ${escapeHTML(mascotName(mascot))}
 
         </div>
 
         <div class="student-en">
 
-          ${escapeHTML(mascot.en)}
+          ${currentLanguage === "th"
+            ? escapeHTML(mascot.en.toUpperCase())
+            : escapeHTML(mascot.name)}
 
         </div>
 
@@ -3046,10 +3688,24 @@ function renderStudentCard() {
 
             <div class="parent-row">
 
-              ${escapeHTML(parent.role)}
-              :
+              ${escapeHTML(
+
+                currentLanguage === "en"
+                  ? parent.roleEn || parent.role
+                  : parent.role
+
+              )} :
+
               <strong>
-                ${escapeHTML(parent.name)}
+
+                ${escapeHTML(
+
+                  currentLanguage === "en"
+                    ? parent.nameEn || parent.name
+                    : parent.name
+
+                )}
+
               </strong>
 
             </div>
@@ -3057,7 +3713,9 @@ function renderStudentCard() {
           `).join("")
 
           : `<div class="parent-row muted">
-               ยังไม่ได้ระบุข้อมูลผู้ปกครอง
+
+              ${t("noParents")}
+
              </div>`
 
         }
@@ -3070,7 +3728,8 @@ function renderStudentCard() {
 
       <span>
 
-        STUDENT NO.
+        ${t("studentNo")}
+
         ${escapeHTML(mascot.studentId)}
 
       </span>
@@ -3085,7 +3744,7 @@ function renderStudentCard() {
 
 
 /* ========================================
-   10. CHARACTER BUTTONS
+   12. MASCOT BUTTONS
 ======================================== */
 
 function renderMascotButtons() {
@@ -3104,15 +3763,13 @@ function renderMascotButtons() {
     icons.length === 0
   );
 
-  const targets = [
+  [
 
     "undoDecoration",
     "restartDecoration",
     "rankingDecoration"
 
-  ];
-
-  targets.forEach((id,index) => {
+  ].forEach((id,index) => {
 
     $(id).innerHTML =
 
@@ -3157,7 +3814,8 @@ document.addEventListener("pointerdown",event => {
     && event.button !== 0
   ) return;
 
-  const button = event.target.closest(".cute-btn");
+  const button =
+    event.target.closest(".cute-btn");
 
   if (button) animateCharacter(button);
 
@@ -3165,26 +3823,34 @@ document.addEventListener("pointerdown",event => {
 
 
 /* ========================================
-   11. GAME SELECTION & PRELOAD
+   13. IMAGE PRELOAD
 ======================================== */
 
 function preloadMascot(id) {
 
-  LEVELS.forEach(value => {
+  ["cover","profile","student",...LEVELS]
+    .forEach(value => {
 
-    const path = imagePath(id,value);
+      const path = imagePath(id,value);
 
-    if (preloadedImages.has(path)) return;
+      if (preloadedImages.has(path)) return;
 
-    const image = new Image();
+      const image = new Image();
 
-    image.src = path;
+      image.src = path;
 
-    preloadedImages.set(path,image);
+      image.decode?.().catch(() => {});
 
-  });
+      preloadedImages.set(path,image);
+
+    });
 
 }
+
+
+/* ========================================
+   14. SELECT MASCOT
+======================================== */
 
 function renderGameHeader() {
 
@@ -3192,12 +3858,12 @@ function renderGameHeader() {
 
   $("gameTitle").textContent =
 
-    currentMascot.en + " 2048";
+    currentMascot.en.toUpperCase() + " 2048";
 
   $("gamePlayer").textContent =
 
-    "คุณอุนยาย : "
-    + (save.playerName || "คุณอุนยาย");
+    t("grandma") + " : "
+    + (save.playerName || t("grandma"));
 
   $("gameAvatar").innerHTML =
 
@@ -3213,11 +3879,21 @@ function selectMascot(id) {
 
   if (busy) return;
 
+  if (!save.playerName) {
+
+    pendingMascot = id;
+
+    openProfileModal();
+
+    return;
+
+  }
+
   if (game) saveGame();
 
   gameSession++;
 
-  moveQueue = [];
+  clearQueue();
 
   currentMascot = getMascot(id);
 
@@ -3247,6 +3923,8 @@ function selectMascot(id) {
 
     } else {
 
+      updateCollection();
+
       renderBoard();
 
       renderScores();
@@ -3265,7 +3943,7 @@ function selectMascot(id) {
 
 
 /* ========================================
-   12. GAME STATE
+   15. GAME STATE
 ======================================== */
 
 function makeTile(row,col,value) {
@@ -3284,65 +3962,118 @@ function makeTile(row,col,value) {
 
 }
 
-function normalizeGame(stored) {
+function normalizeTiles(stored) {
 
-  let tiles = [];
+  if (!stored) return [];
 
   if (Array.isArray(stored.tiles)) {
 
-    tiles = stored.tiles
+    const occupied = new Set();
 
-      .filter(tile =>
+    return stored.tiles
 
-        tile.value > 0
-        && tile.row >= 0
-        && tile.row < 4
-        && tile.col >= 0
-        && tile.col < 4
+      .filter(tile => {
 
-      )
+        const position = tile.row * 4 + tile.col;
+
+        if (
+
+          !Number.isInteger(tile.row)
+          || !Number.isInteger(tile.col)
+          || tile.row < 0
+          || tile.row > 3
+          || tile.col < 0
+          || tile.col > 3
+          || !Number.isFinite(Number(tile.value))
+          || tile.value < 2
+          || occupied.has(position)
+
+        ) return false;
+
+        occupied.add(position);
+
+        return true;
+
+      })
 
       .map(tile =>
 
         makeTile(
           tile.row,
           tile.col,
-          tile.value
+          Number(tile.value)
         )
 
       );
 
-  } else {
+  }
 
-    const board = stored.board || stored.grid;
+  const oldBoard = Array.isArray(stored)
 
-    if (Array.isArray(board)) {
+    ? stored
 
-      const flat = board.flat();
+    : stored.board || stored.grid;
 
-      flat.slice(0,16).forEach((cell,index) => {
+  const tiles = [];
+
+  if (Array.isArray(oldBoard)) {
+
+    oldBoard.flat().slice(0,16)
+      .forEach((cell,index) => {
 
         const value = Number(
+
           typeof cell === "object"
             ? cell?.value
             : cell
+
         );
 
-        if (value > 0) {
+        if (Number.isFinite(value)
+          && value >= 2) {
 
-          tiles.push(
+          tiles.push(makeTile(
 
-            makeTile(
-              Math.floor(index / 4),
-              index % 4,
-              value
-            )
+            Math.floor(index / 4),
 
-          );
+            index % 4,
+
+            value
+
+          ));
 
         }
 
       });
+
+  }
+
+  return tiles;
+
+}
+
+function normalizeGame(stored) {
+
+  let previous = null;
+
+  if (stored.previous) {
+
+    const previousTiles =
+      normalizeTiles(stored.previous);
+
+    if (previousTiles.length) {
+
+      previous = {
+
+        tiles: previousTiles,
+
+        score:
+          Number(stored.previous.score) || 0,
+
+        won:
+          Boolean(stored.previous.won)
+
+      };
 
     }
 
@@ -3350,13 +4081,13 @@ function normalizeGame(stored) {
 
   return {
 
-    tiles,
+    tiles: normalizeTiles(stored),
 
     score: Number(stored.score) || 0,
 
     undoUsed: Boolean(stored.undoUsed),
 
-    previous: stored.previous || null,
+    previous,
 
     won: Boolean(stored.won),
 
@@ -3372,7 +4103,7 @@ function newGame() {
 
   gameSession++;
 
-  moveQueue = [];
+  clearQueue();
 
   game = {
 
@@ -3398,7 +4129,7 @@ function newGame() {
 
   updateCollection();
 
-  renderBoard();
+  renderBoard(true);
 
   renderScores();
 
@@ -3424,7 +4155,10 @@ function saveGame() {
 
     won: game.won,
 
-    over: game.over
+    over: game.over,
+
+    unlocked:
+      save.collections[currentMascot.id] || []
 
   };
 
@@ -3434,12 +4168,7 @@ function saveGame() {
 
 
 /* ========================================
-   13. STANDARD 2048 RANDOM SPAWN
-
-   - เลือกช่องว่างด้วยโอกาสเท่ากัน
-   - เลข 2 = 90%
-   - เลข 4 = 10%
-   - เกิดใหม่เฉพาะเมื่อเลื่อนสำเร็จ
+   16. RANDOM SPAWN
 ======================================== */
 
 function addTile() {
@@ -3496,7 +4225,7 @@ function addTile() {
 
 
 /* ========================================
-   14. BOARD RENDERING
+   17. BOARD RENDERER
 ======================================== */
 
 $("boardGrid").innerHTML =
@@ -3520,7 +4249,6 @@ function tilePosition(row,col) {
 function setTilePosition(element,row,col) {
 
   element.style.transform =
-
     tilePosition(row,col);
 
 }
@@ -3545,7 +4273,7 @@ function tileColor(value) {
 
   const index = Math.min(
 
-    Math.max(0,Math.log2(value) - 1),
+    Math.max(0,Math.floor(Math.log2(value)) - 1),
 
     colors.length - 1
 
@@ -3586,7 +4314,8 @@ function tileFaceHTML(tile) {
 
 function createTileElement(tile,animation = "") {
 
-  const element = document.createElement("div");
+  const element =
+    document.createElement("div");
 
   element.className = "tile";
 
@@ -3595,21 +4324,15 @@ function createTileElement(tile,animation = "") {
   element.innerHTML = tileFaceHTML(tile);
 
   setTilePosition(
-
     element,
-
     tile.row,
-
     tile.col
-
   );
 
   if (animation) {
 
     element.firstElementChild.classList.add(
-
       animation
-
     );
 
   }
@@ -3622,7 +4345,7 @@ function createTileElement(tile,animation = "") {
 
 }
 
-function renderBoard() {
+function renderBoard(animate = false) {
 
   $("board").classList.add("no-transition");
 
@@ -3632,7 +4355,13 @@ function renderBoard() {
 
   game.tiles.forEach(tile => {
 
-    createTileElement(tile);
+    createTileElement(
+
+      tile,
+
+      animate ? "spawn" : ""
+
+    );
 
   });
 
@@ -3644,10 +4373,7 @@ function renderBoard() {
 
 
 /* ========================================
-   15. MOVE PLANNER
-
-   รวมช่องจากด้านที่ปัดก่อน
-   แต่ละช่องรวมได้เพียงครั้งเดียวต่อการปัด
+   18. MOVE PLANNER
 ======================================== */
 
 function planMove(direction) {
@@ -3690,9 +4416,13 @@ function planMove(direction) {
 
       .sort((a,b) => {
 
-        const first = vertical ? a.row : a.col;
+        const first = vertical
+          ? a.row
+          : a.col;
 
-        const second = vertical ? b.row : b.col;
+        const second = vertical
+          ? b.row
+          : b.col;
 
         return reverse
 
@@ -3719,15 +4449,11 @@ function planMove(direction) {
         : output;
 
       const row = vertical
-
         ? position
-
         : line;
 
       const col = vertical
-
         ? line
-
         : position;
 
       let value = first.value;
@@ -3752,8 +4478,11 @@ function planMove(direction) {
       }
 
       if (
+
         second
+
         && first.value === second.value
+
       ) {
 
         value *= 2;
@@ -3822,12 +4551,7 @@ function planMove(direction) {
 
 
 /* ========================================
-   16. SMOOTH MOVE ENGINE
-
-   Slide : 110ms
-   Merge : 140ms
-   Spawn : 120ms
-   Input queue : สูงสุด 2 คำสั่ง
+   19. SMOOTH MOVE ENGINE
 ======================================== */
 
 function requestMove(direction) {
@@ -3838,7 +4562,7 @@ function requestMove(direction) {
 
   if (hasOpenModal()) return;
 
-  if (busy) {
+  if (busy || queueFrame !== null) {
 
     if (moveQueue.length < MAX_QUEUE) {
 
@@ -3872,6 +4596,8 @@ async function performMove(direction) {
 
   busy = true;
 
+  renderUndoState();
+
   const session = gameSession;
 
   game.previous = {
@@ -3884,19 +4610,24 @@ async function performMove(direction) {
 
   };
 
-  /*
-    ขั้นตอนที่ 1
-    เลื่อน DOM เดิมไปยังตำแหน่งใหม่
-    ไม่ลบและสร้างภาพใหม่ทุกครั้ง
-  */
+  const previouslyWon = game.won;
+
+  game.tiles = plan.finalTiles;
+
+  game.score += plan.gained;
+
+  const spawned = addTile();
+
+  game.won = game.won ||
+
+    game.tiles.some(tile => tile.value >= 2048);
+
+  game.over = !canMove();
 
   plan.movements.forEach(movement => {
 
-    const element = tileElements.get(
-
-      movement.id
-
-    );
+    const element =
+      tileElements.get(movement.id);
 
     if (!element) return;
 
@@ -3918,7 +4649,13 @@ async function performMove(direction) {
 
   });
 
-  await wait(SLIDE_MS);
+  const reducedMotion = matchMedia(
+
+    "(prefers-reduced-motion: reduce)"
+
+  ).matches;
+
+  await wait(reducedMotion ? 0 : SLIDE_MS);
 
   if (session !== gameSession) {
 
@@ -3928,11 +4665,6 @@ async function performMove(direction) {
 
   }
 
-  /*
-    ขั้นตอนที่ 2
-    รวมภาพหลังจากเลื่อนเสร็จ
-  */
-
   plan.removedIds.forEach(id => {
 
     tileElements.get(id)?.remove();
@@ -3940,10 +4672,6 @@ async function performMove(direction) {
     tileElements.delete(id);
 
   });
-
-  game.tiles = plan.finalTiles;
-
-  game.score += plan.gained;
 
   game.tiles.forEach(tile => {
 
@@ -3958,21 +4686,12 @@ async function performMove(direction) {
       element.innerHTML = tileFaceHTML(tile);
 
       element.firstElementChild.classList.add(
-
         "merge"
-
       );
 
     }
 
   });
-
-  /*
-    ขั้นตอนที่ 3
-    สุ่มช่องใหม่เพียงหนึ่งช่อง
-  */
-
-  const spawned = addTile();
 
   if (spawned) {
 
@@ -3980,40 +4699,41 @@ async function performMove(direction) {
 
   }
 
-  if (game.tiles.some(tile => tile.value >= 2048)) {
-
-    game.won = true;
-
-  }
-
   updateCollection();
 
   updateRecord();
 
-  renderScores(plan.gained > 0);
+  busy = false;
+
+  renderScores(plan.gained);
 
   saveGame();
 
-  /*
-    รอเพียงช่วงสั้น ๆ
-    เพื่อไม่ให้แอนิเมชันเลื่อนตัดกัน
-  */
+  if (currentPage !== "game") {
 
-  await wait(25);
+    clearQueue();
 
-  if (session !== gameSession) {
+    if (currentPage === "home") renderHome();
 
-    busy = false;
+    if (currentPage === "ranking") renderRanking();
+
+    if (currentPage === "profile") renderProfile();
+
+    if (currentPage === "collection") renderCollection();
 
     return;
 
   }
 
-  busy = false;
-
-  renderUndoState();
-
   checkGameOver();
+
+  if (!previouslyWon && game.won && !game.over) {
+
+    showWinMessage();
+
+    return;
+
+  }
 
   processQueue();
 
@@ -4021,44 +4741,44 @@ async function performMove(direction) {
 
 function processQueue() {
 
-  if (busy) return;
+  if (busy || queueFrame !== null) return;
 
-  if (currentPage !== "game") {
+  if (
+    currentPage !== "game"
+    || hasOpenModal()
+    || game?.over
+  ) {
 
-    moveQueue = [];
-
-    return;
-
-  }
-
-  if (hasOpenModal() || game?.over) {
-
-    moveQueue = [];
+    clearQueue();
 
     return;
 
   }
 
-  const next = moveQueue.shift();
+  if (!moveQueue.length) return;
 
-  if (next) {
+  const session = gameSession;
 
-    requestAnimationFrame(() =>
+  queueFrame = requestAnimationFrame(() => {
 
-      requestMove(next)
+    queueFrame = null;
 
-    );
+    if (session !== gameSession) return;
 
-  }
+    const next = moveQueue.shift();
+
+    if (next) requestMove(next);
+
+  });
 
 }
 
 
 /* ========================================
-   17. SCORE DISPLAY
+   20. SCORE DISPLAY
 ======================================== */
 
-function renderScores(animate = false) {
+function renderScores(gained = 0) {
 
   if (!game || !currentMascot) return;
 
@@ -4069,9 +4789,7 @@ function renderScores(animate = false) {
   $("personalBest").textContent =
 
     formatScore(
-
       getPersonalBest(currentMascot.id)
-
     );
 
   const champion = getChampion(
@@ -4092,7 +4810,7 @@ function renderScores(animate = false) {
 
       : "-";
 
-  if (animate) {
+  if (gained > 0) {
 
     const element = $("currentScore");
 
@@ -4101,6 +4819,17 @@ function renderScores(animate = false) {
     void element.offsetWidth;
 
     element.classList.add("bump");
+
+    const floating =
+      document.createElement("div");
+
+    floating.className = "score-floating";
+
+    floating.textContent = "+" + gained;
+
+    $("currentScoreCard").appendChild(floating);
+
+    setTimeout(() => floating.remove(),700);
 
   }
 
@@ -4120,11 +4849,15 @@ function renderUndoState() {
 
     || busy;
 
+  $("restartBtn").disabled = busy;
+
+  $("rankingBtn").disabled = busy;
+
 }
 
 
 /* ========================================
-   18. UNDO & RESTART
+   21. UNDO AND RESTART
 ======================================== */
 
 function undoMove() {
@@ -4136,7 +4869,7 @@ function undoMove() {
     || !game.previous
   ) return;
 
-  moveQueue = [];
+  clearQueue();
 
   gameSession++;
 
@@ -4145,13 +4878,9 @@ function undoMove() {
   game.tiles = previous.tiles.map(tile =>
 
     makeTile(
-
       tile.row,
-
       tile.col,
-
       tile.value
-
     )
 
   );
@@ -4180,7 +4909,7 @@ function restartGame() {
 
   if (busy || !currentMascot) return;
 
-  moveQueue = [];
+  clearQueue();
 
   const icon = currentMascot.decorations?.[1];
 
@@ -4212,7 +4941,7 @@ function confirmRestart() {
 
 
 /* ========================================
-   19. GAME OVER
+   22. GAME OVER AND WIN
 ======================================== */
 
 function canMove() {
@@ -4223,7 +4952,8 @@ function canMove() {
 
   game.tiles.forEach(tile => {
 
-    grid[tile.row * 4 + tile.col] = tile.value;
+    grid[tile.row * 4 + tile.col] =
+      tile.value;
 
   });
 
@@ -4257,11 +4987,9 @@ function canMove() {
 
 }
 
-function checkGameOver() {
+function renderGameMessage() {
 
   if (!game) return;
-
-  game.over = !canMove();
 
   $("gameMessage").classList.toggle(
 
@@ -4271,19 +4999,29 @@ function checkGameOver() {
 
   );
 
+  $("gameMessageTitle").textContent =
+
+    t("gameOver");
+
+  $("gameMessageText").textContent =
+
+    t("finalScore") + " : "
+
+    + formatScore(game.score);
+
+}
+
+function checkGameOver() {
+
+  if (!game) return;
+
+  game.over = !canMove();
+
+  renderGameMessage();
+
   if (game.over) {
 
-    moveQueue = [];
-
-    $("gameMessageTitle").textContent =
-
-      "เก่งมากเลยคุณอุนยาย!";
-
-    $("gameMessageText").textContent =
-
-      "คะแนนรอบนี้ "
-      + formatScore(game.score)
-      + " คะแนน";
+    clearQueue();
 
     saveGame();
 
@@ -4291,12 +5029,31 @@ function checkGameOver() {
 
 }
 
+function showWinMessage() {
+
+  clearQueue();
+
+  $("messageDecoration").innerHTML =
+
+    DECORATIONS[
+      currentMascot.decorations?.[2]
+    ] || "";
+
+  $("messageTitle").textContent =
+
+    t("winTitle");
+
+  $("messageText").textContent =
+
+    t("winText");
+
+  openModal("messageModal");
+
+}
+
 
 /* ========================================
-   20. SWIPE INPUT
-
-   ใช้ Pointer Events เพียงชุดเดียว
-   ไม่เรียก touch และ click ซ้ำกัน
+   23. SWIPE CONTROL
 ======================================== */
 
 let swipe = null;
@@ -4351,9 +5108,13 @@ boardElement.addEventListener(
 function handleSwipe(event,threshold) {
 
   if (
+
     !swipe
+
     || swipe.id !== event.pointerId
+
     || swipe.fired
+
   ) return;
 
   const dx = event.clientX - swipe.x;
@@ -4386,11 +5147,7 @@ boardElement.addEventListener(
 
   "pointermove",
 
-  event => {
-
-    handleSwipe(event,23);
-
-  }
+  event => handleSwipe(event,23)
 
 );
 
@@ -4412,11 +5169,7 @@ boardElement.addEventListener(
 
   "pointercancel",
 
-  () => {
-
-    swipe = null;
-
-  }
+  () => { swipe = null; }
 
 );
 
@@ -4424,17 +5177,13 @@ boardElement.addEventListener(
 
   "lostpointercapture",
 
-  () => {
-
-    swipe = null;
-
-  }
+  () => { swipe = null; }
 
 );
 
 
 /* ========================================
-   21. KEYBOARD INPUT
+   24. KEYBOARD
 ======================================== */
 
 document.addEventListener("keydown",event => {
@@ -4444,28 +5193,22 @@ document.addEventListener("keydown",event => {
     || hasOpenModal()
   ) return;
 
-  if (
-    event.target.matches(
-      "input,textarea"
-    )
-  ) return;
+  if (event.target.matches("input,textarea")) {
+
+    return;
+
+  }
 
   const directions = {
 
     ArrowUp: "up",
-
     ArrowDown: "down",
-
     ArrowLeft: "left",
-
     ArrowRight: "right",
 
     w: "up",
-
     s: "down",
-
     a: "left",
-
     d: "right"
 
   };
@@ -4484,55 +5227,20 @@ document.addEventListener("keydown",event => {
 
 
 /* ========================================
-   22. ANTI DOUBLE TAP ZOOM
+   25. ANTI ZOOM
 ======================================== */
-
-let lastTouchEnd = 0;
 
 document.addEventListener(
 
-  "touchend",
+  "dblclick",
 
   event => {
 
-    const now = Date.now();
+    if (event.target.closest("button,#board")) {
 
-    const target = event.target;
-
-    const interactive = target.closest?.(
-
-      "button,#board,.bottom-nav"
-
-    );
-
-    if (
-
-      interactive
-
-      && now - lastTouchEnd < 280
-
-      && !target.closest?.("input,textarea")
-
-    ) {
-
-      /*
-        ป้องกัน default double-tap zoom
-        โดยไม่ปิดการกดปุ่มทั้งหมด
-        สำหรับปุ่มใช้ touch-action manipulation
-      */
-
-      if (
-        target.closest("#board")
-        && event.cancelable
-      ) {
-
-        event.preventDefault();
-
-      }
+      event.preventDefault();
 
     }
-
-    lastTouchEnd = now;
 
   },
 
@@ -4546,7 +5254,11 @@ document.addEventListener(
 
   event => {
 
-    if (event.cancelable) event.preventDefault();
+    if (event.cancelable) {
+
+      event.preventDefault();
+
+    }
 
   },
 
@@ -4560,25 +5272,7 @@ document.addEventListener(
 
   event => {
 
-    if (event.cancelable) event.preventDefault();
-
-  },
-
-  {passive:false}
-
-);
-
-document.addEventListener(
-
-  "dblclick",
-
-  event => {
-
-    if (
-      event.target.closest(
-        "button,#board"
-      )
-    ) {
+    if (event.cancelable) {
 
       event.preventDefault();
 
@@ -4598,9 +5292,17 @@ document.addEventListener(
 
 );
 
+boardElement.addEventListener(
+
+  "contextmenu",
+
+  event => event.preventDefault()
+
+);
+
 
 /* ========================================
-   23. RANKING PAGE
+   26. RANKING
 ======================================== */
 
 function openRanking(id = "all") {
@@ -4657,7 +5359,11 @@ function renderRanking() {
 
   const filters = [
 
-    {id:"all",name:"ทั้งหมด"},
+    {
+      id:"all",
+      name:t("all"),
+      en:t("all")
+    },
 
     ...MASCOTS
 
@@ -4672,18 +5378,13 @@ function renderRanking() {
 
         onclick="setRankingFilter('${item.id}')">
 
-        ${escapeHTML(item.name)}
+        ${escapeHTML(mascotName(item))}
 
       </button>
 
     `).join("");
 
   let records = getRecords(rankingFilter);
-
-  /*
-    อันดับรวมใช้คะแนนสูงสุดหนึ่งรายการ
-    ต่อคุณอุนยาย ไม่รวมคะแนนหลายหลาน
-  */
 
   if (rankingFilter === "all") {
 
@@ -4711,9 +5412,11 @@ function renderRanking() {
 
       <div class="empty-state">
 
-        ยังไม่มีคะแนน
+        ${t("noScores")}
+
         <br><br>
-        มาเป็นแชมป์คนแรกกันนะ
+
+        ${t("firstChampion")}
 
       </div>
 
@@ -4759,10 +5462,13 @@ function renderRanking() {
 
           <div class="rank-mascot">
 
-            เล่นกับ
+            ${t("playingWith")}
+
             ${escapeHTML(
 
-              getMascot(record.mascotId).name
+              mascotName(
+                getMascot(record.mascotId)
+              )
 
             )}
 
@@ -4784,7 +5490,7 @@ function renderRanking() {
 
 
 /* ========================================
-   24. COLLECTION
+   27. COLLECTION
 ======================================== */
 
 function updateCollection() {
@@ -4834,7 +5540,7 @@ function renderCollection() {
 
         onclick="setCollectionFilter('${mascot.id}')">
 
-        ${escapeHTML(mascot.name)}
+        ${escapeHTML(mascotName(mascot))}
 
       </button>
 
@@ -4855,9 +5561,13 @@ function renderCollection() {
   $("collectionSummary").innerHTML = `
 
     <div class="muted"
-      style="font-size:12px">
+      style="font-size:14px">
 
-      สะสมแล้ว ${count} / ${LEVELS.length} ภาพ
+      ${t("collected")}
+
+      ${count} / ${LEVELS.length}
+
+      ${t("photos")}
 
     </div>
 
@@ -4924,7 +5634,7 @@ function renderCollection() {
 
 
 /* ========================================
-   25. PROFILE
+   28. PROFILE
 ======================================== */
 
 function renderProfile() {
@@ -4935,7 +5645,7 @@ function renderProfile() {
 
   $("profileName").textContent =
 
-    save.playerName || "คุณอุนยาย";
+    save.playerName || t("grandma");
 
   $("profileStats").innerHTML =
 
@@ -4959,7 +5669,7 @@ function renderProfile() {
 
             ${photoHTML(mascot.id,"cover")}
 
-            ${escapeHTML(mascot.name)}
+            ${escapeHTML(mascotName(mascot))}
 
           </div>
 
@@ -5012,7 +5722,7 @@ function renderAvatarOptions() {
 
         <div class="avatar-option-name">
 
-          ${escapeHTML(mascot.name)}
+          ${escapeHTML(mascotName(mascot))}
 
         </div>
 
@@ -5027,6 +5737,14 @@ function chooseAvatar(id) {
   selectedAvatar = id;
 
   renderAvatarOptions();
+
+}
+
+function cancelProfile() {
+
+  pendingMascot = null;
+
+  closeModal("profileModal");
 
 }
 
@@ -5045,11 +5763,6 @@ function saveProfile() {
   save.playerName = name;
 
   save.avatarMascot = selectedAvatar;
-
-  /*
-    เปลี่ยนชื่อและรูปในสถิติเก่าด้วย
-    ไม่ลบคะแนนที่เคยทำไว้
-  */
 
   save.records.forEach(record => {
 
@@ -5085,16 +5798,26 @@ function saveProfile() {
 
   }
 
+  if (pendingMascot) {
+
+    const id = pendingMascot;
+
+    pendingMascot = null;
+
+    selectMascot(id);
+
+  }
+
 }
 
 
 /* ========================================
-   26. MODAL HELPERS
+   29. MODALS
 ======================================== */
 
 function openModal(id) {
 
-  moveQueue = [];
+  clearQueue();
 
   $(id).classList.remove("hidden");
 
@@ -5122,10 +5845,14 @@ function hasOpenModal() {
 
 
 /* ========================================
-   27. INITIALIZATION
+   30. INITIALIZATION
 ======================================== */
 
 window.addEventListener("pagehide",() => {
+
+  updateCollection();
+
+  updateRecord();
 
   saveGame();
 
@@ -5141,6 +5868,10 @@ document.addEventListener(
 
     if (document.hidden) {
 
+      updateCollection();
+
+      updateRecord();
+
       saveGame();
 
       persist();
@@ -5150,6 +5881,24 @@ document.addEventListener(
   }
 
 );
+
+$("playerNameInput").addEventListener(
+
+  "keydown",
+
+  event => {
+
+    if (event.key === "Enter") {
+
+      saveProfile();
+
+    }
+
+  }
+
+);
+
+applyStaticLanguage();
 
 renderHome();
 
