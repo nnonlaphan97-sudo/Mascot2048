@@ -1561,7 +1561,7 @@ body.mrsaturnworld-theme { --number-bg:#79518a; --number-ink:#fff; --score-ink:#
 #gamePage .tile-number { background:var(--number-bg,#ffffffdf); color:var(--number-ink,#415b78); }
 #gamePage .score-value, #gamePage .score-floating { color:var(--score-ink,#415b78); }
 
-</style>
+ .student-card{border-color:var(--card-edge);box-shadow:0 4px 0 var(--card-edge)} .student-card .school-header{background:var(--card-head)} .student-card .student-body{background:var(--card-body);color:var(--card-ink)} .student-card .student-name,.student-card .student-surname,.student-card .student-label,.student-card .student-footer{color:var(--card-ink)} .student-card .student-footer{background:var(--card-edge)} .student-card .barcode{background:repeating-linear-gradient(90deg,var(--card-ink) 0 2px,transparent 2px 4px,var(--card-ink) 4px 5px,transparent 5px 8px)} </style>
 </head>
 
 <body>
@@ -2276,7 +2276,7 @@ const LANG = {
 
   th: {
 
-    school: "โรงเรียนอนุบาลสีฟ้า",
+    school: "โรงเรียนอนุบาลหมีฟ้า",
 
     worldCaption:
       "คะแนนสูงสุดจากหลานทุกคน · ภายในเครื่อง",
@@ -2304,7 +2304,7 @@ const LANG = {
     profile: "โปรไฟล์",
 
     grandmaRanking: "อันดับคุณอุนยาย",
-    localRanking: "สถิติภายในเครื่อง",
+    localRanking: "อันดับออนไลน์",
 
     all: "ทั้งหมด",
     noScores: "ยังไม่มีคะแนน",
@@ -2321,7 +2321,7 @@ const LANG = {
     photos: "ภาพ",
 
     profileSubtitle:
-      "คุณอุนยายแห่งโรงเรียนอนุบาลสีฟ้า",
+      "คุณอุนยายแห่งโรงเรียนอนุบาลหมีฟ้า",
 
     editProfile:
       "แก้ไขชื่อและรูปโปรไฟล์",
@@ -2416,7 +2416,7 @@ const LANG = {
     profile: "Profile",
 
     grandmaRanking: "Grandma Rankings",
-    localRanking: "Local Leaderboard",
+    localRanking: "Online Leaderboard",
 
     all: "All",
     noScores: "No scores yet",
@@ -3347,9 +3347,17 @@ function setLanguage(language) {
    08. RECORDS
 ======================================== */
 
+let onlineRecords = [];
+let onlineReady = false;
+let onlineBusy = false;
+let profileBusy = false;
+function onlineSecret(){ if(!save.onlineSecret){save.onlineSecret=Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('');persist();} return save.onlineSecret; }
+async function onlinePost(action,extra){const r=await fetch('/api/leaderboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,id:save.playerId,secret:onlineSecret(),...extra})});const b=await r.json();if(!r.ok)throw Error(b.error||'server');return b;}
+async function refreshOnline(){try{const r=await fetch('/api/leaderboard',{cache:'no-store'});if(!r.ok)throw Error();const b=await r.json();if(!Array.isArray(b.records))throw Error();onlineRecords=b.records;onlineReady=true;if(currentPage==='home')renderHome();if(currentPage==='ranking')renderRanking();if(currentPage==='game')renderScores();}catch(e){onlineReady=false;}}
+async function syncOnline(){if(onlineBusy||profileBusy||!save.onlineRegistered)return;onlineBusy=true;try{await onlinePost('score',{records:save.records.filter(r=>r.playerId===save.playerId).map(({mascotId,score})=>({mascotId,score}))});await refreshOnline();}catch(e){}finally{onlineBusy=false;}}
 function getRecords(id = "all") {
-
-  return save.records
+  const combined=new Map();for(const r of [...onlineRecords,...save.records.filter(r=>r.playerId===save.playerId)]){const k=r.playerId+'|'+r.mascotId; if(!combined.has(k)||combined.get(k).score<=r.score)combined.set(k,r);}
+  return [...combined.values()]
 
     .filter(record =>
 
@@ -3703,7 +3711,8 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-
+  const palette = {polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
     <div class="school-header">
@@ -3719,7 +3728,7 @@ function renderStudentCard() {
         <path d="M22 6L37 12V24
           Q37 35 22 41
           Q7 35 7 24V12Z"
-          fill="#8eb7e3"/>
+          fill="var(--card-head)"/>
 
         <path d="M12 18Q17 15 22 19
           Q27 15 32 18V29
@@ -3728,7 +3737,7 @@ function renderStudentCard() {
           fill="#fff"/>
 
         <path d="M22 19V30"
-          stroke="#8eb7e3"/>
+          stroke="var(--card-head)"/>
 
         <path d="M22 9L23.5 12.5L27 14
           L23.5 15.5L22 19
@@ -3750,7 +3759,7 @@ function renderStudentCard() {
 
           ${currentLanguage === "th"
             ? "BLUE KINDERGARTEN"
-            : "โรงเรียนอนุบาลสีฟ้า"}
+            : "โรงเรียนอนุบาลหมีฟ้า"}
 
         </div>
 
@@ -3970,7 +3979,7 @@ async function selectMascot(id) {
 
   if (busy) return;
 
-  if (!save.playerName || !save.playerTitle) {
+  if (!save.playerName || !save.playerTitle || !save.onlineRegistered) {
 
     pendingMascot = id;
 
@@ -5847,7 +5856,8 @@ function cancelProfile() {
 
 }
 
-function saveProfile() {
+async function saveProfile() {
+  if(profileBusy)return;
 
   const name = $("playerNameInput").value.trim();
   const title = $("playerTitleInput").value.trim();
@@ -5861,6 +5871,8 @@ function saveProfile() {
 
   }
 
+  profileBusy=true;
+  try{await onlinePost('profile',{name,title,avatar:selectedAvatar});save.onlineRegistered=true;}catch(e){alert(e.message==='duplicate'?(currentLanguage==='th'?'ชื่อนี้มีคนใช้แล้ว กรุณาตั้งชื่อใหม่':'This name is already taken'):(currentLanguage==='th'?'เชื่อมต่อระบบจัดอันดับไม่ได้ กรุณาลองใหม่':'Cannot connect. Please try again.'));return;}finally{profileBusy=false;}
   save.playerName = name;
   save.playerTitle = title;
 
@@ -5882,7 +5894,7 @@ function saveProfile() {
   persist();
 
   closeModal("profileModal");
-
+  syncOnline();
   renderHome();
 
   renderProfile();
@@ -6006,10 +6018,13 @@ $("playerNameInput").addEventListener(
 applyStaticLanguage();
 
 renderHome();
+refreshOnline();
+syncOnline();
+setInterval(()=>{syncOnline();refreshOnline();},15000);
 
 persist();
 
-if (!save.playerName || !save.playerTitle) {
+if (!save.playerName || !save.playerTitle || !save.onlineRegistered) {
 
   openProfileModal();
 
