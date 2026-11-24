@@ -1570,6 +1570,14 @@ body.mrsaturnworld-theme { --number-bg:#79518a; --number-ink:#fff; --score-ink:#
 .permpoon-theme .game-actions .cute-btn:nth-child(3) { background:#FBE28E; color:#79572C; box-shadow:0 5px 0 #D5B34C; }
 .permpoon-theme .game-message { background:#FFF9EFE6; }
 
+body.tomafox-theme { --bg:#FFF1E8; --number-bg:#B3342D; --number-ink:#FFFFFF; --score-ink:#B3342D; }
+.tomafox-theme .board { background:#E97869; box-shadow:0 5px 0 #B3342D; }
+.tomafox-theme .board-cell { background:#FFE1D8; }
+.tomafox-theme .score-card.current { background:#FFD1C9; }
+.tomafox-theme .game-actions .cute-btn { background:#DCE9C8; color:#45652E; box-shadow:0 5px 0 #749B50; }
+.tomafox-theme .game-actions .cute-btn:nth-child(2) { background:#FFD0C6; color:#B3342D; box-shadow:0 5px 0 #E97869; }
+.tomafox-theme .game-actions .cute-btn:nth-child(3) { background:#FFDBAD; color:#8C432B; box-shadow:0 5px 0 #E9A064; }
+.tomafox-theme .game-message { background:#FFF1E8E6; }
 body.jaidee-theme { --bg:#FFF8DC; --number-bg:#855B37; --number-ink:#FFF6DB; --score-ink:#855B37; }
 .jaidee-theme .board { background:#EBC654; box-shadow:0 5px 0 #B58D2B; }
 .jaidee-theme .board-cell { background:#FFF3C3; }
@@ -2671,6 +2679,19 @@ const MASCOTS = [
     decorations: []
   },
   {
+    id: "tomafox",
+    name: "โทมาฟ้อก",
+    en: "Tomafox",
+    color: "#E84C42",
+    birthday: {th: "17 สิงหาคม 2566", en: "17 August 2023"},
+    surname: {th: "ศรีแสงปลูกผล", en: "Srisang Plookphol"},
+    parents: [
+      {role: "ปะป๊า", roleEn: "Papa", name: "จิรัชพงศ์ ศรีแสง", nameEn: "Jiratchapong Srisang"},
+      {role: "พ่อบุ๊ค", roleEn: "Por Book", name: "กษิดิ์เดช ปลูกผล", nameEn: "Kasidet Plookphol"}
+    ],
+    decorations: []
+  },
+  {
     id: "jummo",
     name: "จัมโม่",
     en: "Jummo",
@@ -3040,6 +3061,7 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  tomafox: {"profile": "IMG_6578.jpeg", "student": "IMG_6589.jpeg", "cover": "IMG_6579.jpeg", "2": "IMG_6581.jpeg", "4": "IMG_6585.jpeg", "8": "IMG_6586.jpeg", "16": "IMG_6584.jpeg", "32": "IMG_6582.jpeg", "64": "IMG_6591.jpeg", "128": "IMG_6583.jpeg", "256": "IMG_6590.jpeg", "512": "IMG_6588.jpeg", "1024": "IMG_6580.jpeg", "2048": "IMG_6587.jpeg"},
   jaidee: {"profile": "IMG_6551.jpeg", "student": "IMG_6547.jpeg", "cover": "IMG_6545.jpeg", "2": "IMG_6550.jpeg", "4": "IMG_6549.jpeg", "8": "IMG_6546.jpeg", "16": "IMG_6541.jpeg", "32": "IMG_6540.jpeg", "64": "IMG_6539.jpeg", "128": "IMG_6542.jpeg", "256": "IMG_6552.jpeg", "512": "IMG_6544.jpeg", "1024": "IMG_6543.jpeg", "2048": "IMG_6548.jpeg"},
   yuzumumu: {"profile": "IMG_6506.jpeg", "cover": "IMG_6499.jpeg", "student": "IMG_6502.jpeg", "4": "IMG_6501.jpeg", "2": "IMG_6504.jpeg", "8": "IMG_6507.jpeg", "16": "IMG_6500.jpeg", "32": "IMG_6494.jpeg", "64": "IMG_6496.jpeg", "128": "IMG_6497.jpeg", "256": "IMG_6498.jpeg", "512": "IMG_6505.jpeg", "1024": "IMG_6503.jpeg", "2048": "IMG_6495.jpeg"},
   permpoon: {
@@ -3578,6 +3600,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("tomafox-theme", page === "game" && currentMascot?.id === "tomafox");
   document.body.classList.toggle("jaidee-theme", page === "game" && currentMascot?.id === "jaidee");
   document.body.classList.toggle("yuzumumu-theme", page === "game" && currentMascot?.id === "yuzumumu");
   document.body.classList.toggle("permpoon-theme", page === "game" && currentMascot?.id === "permpoon");
@@ -3794,7 +3817,7 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-  const palette = {jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4438,6 +4461,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "tomafox") return "#FFE1D8";
   if (currentMascot?.id === "jaidee") return "#FFF3C3";
   if (currentMascot?.id === "yuzumumu") return "#FFF0DF";
   if (currentMascot?.id === "permpoon") return "#E0F4F1";
