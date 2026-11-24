@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -1593,15 +1594,26 @@ body.yuzumumu-theme { --bg:#FFF3E5; --number-bg:#302C29; --number-ink:#fff; --sc
 .yuzumumu-theme .game-actions .cute-btn:nth-child(2) { background:#302C29; color:#fff; box-shadow:0 5px 0 #171513; }
 .yuzumumu-theme .game-actions .cute-btn:nth-child(3) { background:#F49A43; color:#302C29; box-shadow:0 5px 0 #B96527; }
 .yuzumumu-theme .game-message { background:#FFF3E5E6; }
-body.avocean-theme { --bg:#F1EDF8; --number-bg:#436D59; --number-ink:#FFFFFF; --score-ink:#436D59; }
-.avocean-theme .board { background:#AFA0D2; box-shadow:0 5px 0 #8774B0; }
-.avocean-theme .board-cell { background:#E8E0F3; }
+body.avocean-theme { --bg:#EDF5E5; --number-bg:#436D59; --number-ink:#FFFFFF; --score-ink:#436D59; }
+.avocean-theme .board { background:#A5C68E; box-shadow:0 5px 0 #789E65; }
+.avocean-theme .board-cell { background:#E3D9F1; }
 .avocean-theme .score-card.current { background:#D9E9C1; }
 .avocean-theme .score-card:not(.current) { background:#E3D8F4; box-shadow:0 3px 0 #C5B3E0; }
 .avocean-theme .game-actions .cute-btn { background:#DAD0F0; color:#436D59; box-shadow:0 5px 0 #BBA8DE; }
 .avocean-theme .game-actions .cute-btn:nth-child(2) { background:#D0EBF4; color:#436D59; box-shadow:0 5px 0 #8ABAA9; }
 .avocean-theme .game-actions .cute-btn:nth-child(3) { background:#DCECCB; color:#436D59; box-shadow:0 5px 0 #A8CD8B; }
-.avocean-theme .game-message { background:#F1EDF8E6; }
+.avocean-theme .game-message { background:#EDF5E5E6; }
+
+.dark-toggle { width:34px;height:34px;border-radius:12px;background:#fff;color:#557eab;display:grid;place-items:center;flex-shrink:0; }
+.dark-toggle svg {width:19px;height:19px;}
+html[data-mode="dark"] {color-scheme:dark;}
+html[data-mode="dark"] body {--bg:#20252d!important;--text:#eef1f6;--muted:#b4bfce;background:color-mix(in srgb,var(--theme) 9%,#191c23)!important;color:var(--text);}
+html[data-mode="dark"] :is(.mascot-card,.search-box,.language-switch,.avatar-button,.back-button,.ranking-row,.profile-card,.profile-stat,.settings-row,.collection-item,.bottom-nav,.modal-card,.name-input,.avatar-option,.filter-chip,.instructions,.empty-state,.game-message,.game-message-box,.secondary-btn,.dark-toggle) {background:#303641!important;color:#edf1f7!important;border-color:#46505d!important;box-shadow:none!important;}
+html[data-mode="dark"] :is(.world-card,.score-card,.game-actions .cute-btn,.board) {background:color-mix(in srgb,var(--theme) 32%,#242832)!important;color:#f6f7fa!important;border-color:#49515d!important;box-shadow:none!important;}
+html[data-mode="dark"] .board-cell {background:color-mix(in srgb,var(--theme) 13%,#252832)!important;}
+html[data-mode="dark"] :is(.brand-title,.brand-small,.brand-subtitle,.section-title,.mascot-name,.mascot-en,.record-label,.record-name,.record-score,.game-title,.game-player,.score-label,.score-value,.score-champion-name,.rank-name,.rank-mascot,.rank-score,.profile-name,.profile-label,.profile-stat-score,.modal-title,.modal-text,.avatar-option-name,.credit-name,.credit-copyright,.nav-button,.collection-number,.game-message-title,.game-message-text,.world-name,.world-score,.world-mascot,.world-caption,.search-box input,.language-button,.rank-number,#profileModal label) {color:#e4eaf3!important;}
+html[data-mode="dark"] :is(.language-button.active,.filter-chip.active,.nav-button.active,.primary-btn,.profile-edit) {background:#52677f!important;color:white!important;}
+html[data-mode="dark"] .search-box input {background:transparent;}
 </style>
 </head>
 
@@ -1647,6 +1659,7 @@ body.avocean-theme { --bg:#F1EDF8; --number-bg:#436D59; --number-ink:#FFFFFF; --
 
       </div>
 
+      <button type="button" class="dark-toggle" onclick="toggleDarkMode()" aria-label="Dark mode" aria-pressed="false"></button>
       <button id="homeAvatar"
         class="avatar-button"
         onclick="showPage('profile')">
@@ -2063,7 +2076,7 @@ body.avocean-theme { --bg:#F1EDF8; --number-bg:#436D59; --number-ink:#FFFFFF; --
 
   <div class="settings-row">
 
-    <span data-i18n="language"></span>
+    <span data-i18n="language"></span><button type="button" class="dark-toggle" onclick="toggleDarkMode()" aria-label="Dark mode" aria-pressed="false"></button>
 
     <div class="language-switch">
 
@@ -3840,7 +3853,7 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-  const palette = {avocean:['#8270AB','#F0F7E8','#436D59','#BBA8DE'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4484,7 +4497,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
-  if (currentMascot?.id === "avocean") return "#E8E0F3";
+  if (currentMascot?.id === "avocean") return Math.log2(value) % 2 === 0 ? "#E3D9F1" : "#DCEBCB";
   if (currentMascot?.id === "tomafox") return "#FFE1D8";
   if (currentMascot?.id === "jaidee") return "#FFF3C3";
   if (currentMascot?.id === "yuzumumu") return "#FFF0DF";
@@ -6166,5 +6179,18 @@ if (!save.playerName || !save.playerTitle || !save.onlineRegistered) {
 
 </script>
 
+<script>
+function applyDarkMode(mode) {
+ document.documentElement.dataset.mode=mode;
+ const dark=mode==='dark';
+ document.querySelectorAll('.dark-toggle').forEach(b=>{
+ b.setAttribute('aria-pressed',String(dark));
+ b.innerHTML=dark?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 15a9 9 0 0 1-11-11 9 9 0 1 0 11 11Z"/></svg>';
+ });
+ document.querySelector('meta[name="theme-color"]').content=dark?'#20252d':'#edf5ff';
+}
+function toggleDarkMode(){const mode=document.documentElement.dataset.mode==='dark'?'light':'dark';applyDarkMode(mode);try{localStorage.setItem('mascot2048_mode',mode)}catch(e){}}
+let savedMode='light';try{savedMode=localStorage.getItem('mascot2048_mode')==='dark'?'dark':'light'}catch(e){}applyDarkMode(savedMode);
+</script>
 </body>
 </html>
