@@ -1649,6 +1649,22 @@ html[data-mode="dark"] .lookkhunnoo-theme .board-cell {background:#403640!import
 html[data-mode="dark"] .lookkhunnoo-theme .score-card:not(.current),html[data-mode="dark"] .lookkhunnoo-theme .game-actions .cute-btn:first-child {background:#694858!important;}
 html[data-mode="dark"] .lookkhunnoo-theme .score-card.current,html[data-mode="dark"] .lookkhunnoo-theme .game-actions .cute-btn:nth-child(2) {background:#484550!important;}
 html[data-mode="dark"] .lookkhunnoo-theme .game-actions .cute-btn:nth-child(3) {background:#64543D!important;}
+body.samruay-theme { --bg:#F5E8D3; --number-bg:#514237; --number-ink:#FFFFFF; --score-ink:#514237; }
+.samruay-theme .board { background:#383431; box-shadow:0 5px 0 #292521; }
+.samruay-theme .board-cell { background:#D9C5AD; }
+.samruay-theme .score-card.current { background:#E7D4BB; }
+.samruay-theme .score-card:not(.current) { background:#F3D587; box-shadow:0 3px 0 #B89A53; }
+.samruay-theme .game-actions .cute-btn { background:#F3D587; color:#514237; box-shadow:0 5px 0 #B89A53; }
+.samruay-theme .game-actions .cute-btn:nth-child(2) { background:#E7D4BB; box-shadow:0 5px 0 #383431; }
+.samruay-theme .game-actions .cute-btn:nth-child(3) { background:#E7D4BB; box-shadow:0 5px 0 #B79A80; }
+.samruay-theme .game-message { background:#F5E8D3E6; }
+.samruay-theme .mascot-decoration { --theme:#383431; }
+html[data-mode="dark"] body.samruay-theme {background:#24211F!important;}
+html[data-mode="dark"] .samruay-theme .board {background:#383431!important;}
+html[data-mode="dark"] .samruay-theme .board-cell {background:#50473E!important;}
+html[data-mode="dark"] .samruay-theme .score-card:not(.current),html[data-mode="dark"] .samruay-theme .game-actions .cute-btn:first-child {background:#63512D!important;}
+html[data-mode="dark"] .samruay-theme .score-card.current,html[data-mode="dark"] .samruay-theme .game-actions .cute-btn:nth-child(2) {background:#49423B!important;}
+html[data-mode="dark"] .samruay-theme .game-actions .cute-btn:nth-child(3) {background:#49423B!important;}
 </style>
 </head>
 
@@ -2802,9 +2818,13 @@ const MASCOTS = [
     id: "samruay",
     name: "สำรวย",
     en: "Samruay",
-    color: "#f5e0a9",
-    studentId: "006",
-    parents: [],
+    color: "#E7BD60",
+    birthday: {th: "27 มีนาคม 2567", en: "27 March 2024"},
+    surname: {th: "ผลเจริญรัตน์เสรีวิชยสวัสดิ์", en: "Pholcharoenrat Serivichayasawat"},
+    parents: [
+      {role: "ป๊ะป๊าวินนี่", roleEn: "Papa Winny", name: "ธนวินท์ ผลเจริญรัตน์", nameEn: "Thanawin Pholcharoenrat"},
+      {role: "ตังตัง", roleEn: "Tang Tang", name: "กิตติภพ เสรีวิชยสวัสดิ์", nameEn: "Kittiphop Serivichayasawat"}
+    ],
     decorations: []
   }
 
@@ -3138,6 +3158,7 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  samruay: {"profile": "IMG_6744.jpeg", "student": "IMG_6748.jpeg", "cover": "IMG_6745.jpeg", "2": "IMG_6755.jpeg", "4": "IMG_6756.jpeg", "8": "IMG_6751.jpeg", "16": "IMG_6747.jpeg", "32": "IMG_6746.jpeg", "64": "IMG_6750.jpeg", "128": "IMG_6754.jpeg", "256": "IMG_6757.jpeg", "512": "IMG_6752.jpeg", "1024": "IMG_6753.jpeg", "2048": "IMG_6749.jpeg"},
   lookkhunnoo: {"profile": "IMG_6719.jpeg", "student": "IMG_6716.jpeg", "cover": "IMG_6713.jpeg", "2": "IMG_6715.jpeg", "4": "IMG_6717.jpeg", "8": "IMG_6714.jpeg", "16": "IMG_6710.jpeg", "32": "IMG_6711.jpeg", "64": "IMG_6709.jpeg", "128": "IMG_6712.jpeg", "256": "IMG_6720.jpeg", "512": "IMG_6721.jpeg", "1024": "IMG_6722.jpeg", "2048": "IMG_6718.jpeg"},
   babii: {"profile": "IMG_6674.jpeg", "student": "IMG_6669.jpeg", "cover": "IMG_6675.jpeg", "2": "IMG_6681.jpeg", "4": "IMG_6680.jpeg", "8": "IMG_6679.jpeg", "16": "IMG_6670.jpeg", "32": "IMG_6673.jpeg", "64": "IMG_6668.jpeg", "128": "IMG_6672.jpeg", "256": "IMG_6677.jpeg", "512": "IMG_6676.jpeg", "1024": "IMG_6678.jpeg", "2048": "IMG_6671.jpeg"},
   avocean: {"profile": "IMG_6616.jpeg", "student": "IMG_6647.jpeg", "cover": "IMG_6617.jpeg", "2": "IMG_6624.jpeg", "4": "IMG_6623.jpeg", "8": "IMG_6619.jpeg", "16": "IMG_6618.jpeg", "32": "IMG_6622.jpeg", "64": "IMG_6646.jpeg", "128": "IMG_6648.jpeg", "256": "IMG_6649.jpeg", "512": "IMG_6621.jpeg", "1024": "IMG_6625.jpeg", "2048": "IMG_6620.jpeg"},
@@ -3680,6 +3701,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("samruay-theme", page === "game" && currentMascot?.id === "samruay");
   document.body.classList.toggle("lookkhunnoo-theme", page === "game" && currentMascot?.id === "lookkhunnoo");
   document.body.classList.toggle("babii-theme", page === "game" && currentMascot?.id === "babii");
   document.body.classList.toggle("avocean-theme", page === "game" && currentMascot?.id === "avocean");
@@ -3900,7 +3922,7 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-  const palette = {lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4544,6 +4566,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "samruay") return Math.log2(value) % 2 === 0 ? "#E7BD60" : "#D9C5AD";
   if (currentMascot?.id === "lookkhunnoo") return Math.log2(value) % 2 === 0 ? "#E8A6C5" : "#EBC58C";
   if (currentMascot?.id === "babii") return Math.log2(value) % 2 === 0 ? "#F8DCE7" : "#D2E8B8";
   if (currentMascot?.id === "avocean") return Math.log2(value) % 2 === 0 ? "#E3D9F1" : "#DCEBCB";
