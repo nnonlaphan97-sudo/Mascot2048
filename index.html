@@ -779,6 +779,8 @@ h1,h2,h3,p {
   left: 0;
   transition: transform 110ms cubic-bezier(.2,.65,.3,1);
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .tile-face {
@@ -819,8 +821,8 @@ h1,h2,h3,p {
 
 @keyframes tileSpawn {
   from {
-    transform: scale(.55);
-    opacity: .25;
+    transform: scale(1);
+    opacity: 1;
   }
   to {
     transform: scale(1);
@@ -829,8 +831,8 @@ h1,h2,h3,p {
 }
 
 @keyframes tileMerge {
-  0% { transform: scale(.94); }
-  45% { transform: scale(1.12); }
+  0% { transform: scale(1); }
+  45% { transform: scale(1.035); }
   100% { transform: scale(1); }
 }
 
@@ -932,7 +934,7 @@ h1,h2,h3,p {
 
 .cute-btn:disabled .action-icon,
 .cute-btn:disabled span {
-  opacity: .35;
+  opacity: 1;
 }
 
 .mascot-decoration {
@@ -1516,7 +1518,7 @@ html[lang="en"] .score-label {
 .game-actions .mascot-decoration { position:static; height:65px; width:100%; flex:0 0 65px; align-items:center; }
 .game-actions .mascot-decoration svg { height:65px; width:100%; max-width:96px; }
 .game-actions .cute-btn span { line-height:1.2; white-space:nowrap; }
-.game-actions .cute-btn:disabled .mascot-decoration { opacity:.4; }
+.game-actions .cute-btn:disabled .mascot-decoration { opacity:1; }
 #undoBtn.character-play .mascot-decoration svg { animation: schoolHat .44s ease; }
 #restartBtn.character-play .mascot-decoration svg { animation: schoolBus .44s ease; }
 #rankingBtn.character-play .mascot-decoration svg { animation: schoolCup .44s ease; }
@@ -3012,7 +3014,7 @@ function photoHTML(id,type = "cover") {
         data-fallback="${fallbackPath}"
         alt=""
         draggable="false"
-        decoding="async"
+        decoding="sync"
         onerror="handleImageError(this)">
 
     </div>
@@ -4657,11 +4659,28 @@ async function performMove(direction) {
 
     if (plan.mergedIds.has(tile.id)) {
 
-      element.innerHTML = tileFaceHTML(tile);
-
-      element.firstElementChild.classList.add(
-        "merge"
-      );
+      const face = element.firstElementChild;
+      const oldImage = face.querySelector("img");
+      const imageValue = Math.min(tile.value, LEVELS[LEVELS.length - 1]);
+      const path = imagePath(currentMascot.id, imageValue);
+      const nextImage = new Image();
+      nextImage.decoding = "sync";
+      nextImage.draggable = false;
+      nextImage.alt = "";
+      nextImage.src = path;
+      face.querySelector(".tile-number").textContent = tile.value;
+      face.style.setProperty("--tile-color", tileColor(tile.value));
+      const swap = () => {
+        if (!face.isConnected || face.querySelector(".tile-number").textContent !== String(tile.value)) return;
+        if (oldImage && oldImage.isConnected) oldImage.replaceWith(nextImage);
+        else face.querySelector(".photo").appendChild(nextImage);
+      };
+      if (nextImage.complete && nextImage.naturalWidth) swap();
+      else if (nextImage.decode) nextImage.decode().then(swap).catch(() => {});
+      else nextImage.onload = swap;
+      face.classList.remove("spawn", "merge");
+      void face.offsetWidth;
+      face.classList.add("merge");
 
     }
 
