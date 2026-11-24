@@ -1541,6 +1541,26 @@ body.mrsaturnworld-theme { --bg:#F9EFF9; }
 .mrsaturnworld-theme .game-actions .cute-btn:nth-child(3) { background:#F9E6A5; box-shadow:0 5px 0 #D8C27C; }
 .mrsaturnworld-theme .game-message { background:#F9EFF9e6; }
 
+
+/* Mascot-specific game palettes; student card retains school blue. */
+body.polcasan-theme { --bg:#f2f8fc; --number-bg:#253746; --number-ink:#fff; --score-ink:#263746; }
+body.nongnooong-theme { --bg:#fff8ed; --number-bg:#a94c19; --number-ink:#fff9ef; --score-ink:#8b3e16; }
+body.mrsaturnworld-theme { --number-bg:#79518a; --number-ink:#fff; --score-ink:#694379; }
+.polcasan-theme .board { background:#a9d5f4; box-shadow:0 5px 0 #719bbd; }
+.polcasan-theme .board-cell { background:#f8fcff; }
+.polcasan-theme .game-actions .cute-btn { background:#fff; color:#263746; box-shadow:0 5px 0 #9bbbd4; }
+.polcasan-theme .game-actions .cute-btn:nth-child(2) { background:#303e4b; color:#fff; box-shadow:0 5px 0 #18232e; }
+.polcasan-theme .game-actions .cute-btn:nth-child(3) { background:#b9def7; color:#263746; }
+.polcasan-theme .score-card.current { background:#b9def7; }
+.nongnooong-theme .board { background:#efa96d; box-shadow:0 5px 0 #c77a43; }
+.nongnooong-theme .board-cell { background:#fff1dc; }
+.nongnooong-theme .score-card.current { background:#ffd0a0; }
+.nongnooong-theme .game-actions .cute-btn { background:#fff0d9; color:#8b3e16; box-shadow:0 5px 0 #d69a60; }
+.nongnooong-theme .game-actions .cute-btn:nth-child(2) { background:#f6ad72; box-shadow:0 5px 0 #c77a43; }
+.nongnooong-theme .game-actions .cute-btn:nth-child(3) { background:#ffe0b5; }
+#gamePage .tile-number { background:var(--number-bg,#ffffffdf); color:var(--number-ink,#415b78); }
+#gamePage .score-value, #gamePage .score-floating { color:var(--score-ink,#415b78); }
+
 </style>
 </head>
 
@@ -2523,7 +2543,7 @@ const MASCOTS = [
     id: "polcasan",
     name: "โพก้าซัง",
     en: "Polcasan",
-    color: "#a8d4f5",
+    color: "#a9d5f4",
     studentId: "001",
     birthday: {th: "06 มีนาคม 2567", en: "06 March 2024"},
     surname: {th: "วิหครัตน์เตชะอภัยคุณ", en: "Vihokratana Techaapaikhun"},
@@ -2558,7 +2578,7 @@ const MASCOTS = [
     id: "nongnooong",
     name: "น้องนุ่ง",
     en: "Nong Nooong",
-    color: "#f7d9b6",
+    color: "#efa96d",
     studentId: "007",
     birthday: {th: "27 กันยายน 2567", en: "27 September 2024"},
     surname: {th: "ทาศิลป์ปิยะนพโรจน์", en: "Thasilp Piyanopparoj"},
@@ -3470,6 +3490,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("polcasan-theme", page === "game" && currentMascot?.id === "polcasan");
   document.body.classList.toggle("nongnooong-theme", page === "game" && currentMascot?.id === "nongnooong");
   document.body.classList.toggle("mrsaturnworld-theme", page === "game" && currentMascot?.id === "mrsaturnworld");
 
