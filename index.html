@@ -1533,6 +1533,14 @@ body.nongnooong-theme { --bg:#fff6e9; }
 .nongnooong-theme .score-card { box-shadow:0 3px 0 #f0dcc5; }
 .nongnooong-theme .game-actions .cute-btn { background:#ffdfbd; box-shadow:0 5px 0 #e7ab76; color:#925b32; }
 .nongnooong-theme .game-message { background:#fff6e9e6; }
+body.mrsaturnworld-theme { --bg:#F9EFF9; }
+.mrsaturnworld-theme .board { box-shadow:0 5px 0 #8CBFD5; }
+.mrsaturnworld-theme .score-card { box-shadow:0 3px 0 #DFC9E5; }
+.mrsaturnworld-theme .game-actions .cute-btn { background:#E7C9E9; box-shadow:0 5px 0 #C6A4CD; color:#716080; }
+.mrsaturnworld-theme .game-actions .cute-btn:nth-child(2) { background:#C3E5F2; box-shadow:0 5px 0 #9BC7DA; }
+.mrsaturnworld-theme .game-actions .cute-btn:nth-child(3) { background:#F9E6A5; box-shadow:0 5px 0 #D8C27C; }
+.mrsaturnworld-theme .game-message { background:#F9EFF9e6; }
+
 </style>
 </head>
 
@@ -2562,6 +2570,21 @@ const MASCOTS = [
   },
 
   {
+    id: "mrsaturnworld",
+    name: "มิสเตอร์ แซตเทิร์นเวิลด์",
+    en: "MR. SATURNWORLD",
+    color: "#B5E0EE",
+    studentId: "008",
+    birthday: {th: "14 สิงหาคม 2566", en: "14 August 2023"},
+    surname: {th: "วัฒนเศรษสิริวงศ์ราษฎร์", en: "Watthanasetsiri Wongrat"},
+    parents: [
+      {role: "ป๋า", roleEn: "Pa", name: "พิรพัฒน์ วัฒนเศรษสิริ", nameEn: "Pirapat Watthanasetsiri"},
+      {role: "อ้วนน้อย", roleEn: "Auan Noi", name: "สหภาพ วงศ์ราษฎร์", nameEn: "Sahaphap Wongrat"}
+    ],
+    decorations: []
+  },
+
+  {
     id: "permpoon",
     name: "เพิ่มพูน",
     en: "Permpoon",
@@ -2935,6 +2958,22 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  mrsaturnworld: {
+    "cover": "IMG_6401.jpeg",
+    "profile": "IMG_6405.jpeg",
+    "student": "IMG_6395.jpeg",
+    "2": "IMG_6394.jpeg",
+    "4": "IMG_6400.jpeg",
+    "8": "IMG_6397.jpeg",
+    "16": "IMG_6398.jpeg",
+    "32": "IMG_6392.jpeg",
+    "64": "IMG_6399.jpeg",
+    "128": "IMG_6396.jpeg",
+    "256": "IMG_6406.jpeg",
+    "512": "IMG_6402.jpeg",
+    "1024": "IMG_6403.jpeg",
+    "2048": "IMG_6404.jpeg"
+  },
   nongnooong: {
     "cover": "IMG_6370.jpeg",
     "profile": "8E76EA06-B457-4335-8E43-E1ABA82B7A88.jpeg",
@@ -3432,6 +3471,7 @@ function showPage(page) {
 
   currentPage = page;
   document.body.classList.toggle("nongnooong-theme", page === "game" && currentMascot?.id === "nongnooong");
+  document.body.classList.toggle("mrsaturnworld-theme", page === "game" && currentMascot?.id === "mrsaturnworld");
 
   document.querySelectorAll(".page")
     .forEach(element => {
@@ -4285,6 +4325,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "mrsaturnworld") return "#DDF0F6";
   if (currentMascot?.id === "nongnooong") return "#ffdfbd";
 
   const colors = [
