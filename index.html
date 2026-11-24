@@ -4,21 +4,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
 <title>MASCOT 2048</title>
 
 <style>
 
-/* =========================================
+/* ========================================
    GLOBAL
-========================================= */
+======================================== */
 
 :root {
   --theme: #a8d4f5;
   --bg: #f5f8fc;
   --text: #34435b;
   --muted: #8c9aaf;
-  --blue: #669bd1;
 }
 
 * {
@@ -26,11 +24,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
   font-family: Arial, Tahoma, sans-serif;
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 button, input {
@@ -41,10 +47,21 @@ button {
   border: 0;
   cursor: pointer;
   color: inherit;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 button:disabled {
   cursor: default;
+}
+
+img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 svg {
@@ -106,10 +123,9 @@ header {
   font-size: 13px;
 }
 
-
-/* =========================================
+/* ========================================
    PHOTO
-========================================= */
+======================================== */
 
 .photo {
   position: relative;
@@ -155,10 +171,9 @@ header {
   box-shadow: 0 3px 10px #7195b324;
 }
 
-
-/* =========================================
+/* ========================================
    WORLD CHAMPION
-========================================= */
+======================================== */
 
 .champion {
   position: relative;
@@ -267,10 +282,10 @@ header {
   color: #aa935e;
 }
 
-
-/* =========================================
-   MASCOT SELECTION — 4 PER ROW
-========================================= */
+/* ========================================
+   MASCOT GRID
+   4 ตัวต่อแถว
+======================================== */
 
 .section-heading {
   display: flex;
@@ -298,7 +313,7 @@ header {
   padding: 13px;
   outline: none;
   margin-bottom: 15px;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .search:focus {
@@ -347,7 +362,6 @@ header {
   border-radius: 8px;
   font-size: 10px;
   font-weight: 900;
-  box-shadow: 0 2px 5px #00000010;
 }
 
 .mascot-rank.first {
@@ -393,10 +407,15 @@ header {
   font-weight: 900;
 }
 
-
-/* =========================================
+/* ========================================
    GAME HEADER
-========================================= */
+======================================== */
+
+#gamePage {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
 
 .game-topbar {
   display: flex;
@@ -445,10 +464,9 @@ header {
   background: #dceafb;
 }
 
-
-/* =========================================
-   BLUE KINDERGARTEN STUDENT CARD
-========================================= */
+/* ========================================
+   STUDENT ID CARD
+======================================== */
 
 .student-card {
   position: relative;
@@ -583,10 +601,9 @@ header {
   color: #6d95b8;
 }
 
-
-/* =========================================
+/* ========================================
    SCORE
-========================================= */
+======================================== */
 
 .score-grid {
   display: grid;
@@ -596,6 +613,7 @@ header {
 }
 
 .score-box {
+  position: relative;
   background: white;
   border: 1px solid #e8edf5;
   border-radius: 16px;
@@ -616,36 +634,157 @@ header {
   font-variant-numeric: tabular-nums;
 }
 
+.score-floating {
+  position: absolute;
+  z-index: 10;
+  top: 8px;
+  right: 8px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #65a879;
+  pointer-events: none;
+  animation: scoreFloat 650ms ease-out both;
+}
 
-/* =========================================
-   2048 BOARD
-========================================= */
+@keyframes scoreFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  15%, 60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-45px);
+  }
+}
+
+/* ========================================
+   SMOOTH 2048 BOARD
+======================================== */
 
 .board {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
-  padding: 8px;
+  --gap: 7px;
+  --pad: 8px;
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 20px;
   background: var(--theme);
   box-shadow:
     0 5px 0 #00000012,
     inset 0 2px 4px #ffffff45;
+
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-}
-
-.tile {
-  position: relative;
-  aspect-ratio: 1;
-  background: #ffffff45;
-  border-radius: 11px;
+  -webkit-touch-callout: none;
+  isolation: isolate;
   overflow: hidden;
 }
 
-.tile.filled {
+.board-background,
+.piece-layer {
+  position: absolute;
+  inset: var(--pad);
+}
+
+.board-background {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.board-cell {
+  border-radius: 11px;
+  background: #ffffff45;
+}
+
+.piece-layer {
+  pointer-events: none;
+}
+
+.game-piece {
+  position: absolute;
+  width: calc((100% - 3 * var(--gap)) / 4);
+  height: calc((100% - 3 * var(--gap)) / 4);
+
+  left: calc(
+    var(--col) *
+    (100% + var(--gap)) / 4
+  );
+
+  top: calc(
+    var(--row) *
+    (100% + var(--gap)) / 4
+  );
+
+  z-index: 2;
+  pointer-events: none;
+  backface-visibility: hidden;
+}
+
+.piece-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 11px;
   background: #f8fbff;
+  overflow: hidden;
+  transform-origin: center;
+}
+
+.game-piece.moving {
+  z-index: 4;
+  will-change: transform;
+}
+
+.game-piece.spawn .piece-content {
+  animation: spawnTile 120ms
+    cubic-bezier(.18,.8,.4,1.15) both;
+}
+
+.game-piece.merged .piece-content {
+  animation: mergeTile 140ms
+    cubic-bezier(.2,.75,.4,1) both;
+}
+
+@keyframes spawnTile {
+
+  0% {
+    transform: scale(.3);
+    opacity: 0;
+  }
+
+  75% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes mergeTile {
+
+  0% {
+    transform: scale(.94);
+  }
+
+  45% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .tile-number {
@@ -660,20 +799,8 @@ header {
   z-index: 2;
 }
 
-.tile.pop {
-  animation: tilePop .18s ease;
-}
-
-@keyframes tilePop {
-  from {
-    transform: scale(.78);
-    opacity: .65;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.game-piece .photo {
+  pointer-events: none;
 }
 
 .instructions {
@@ -684,10 +811,9 @@ header {
   margin: 17px 0;
 }
 
-
-/* =========================================
-   CUTE GAME BUTTONS
-========================================= */
+/* ========================================
+   CUTE BUTTONS
+======================================== */
 
 .game-actions {
   display: grid;
@@ -786,10 +912,9 @@ header {
   box-shadow: 0 1px 0 #82b1d9;
 }
 
-
-/* =========================================
+/* ========================================
    RANKING
-========================================= */
+======================================== */
 
 .rank-filter {
   display: flex;
@@ -882,10 +1007,9 @@ header {
   flex-shrink: 0;
 }
 
-
-/* =========================================
+/* ========================================
    PROFILE
-========================================= */
+======================================== */
 
 .profile-card {
   background: white;
@@ -1011,10 +1135,9 @@ header {
   height: 13px;
 }
 
-
-/* =========================================
+/* ========================================
    COLLECTION
-========================================= */
+======================================== */
 
 .collection-grid {
   display: grid;
@@ -1056,10 +1179,9 @@ header {
   height: 28px;
 }
 
-
-/* =========================================
-   BOTTOM NAVIGATION
-========================================= */
+/* ========================================
+   BOTTOM NAV
+======================================== */
 
 nav {
   position: fixed;
@@ -1097,10 +1219,9 @@ nav {
   font-weight: 800;
 }
 
-
-/* =========================================
-   CUSTOM MODALS
-========================================= */
+/* ========================================
+   MODAL
+======================================== */
 
 .modal {
   position: fixed;
@@ -1177,6 +1298,7 @@ nav {
   border-radius: 13px;
   outline: none;
   margin: 10px 0;
+  font-size: 16px;
 }
 
 .modal-input:focus {
@@ -1262,6 +1384,11 @@ nav {
   .game-actions {
     gap: 8px;
   }
+
+  .board {
+    --gap: 5px;
+    --pad: 6px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1279,13 +1406,10 @@ nav {
 
 <div class="app">
 
-<!-- =====================================
-     HEADER
-===================================== -->
-
 <header>
 
   <div>
+
     <div class="logo">
       MASCOT <span>2048</span>
     </div>
@@ -1293,6 +1417,7 @@ nav {
     <div class="logo-subtitle">
       BLUE KINDERGARTEN
     </div>
+
   </div>
 
   <button
@@ -1303,7 +1428,6 @@ nav {
   </button>
 
 </header>
-
 
 <!-- =====================================
      HOME PAGE
@@ -1348,26 +1472,29 @@ nav {
 
     <div class="world-photo-wrap">
 
-      <div class="champion-photo"
+      <div
+        class="champion-photo"
         id="worldPhoto">
       </div>
 
-      <div class="champion-avatar hidden"
+      <div
+        class="champion-avatar hidden"
         id="worldAvatar">
       </div>
 
     </div>
 
-    <div class="champion-name"
-      id="worldName">
+    <div class="champion-name" id="worldName">
       ยังไม่มีแชมป์
     </div>
 
-    <div class="champion-mascot"
-      id="worldMascot">—</div>
+    <div class="champion-mascot" id="worldMascot">
+      —
+    </div>
 
-    <div class="champion-score"
-      id="worldScore">0</div>
+    <div class="champion-score" id="worldScore">
+      0
+    </div>
 
     <div class="champion-description">
       คะแนนสูงสุดจากหลานทุกตัว
@@ -1391,13 +1518,10 @@ nav {
     placeholder="ค้นหาชื่อหลาน..."
     oninput="renderHome()">
 
-  <div
-    class="mascot-grid"
-    id="mascotGrid">
+  <div class="mascot-grid" id="mascotGrid">
   </div>
 
 </section>
-
 
 <!-- =====================================
      GAME PAGE
@@ -1407,8 +1531,9 @@ nav {
 
   <div class="game-topbar">
 
-    <button class="back-btn"
-      aria-label="กลับหน้าเลือกหลาน"
+    <button
+      class="back-btn"
+      aria-label="กลับหน้าหลัก"
       onclick="showPage('home')">
 
       <svg viewBox="0 0 24 24"
@@ -1424,11 +1549,12 @@ nav {
 
     </button>
 
-    <div class="game-title"
-      id="gameTitle"></div>
+    <div class="game-title" id="gameTitle">
+    </div>
 
-    <button class="back-btn"
-      aria-label="อันดับประจำหลาน"
+    <button
+      class="back-btn"
+      aria-label="จัดอันดับ"
       onclick="openMascotRanking()">
 
       <svg viewBox="0 0 24 24"
@@ -1448,8 +1574,7 @@ nav {
 
   </div>
 
-
-  <!-- STUDENT ID CARD -->
+  <!-- STUDENT CARD -->
 
   <div class="student-card">
 
@@ -1480,7 +1605,8 @@ nav {
           width="4" height="5"
           rx="1" fill="white"/>
 
-        <path d="M24 6V13M24 6H34L30 9H24"
+        <path
+          d="M24 6V13M24 6H34L30 9H24"
           stroke="#76A7D0"
           stroke-width="1.5"
           fill="#76A7D0"/>
@@ -1504,7 +1630,8 @@ nav {
     <div class="student-body">
 
       <div class="student-photo"
-        id="studentPhoto"></div>
+        id="studentPhoto">
+      </div>
 
       <div class="student-info">
 
@@ -1513,15 +1640,18 @@ nav {
         </div>
 
         <div class="student-name"
-          id="studentName"></div>
+          id="studentName">
+        </div>
 
         <div class="student-en"
-          id="studentEnglish"></div>
+          id="studentEnglish">
+        </div>
 
         <div id="studentParents"></div>
 
         <div class="student-id"
-          id="studentId"></div>
+          id="studentId">
+        </div>
 
       </div>
 
@@ -1530,7 +1660,8 @@ nav {
     <div class="student-footer">
 
       <div class="barcode"
-        id="studentBarcode"></div>
+        id="studentBarcode">
+      </div>
 
       <div class="student-footer-text">
         STUDENT ID CARD
@@ -1540,18 +1671,17 @@ nav {
 
   </div>
 
-
-  <!-- CURRENT PLAYER -->
+  <!-- PLAYER -->
 
   <div class="game-player">
 
     <div class="game-avatar"
-      id="gameAvatar"></div>
+      id="gameAvatar">
+    </div>
 
     <span id="gamePlayer"></span>
 
   </div>
-
 
   <!-- SCORE -->
 
@@ -1563,8 +1693,9 @@ nav {
         คะแนน
       </div>
 
-      <div class="score-value"
-        id="score">0</div>
+      <div class="score-value" id="score">
+        0
+      </div>
 
     </div>
 
@@ -1575,7 +1706,9 @@ nav {
       </div>
 
       <div class="score-value"
-        id="personalBest">0</div>
+        id="personalBest">
+        0
+      </div>
 
     </div>
 
@@ -1586,17 +1719,29 @@ nav {
       </div>
 
       <div class="score-value"
-        id="mascotBest">0</div>
+        id="mascotBest">
+        0
+      </div>
 
     </div>
 
   </div>
 
+  <!-- SMOOTH BOARD -->
 
-  <!-- BOARD -->
+  <div class="board"
+    id="board"
+    aria-label="กระดานเกม 2048">
 
-  <div class="board" id="board"></div>
+    <div class="board-background"
+      id="boardBackground">
+    </div>
 
+    <div class="piece-layer"
+      id="pieceLayer">
+    </div>
+
+  </div>
 
   <!-- CUTE BUTTONS -->
 
@@ -1621,7 +1766,8 @@ nav {
           stroke-linecap="round"/>
 
         <circle cx="37" cy="9" r="3"
-          fill="currentColor" opacity=".4"/>
+          fill="currentColor"
+          opacity=".4"/>
 
       </svg>
 
@@ -1629,19 +1775,21 @@ nav {
 
     </button>
 
-
     <button
       class="cute-btn cute-restart"
+      id="restartBtn"
       onclick="restartGame()">
 
       <svg viewBox="0 0 48 48" fill="none">
 
-        <path d="M39 20A16 16 0 1 0 38 31"
+        <path
+          d="M39 20A16 16 0 1 0 38 31"
           stroke="currentColor"
           stroke-width="4.5"
           stroke-linecap="round"/>
 
-        <path d="M39 8V21H26"
+        <path
+          d="M39 8V21H26"
           stroke="currentColor"
           stroke-width="4.5"
           stroke-linecap="round"
@@ -1657,7 +1805,6 @@ nav {
       <span>เริ่มใหม่</span>
 
     </button>
-
 
     <button
       class="cute-btn cute-ranking"
@@ -1693,21 +1840,23 @@ nav {
 
   </div>
 
-  <div class="instructions">
+  <div class="instructions" id="gameHint">
     ปัดขึ้น ลง ซ้าย หรือขวา เพื่อรวมภาพหลาน<br>
     รวมภาพที่เหมือนกันเพื่อปลดล็อกภาพใหม่
   </div>
 
-  <button class="primary"
+  <button
+    class="primary"
     onclick="openGameCollection()">
+
     ดูอัลบั้มสะสมของหลาน
+
   </button>
 
 </section>
 
-
 <!-- =====================================
-     RANKING PAGE
+     RANKING
 ===================================== -->
 
 <section id="rankingPage" class="hidden">
@@ -1717,15 +1866,15 @@ nav {
   </div>
 
   <div class="rank-filter"
-    id="rankFilter"></div>
+    id="rankFilter">
+  </div>
 
   <div id="rankList"></div>
 
 </section>
 
-
 <!-- =====================================
-     COLLECTION PAGE
+     COLLECTION
 ===================================== -->
 
 <section id="collectionPage" class="hidden">
@@ -1735,15 +1884,15 @@ nav {
   </div>
 
   <div class="rank-filter"
-    id="collectionFilter"></div>
+    id="collectionFilter">
+  </div>
 
   <div id="collectionContent"></div>
 
 </section>
 
-
 <!-- =====================================
-     PROFILE PAGE
+     PROFILE
 ===================================== -->
 
 <section id="profilePage" class="hidden">
@@ -1757,11 +1906,12 @@ nav {
     <div class="profile-avatar-wrap">
 
       <div class="profile-avatar"
-        id="profileAvatar"></div>
+        id="profileAvatar">
+      </div>
 
       <button
         class="edit-avatar-btn"
-        aria-label="เปลี่ยนรูปโปรไฟล์"
+        aria-label="แก้ไขโปรไฟล์"
         onclick="openProfileModal()">
 
         <svg viewBox="0 0 24 24"
@@ -1779,7 +1929,8 @@ nav {
     </div>
 
     <div class="profile-name"
-      id="profileName"></div>
+      id="profileName">
+    </div>
 
     <div class="profile-subtitle">
       คุณอุนยายแห่งอนุบาลสีฟ้า
@@ -1794,7 +1945,9 @@ nav {
         </div>
 
         <div class="profile-stat-value"
-          id="profileScore">0</div>
+          id="profileScore">
+          0
+        </div>
 
       </div>
 
@@ -1805,15 +1958,20 @@ nav {
         </div>
 
         <div class="profile-stat-value"
-          id="profilePlayed">0</div>
+          id="profilePlayed">
+          0
+        </div>
 
       </div>
 
     </div>
 
-    <button class="primary"
+    <button
+      class="primary"
       onclick="openProfileModal()">
+
       แก้ไขชื่อและรูปโปรไฟล์
+
     </button>
 
   </div>
@@ -1828,14 +1986,14 @@ nav {
 
 </div>
 
-
 <!-- =====================================
-     BOTTOM NAVIGATION
+     BOTTOM NAV
 ===================================== -->
 
 <nav>
 
-  <button class="nav-btn active"
+  <button
+    class="nav-btn active"
     data-page="home"
     onclick="showPage('home')">
 
@@ -1845,7 +2003,8 @@ nav {
       stroke-width="1.8"
       stroke-linejoin="round">
 
-      <path d="M3 10L12 2L21 10V21H15V14H9V21H3Z"/>
+      <path
+        d="M3 10L12 2L21 10V21H15V14H9V21H3Z"/>
 
     </svg>
 
@@ -1853,10 +2012,10 @@ nav {
 
   </button>
 
-
-  <button class="nav-btn"
+  <button
+    class="nav-btn"
     data-page="ranking"
-    onclick="showPage('ranking')">
+    onclick="openAllRanking()">
 
     <svg viewBox="0 0 24 24"
       fill="none"
@@ -1874,8 +2033,8 @@ nav {
 
   </button>
 
-
-  <button class="nav-btn"
+  <button
+    class="nav-btn"
     data-page="collection"
     onclick="showPage('collection')">
 
@@ -1897,8 +2056,8 @@ nav {
 
   </button>
 
-
-  <button class="nav-btn"
+  <button
+    class="nav-btn"
     data-page="profile"
     onclick="showPage('profile')">
 
@@ -1908,6 +2067,7 @@ nav {
       stroke-width="1.8">
 
       <circle cx="12" cy="7" r="4"/>
+
       <path d="M4 22V19A8 8 0 0 1 20 19V22"/>
 
     </svg>
@@ -1918,16 +2078,14 @@ nav {
 
 </nav>
 
-
 <!-- =====================================
-     EDIT PROFILE MODAL
+     PROFILE MODAL
 ===================================== -->
 
 <div class="modal hidden"
   id="profileModal"
   role="dialog"
-  aria-modal="true"
-  aria-labelledby="profileModalTitle">
+  aria-modal="true">
 
   <div class="modal-box">
 
@@ -1941,12 +2099,15 @@ nav {
 
     <div class="profile-avatar"
       id="editAvatarPreview"
-      style="margin: auto;">
+      style="margin:auto">
     </div>
 
-    <label class="input-label"
+    <label
+      class="input-label"
       for="playerNameInput">
+
       ชื่อคุณอุนยาย
+
     </label>
 
     <input
@@ -1958,7 +2119,9 @@ nav {
 
     <div class="error-text hidden"
       id="profileError">
+
       กรุณาตั้งชื่อคุณอุนยายก่อนนะคะ
+
     </div>
 
     <div class="input-label">
@@ -1966,32 +2129,35 @@ nav {
     </div>
 
     <div class="avatar-grid"
-      id="avatarGrid"></div>
+      id="avatarGrid">
+    </div>
 
     <button class="primary"
       onclick="saveProfile()">
+
       บันทึกโปรไฟล์
+
     </button>
 
     <button class="cancel-text"
       onclick="closeProfileModal()">
+
       ยกเลิก
+
     </button>
 
   </div>
 
 </div>
 
-
 <!-- =====================================
-     RESTART CONFIRMATION
+     RESTART MODAL
 ===================================== -->
 
 <div class="modal hidden"
   id="restartModal"
   role="dialog"
-  aria-modal="true"
-  aria-labelledby="restartTitle">
+  aria-modal="true">
 
   <div class="modal-box">
 
@@ -1999,12 +2165,14 @@ nav {
 
       <svg viewBox="0 0 48 48" fill="none">
 
-        <path d="M39 20A16 16 0 1 0 38 31"
+        <path
+          d="M39 20A16 16 0 1 0 38 31"
           stroke="currentColor"
           stroke-width="4"
           stroke-linecap="round"/>
 
-        <path d="M39 8V21H26"
+        <path
+          d="M39 8V21H26"
           stroke="currentColor"
           stroke-width="4"
           stroke-linecap="round"
@@ -2018,9 +2186,7 @@ nav {
 
     </div>
 
-    <h2 id="restartTitle">
-      เริ่มเล่นใหม่ไหมคะ?
-    </h2>
+    <h2>เริ่มเล่นใหม่ไหมคะ?</h2>
 
     <p>
       คะแนนรอบนี้จะถูกเริ่มใหม่<br>
@@ -2033,13 +2199,17 @@ nav {
       <button
         class="modal-btn modal-cancel"
         onclick="closeRestartModal()">
+
         เล่นต่อก่อน
+
       </button>
 
       <button
         class="modal-btn modal-confirm"
         onclick="confirmRestart()">
+
         เริ่มใหม่เลย
+
       </button>
 
     </div>
@@ -2048,7 +2218,6 @@ nav {
 
 </div>
 
-
 <!-- =====================================
      MESSAGE MODAL
 ===================================== -->
@@ -2056,36 +2225,37 @@ nav {
 <div class="modal hidden"
   id="messageModal"
   role="dialog"
-  aria-modal="true"
-  aria-labelledby="messageTitle">
+  aria-modal="true">
 
   <div class="modal-box">
 
     <div class="modal-icon"
-      id="messageIcon"></div>
+      id="messageIcon">
+    </div>
 
     <h2 id="messageTitle"></h2>
 
     <p id="messageText"></p>
 
-    <button class="primary"
+    <button
+      class="primary"
       onclick="closeMessage()">
+
       ตกลง
+
     </button>
 
   </div>
 
 </div>
 
-
 <script>
 
-/* =========================================
+/* ========================================
    1. MASCOT DATABASE
 
-   เพิ่มข้อมูลหลานทุกตัวตรงนี้
-   parents สามารถกำหนดได้หลายคน
-========================================= */
+   เพิ่มข้อมูลหลานทั้งหมดตรงนี้
+======================================== */
 
 const MASCOTS = [
 
@@ -2116,7 +2286,6 @@ const MASCOTS = [
     fullName: "เพิ่มพูน",
     color: "#efc6dd",
     studentId: "002",
-
     parents: []
   },
 
@@ -2127,7 +2296,6 @@ const MASCOTS = [
     fullName: "จัมโม่",
     color: "#efdbb6",
     studentId: "003",
-
     parents: []
   },
 
@@ -2138,7 +2306,6 @@ const MASCOTS = [
     fullName: "เบบี๋",
     color: "#d8c9ef",
     studentId: "004",
-
     parents: []
   },
 
@@ -2149,7 +2316,6 @@ const MASCOTS = [
     fullName: "ลูกคุณหนู",
     color: "#c5dfc8",
     studentId: "005",
-
     parents: []
   },
 
@@ -2160,24 +2326,42 @@ const MASCOTS = [
     fullName: "สำรวย",
     color: "#efd1b8",
     studentId: "006",
-
     parents: []
   }
 
 ];
 
-
 const LEVELS = [
-
   2, 4, 8, 16, 32, 64,
   128, 256, 512, 1024, 2048
-
 ];
 
+/* ========================================
+   2. GAME SETTINGS
+======================================== */
 
-/* =========================================
-   2. SVG ICONS
-========================================= */
+const SETTINGS = {
+
+  // ความเร็วในการเลื่อนภาพ
+  moveDuration: 110,
+
+  // ระยะขั้นต่ำในการปัดนิ้ว
+  swipeThreshold: 20,
+
+  // จำนวนคำสั่งที่รอได้
+  maxQueue: 2,
+
+  // โอกาสเกิดเลข 4
+  fourChance: 0.10,
+
+  // จำนวนครั้งที่ย้อนกลับได้
+  undoLimit: 1
+
+};
+
+/* ========================================
+   3. SVG ICONS
+======================================== */
 
 const ICONS = {
 
@@ -2240,22 +2424,70 @@ const ICONS = {
 
 };
 
+/* ========================================
+   4. HELPERS
+======================================== */
 
-/* =========================================
-   3. SAVE DATA
+const $ = id =>
+  document.getElementById(id);
 
-   ใช้ key เดิมเพื่อรักษาข้อมูล
-   จากโค้ดเวอร์ชันแรก
-========================================= */
+const format = n =>
+  Number(n || 0).toLocaleString("en-US");
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#39;");
+
+}
+
+function getMascot(id) {
+
+  return MASCOTS.find(m => m.id === id);
+
+}
+
+function isModalOpen() {
+
+  return !!document.querySelector(
+    ".modal:not(.hidden)"
+  );
+
+}
+
+/* ========================================
+   5. SAVE SYSTEM
+======================================== */
 
 const SAVE_KEY = "mascot2048_v1";
+
+function createPlayerId() {
+
+  return globalThis.crypto?.randomUUID?.()
+
+    || Date.now().toString() +
+
+       Math.random().toString(36).slice(2);
+
+}
 
 function loadSave() {
 
   try {
 
     const data = JSON.parse(
+
       localStorage.getItem(SAVE_KEY)
+
     );
 
     if (data && typeof data === "object") {
@@ -2272,9 +2504,7 @@ function loadSave() {
 
   return {
 
-    playerId:
-      globalThis.crypto?.randomUUID?.()
-      || Date.now().toString(),
+    playerId: createPlayerId(),
 
     playerName: "",
 
@@ -2285,48 +2515,55 @@ function loadSave() {
     records: []
 
   };
+
 }
 
 let save = loadSave();
 
-save.games ||= {};
-
-save.records = Array.isArray(save.records)
-  ? save.records
-  : [];
+save.playerId ||= createPlayerId();
 
 save.playerName ||= "";
 
-save.avatarMascot ||= MASCOTS[0].id;
+save.games ||= {};
 
-save.playerId ||=
-  globalThis.crypto?.randomUUID?.()
-  || Date.now().toString();
+save.records = Array.isArray(save.records)
 
+  ? save.records
+
+  : [];
+
+if (!getMascot(save.avatarMascot)) {
+
+  save.avatarMascot = MASCOTS[0].id;
+
+}
 
 function persist() {
 
   try {
 
     localStorage.setItem(
+
       SAVE_KEY,
+
       JSON.stringify(save)
+
     );
 
   } catch (error) {
 
     console.warn(
-      "ไม่สามารถบันทึกข้อมูลได้",
+      "บันทึกข้อมูลไม่สำเร็จ",
       error
     );
 
   }
+
 }
 
-
-/* =========================================
-   4. GLOBAL VARIABLES
-========================================= */
+/* ========================================
+   6. GLOBAL GAME STATE
+======================================== */
 
 let currentPage = "home";
 
@@ -2352,58 +2589,33 @@ let won = false;
 
 let gameOver = false;
 
+// Smooth engine
 
-const $ = id =>
-  document.getElementById(id);
+let moving = false;
 
+let inputQueue = [];
 
-const format = n =>
-  Number(n || 0).toLocaleString("en-US");
+let motionVersion = 0;
 
+let queueFrame = null;
 
-function escapeHTML(value) {
+let pieceElements = new Map();
 
-  return String(value ?? "")
+let pointerStart = null;
 
-    .replaceAll("&", "&amp;")
+let swipeTriggered = false;
 
-    .replaceAll("<", "&lt;")
+const preloadedImages = new Map();
 
-    .replaceAll(">", "&gt;")
-
-    .replaceAll('"', "&quot;")
-
-    .replaceAll("'", "&#39;");
-
-}
-
-
-function getMascot(id) {
-
-  return MASCOTS.find(m => m.id === id);
-
-}
-
-
-function isModalOpen() {
-
-  return !!document.querySelector(
-    ".modal:not(.hidden)"
-  );
-
-}
-
-
-/* =========================================
-   5. IMAGE SYSTEM
-========================================= */
+/* ========================================
+   7. IMAGE SYSTEM
+======================================== */
 
 function imagePath(id, value) {
 
   return `images/${id}/${value}.jpg`;
 
 }
-
 
 function photoHTML(id, value) {
 
@@ -2421,12 +2633,14 @@ function photoHTML(id, value) {
 
   }
 
-  const isNumber = typeof value === "number";
-
   const fallback =
+
     value === "profile" ||
+
     value === "student"
+
       ? imagePath(id, "cover")
+
       : "";
 
   return `
@@ -2437,15 +2651,14 @@ function photoHTML(id, value) {
 
         ${ICONS.image}
 
-        ${isNumber ? value : ""}
-
       </div>
 
       <img
-        src="${escapeHTML(imagePath(id, value))}"
+        src="${escapeHTML(imagePath(id,value))}"
         data-fallback="${escapeHTML(fallback)}"
         alt="${escapeHTML(mascot.name)}"
         draggable="false"
+        decoding="async"
         onerror="handleImageError(this)">
 
     </div>
@@ -2453,7 +2666,6 @@ function photoHTML(id, value) {
   `;
 
 }
-
 
 function handleImageError(img) {
 
@@ -2470,19 +2682,25 @@ function handleImageError(img) {
     img.remove();
 
   }
-}
 
+}
 
 function avatarHTML(id) {
 
   if (!getMascot(id)) {
 
     return `
+
       <div class="photo">
+
         <div class="placeholder">
+
           ${ICONS.user}
+
         </div>
+
       </div>
+
     `;
 
   }
@@ -2491,24 +2709,71 @@ function avatarHTML(id) {
 
 }
 
+function preloadMascotImages(id) {
+
+  if (!id) return;
+
+  const values = [
+
+    "cover",
+
+    "profile",
+
+    "student",
+
+    ...LEVELS
+
+  ];
+
+  values.forEach(value => {
+
+    const path = imagePath(id, value);
+
+    if (preloadedImages.has(path)) {
+
+      return;
+
+    }
+
+    const img = new Image();
+
+    img.decoding = "async";
+
+    preloadedImages.set(path, img);
+
+    img.src = path;
+
+    img.decode?.().catch(() => {});
+
+  });
+
+}
 
 function renderHeaderAvatar() {
 
   $("headerAvatar").innerHTML =
+
     avatarHTML(save.avatarMascot);
 
 }
 
-
-/* =========================================
-   6. NAVIGATION
-========================================= */
+/* ========================================
+   8. NAVIGATION
+======================================== */
 
 function showPage(page) {
 
   if (!$(page + "Page")) return;
 
+  if (page === "game" && !currentMascot) {
+
+    return;
+
+  }
+
   if (currentPage === "game") {
+
+    cancelMotion();
 
     saveGame();
 
@@ -2527,48 +2792,53 @@ function showPage(page) {
   $(page + "Page")
     .classList.remove("hidden");
 
-
   document.querySelectorAll(
     ".nav-btn"
   ).forEach(button => {
 
     button.classList.toggle(
+
       "active",
+
       button.dataset.page === page
+
     );
 
   });
 
+  switch (page) {
 
-  if (page === "home") {
+    case "home":
 
-    renderHome();
+      renderHome();
 
-  }
+      break;
 
-  if (page === "game") {
+    case "game":
 
-    renderGameHeader();
+      renderGameHeader();
 
-    renderBoard();
+      renderBoard();
 
-  }
+      break;
 
-  if (page === "ranking") {
+    case "ranking":
 
-    renderRanking();
+      renderRanking();
 
-  }
+      break;
 
-  if (page === "collection") {
+    case "collection":
 
-    renderCollection();
+      renderCollection();
 
-  }
+      break;
 
-  if (page === "profile") {
+    case "profile":
 
-    renderProfile();
+      renderProfile();
+
+      break;
 
   }
 
@@ -2578,10 +2848,9 @@ function showPage(page) {
 
 }
 
-
-/* =========================================
-   7. SCORE SYSTEM
-========================================= */
+/* ========================================
+   9. SCORE SYSTEM
+======================================== */
 
 function getRecords(id = "all") {
 
@@ -2597,16 +2866,15 @@ function getRecords(id = "all") {
 
     )
 
-    .sort((a, b) =>
+    .sort((a,b) =>
 
       b.score - a.score ||
 
-      a.date - b.date
+      (a.date || 0) - (b.date || 0)
 
     );
 
 }
-
 
 function getChampion(id = "all") {
 
@@ -2614,19 +2882,19 @@ function getChampion(id = "all") {
 
 }
 
-
 function getPersonalBest(id) {
 
-  return save.records.find(r =>
+  const records = getRecords(id)
 
-    r.playerId === save.playerId &&
+    .filter(r =>
 
-    r.mascotId === id
+      r.playerId === save.playerId
 
-  )?.score || 0;
+    );
+
+  return records[0]?.score || 0;
 
 }
-
 
 function updateRecord() {
 
@@ -2645,7 +2913,6 @@ function updateRecord() {
     r.mascotId === id
 
   );
-
 
   if (!record) {
 
@@ -2669,7 +2936,6 @@ function updateRecord() {
 
   }
 
-
   if (score > record.score) {
 
     record.score = score;
@@ -2682,17 +2948,11 @@ function updateRecord() {
 
   record.avatarMascot = save.avatarMascot;
 
-  persist();
-
 }
 
-
-/* =========================================
-   8. HOME PAGE
-
-   เรียงหลานตามคะแนนสูงสุด
-   แสดง 4 ตัวต่อแถว
-========================================= */
+/* ========================================
+   10. HOME PAGE
+======================================== */
 
 function renderHome() {
 
@@ -2701,25 +2961,35 @@ function renderHome() {
   if (champion) {
 
     const mascot = getMascot(
+
       champion.mascotId
+
     );
 
     $("worldName").textContent =
+
       champion.playerName;
 
     $("worldMascot").textContent =
+
       "หลาน : " + mascot.name;
 
     $("worldScore").textContent =
+
       format(champion.score);
 
     $("worldPhoto").innerHTML =
+
       photoHTML(mascot.id, "cover");
 
     $("worldAvatar").innerHTML =
+
       avatarHTML(
+
         champion.avatarMascot ||
+
         champion.mascotId
+
       );
 
     $("worldAvatar")
@@ -2728,19 +2998,27 @@ function renderHome() {
   } else {
 
     $("worldName").textContent =
+
       "ยังไม่มีแชมป์";
 
     $("worldMascot").textContent =
+
       "มาเป็นแชมป์คนแรกกันเถอะ";
 
     $("worldScore").textContent = "0";
 
     $("worldPhoto").innerHTML = `
+
       <div class="photo">
+
         <div class="placeholder">
+
           ${ICONS.trophy}
+
         </div>
+
       </div>
+
     `;
 
     $("worldAvatar")
@@ -2748,37 +3026,43 @@ function renderHome() {
 
   }
 
-
   const query = $("searchMascot")
+
     .value.toLowerCase().trim();
 
+  const sorted = [...MASCOTS]
 
-  const sortedMascots = [...MASCOTS]
+    .sort((a,b) => {
 
-    .sort((a, b) => {
+      const A = getChampion(a.id);
 
-      const bestA = getChampion(a.id);
+      const B = getChampion(b.id);
 
-      const bestB = getChampion(b.id);
+      const difference =
 
-      return (
+        (B?.score || 0) -
 
-        (bestB?.score || 0) -
-        (bestA?.score || 0)
+        (A?.score || 0);
 
-        ||
+      if (difference !== 0) {
 
-        (bestA?.date || Infinity) -
-        (bestB?.date || Infinity)
+        return difference;
 
-      );
+      }
+
+      if (A && B) {
+
+        return A.date - B.date;
+
+      }
+
+      return 0;
 
     });
 
+  const visible = sorted
 
-  const visibleMascots = sortedMascots
-
-    .map((m, index) => ({
+    .map((m,index) => ({
 
       ...m,
 
@@ -2789,15 +3073,16 @@ function renderHome() {
     .filter(m =>
 
       (m.name + " " + m.en)
+
         .toLowerCase()
+
         .includes(query)
 
     );
 
-
   $("mascotGrid").innerHTML =
 
-    visibleMascots.map(m => {
+    visible.map(m => {
 
       const best = getChampion(m.id);
 
@@ -2836,9 +3121,7 @@ function renderHome() {
           <div class="record">
 
             <div class="record-label">
-
               อุนยายแชมป์
-
             </div>
 
             <div class="record-name"
@@ -2865,8 +3148,7 @@ function renderHome() {
 
     }).join("");
 
-
-  if (!visibleMascots.length) {
+  if (!visible.length) {
 
     $("mascotGrid").innerHTML = `
 
@@ -2880,19 +3162,19 @@ function renderHome() {
     `;
 
   }
+
 }
 
-
-/* =========================================
-   9. PROFILE EDITOR
-========================================= */
+/* ========================================
+   11. PROFILE EDITOR
+======================================== */
 
 function openProfileModal() {
 
-  draftAvatar =
-    save.avatarMascot || MASCOTS[0].id;
+  draftAvatar = save.avatarMascot;
 
   $("playerNameInput").value =
+
     save.playerName;
 
   $("profileError")
@@ -2906,7 +3188,6 @@ function openProfileModal() {
 
       : "สวัสดีคุณอุนยาย";
 
-
   renderAvatarPicker();
 
   $("profileModal")
@@ -2914,22 +3195,19 @@ function openProfileModal() {
 
 }
 
-
 function renderAvatarPicker() {
 
   $("editAvatarPreview").innerHTML =
-    avatarHTML(draftAvatar);
 
+    avatarHTML(draftAvatar);
 
   $("avatarGrid").innerHTML =
 
     MASCOTS.map(m => `
 
       <button
-
         class="avatar-option
           ${draftAvatar === m.id ? "selected" : ""}"
-
         onclick="selectAvatar('${m.id}')">
 
         <div class="avatar-option-photo"
@@ -2961,7 +3239,6 @@ function renderAvatarPicker() {
 
 }
 
-
 function selectAvatar(id) {
 
   if (!getMascot(id)) return;
@@ -2972,7 +3249,6 @@ function selectAvatar(id) {
 
 }
 
-
 function closeProfileModal() {
 
   pendingMascot = null;
@@ -2982,10 +3258,10 @@ function closeProfileModal() {
 
 }
 
-
 function saveProfile() {
 
   const name = $("playerNameInput")
+
     .value.trim();
 
   if (!name) {
@@ -2999,13 +3275,9 @@ function saveProfile() {
 
   }
 
-
   save.playerName = name;
 
   save.avatarMascot = draftAvatar;
-
-
-  // เปลี่ยนชื่อและรูปในสถิติเดิมทั้งหมด
 
   save.records.forEach(r => {
 
@@ -3019,7 +3291,6 @@ function saveProfile() {
 
   });
 
-
   persist();
 
   const pending = pendingMascot;
@@ -3027,7 +3298,6 @@ function saveProfile() {
   closeProfileModal();
 
   renderHeaderAvatar();
-
 
   if (pending) {
 
@@ -3041,17 +3311,15 @@ function saveProfile() {
 
 }
 
-
-/* =========================================
-   10. SELECT MASCOT
-========================================= */
+/* ========================================
+   12. SELECT MASCOT
+======================================== */
 
 function selectMascot(id) {
 
   const mascot = getMascot(id);
 
   if (!mascot) return;
-
 
   if (!save.playerName) {
 
@@ -3063,6 +3331,7 @@ function selectMascot(id) {
 
   }
 
+  cancelMotion();
 
   saveGame();
 
@@ -3074,19 +3343,25 @@ function selectMascot(id) {
 
     "--theme",
 
-    currentMascot.color
+    mascot.color
 
   );
 
+  preloadMascotImages(id);
 
   const old = save.games[id];
-
 
   if (
 
     Array.isArray(old?.board) &&
 
-    old.board.length === 16
+    old.board.length === 16 &&
+
+    old.board.every(n =>
+
+      Number.isFinite(n) && n >= 0
+
+    )
 
   ) {
 
@@ -3108,15 +3383,13 @@ function selectMascot(id) {
 
   }
 
-
   showPage("game");
 
 }
 
-
-/* =========================================
-   11. STUDENT CARD
-========================================= */
+/* ========================================
+   13. STUDENT CARD
+======================================== */
 
 function renderStudentCard() {
 
@@ -3124,110 +3397,97 @@ function renderStudentCard() {
 
   const m = currentMascot;
 
-
   $("studentPhoto").innerHTML =
+
     photoHTML(m.id, "student");
 
-
   $("studentName").textContent =
+
     m.fullName || m.name;
 
-
-  $("studentEnglish").textContent =
-    m.en;
-
+  $("studentEnglish").textContent = m.en;
 
   $("studentId").textContent =
+
     "รหัสนักเรียน " + m.studentId;
 
+  $("studentParents").innerHTML =
 
-  if (m.parents?.length) {
+    m.parents?.length
 
-    $("studentParents").innerHTML =
+      ? m.parents.map(parent => `
 
-      m.parents.map(parent => `
+          <div class="student-parent">
+
+            ${escapeHTML(parent.role)} :
+
+            <strong>
+
+              ${escapeHTML(parent.name)}
+
+            </strong>
+
+          </div>
+
+        `).join("")
+
+      : `
 
         <div class="student-parent">
 
-          ${escapeHTML(parent.role)} :
-
-          <strong>
-            ${escapeHTML(parent.name)}
-          </strong>
+          ข้อมูลผู้ปกครอง : —
 
         </div>
 
-      `).join("");
+      `;
 
-  } else {
-
-    $("studentParents").innerHTML = `
-
-      <div class="student-parent">
-
-        ข้อมูลผู้ปกครอง : —
-
-      </div>
-
-    `;
-
-  }
-
-
-  // บาร์โค้ดตกแต่งประจำบัตร
-
-  const seed =
-    Number(m.studentId) || 1;
+  const seed = Number(m.studentId) || 1;
 
   $("studentBarcode").innerHTML =
 
-    Array.from({ length: 27 }, (_, i) => {
+    Array.from({length:27}, (_,i) => {
 
-      const width =
-        (i * 7 + seed) % 3 + 1;
+      const width = (i * 7 + seed) % 3 + 1;
 
       return `
+
         <span style="width:${width}px"></span>
+
       `;
 
     }).join("");
 
 }
 
-
 function renderGameHeader() {
 
   if (!currentMascot) return;
 
-
   $("gameTitle").textContent =
+
     currentMascot.en + " 2048";
 
-
   $("gamePlayer").textContent =
+
     "คุณอุนยาย : " + save.playerName;
 
-
   $("gameAvatar").innerHTML =
-    avatarHTML(save.avatarMascot);
 
+    avatarHTML(save.avatarMascot);
 
   renderStudentCard();
 
 }
 
-
-/* =========================================
-   12. GAME SAVE
-========================================= */
+/* ========================================
+   14. SAVE GAME
+======================================== */
 
 function saveGame() {
 
   if (!currentMascot) return;
 
-  const old =
-    save.games[currentMascot.id] || {};
-
+  const old = save.games[currentMascot.id] || {};
 
   const unlocked = new Set(
 
@@ -3235,17 +3495,15 @@ function saveGame() {
 
   );
 
+  board.forEach(value => {
 
-  board.forEach(n => {
+    if (value > 0) {
 
-    if (n > 0) {
-
-      unlocked.add(n);
+      unlocked.add(value);
 
     }
 
   });
-
 
   save.games[currentMascot.id] = {
 
@@ -3265,17 +3523,65 @@ function saveGame() {
 
   };
 
-
   persist();
 
 }
 
+/* ========================================
+   15. RANDOM TILE
 
-/* =========================================
-   13. NEW GAME
-========================================= */
+   เลข 2 = 90%
+   เลข 4 = 10%
+   สุ่มเฉพาะช่องว่าง
+======================================== */
+
+function randomInt(max) {
+
+  return Math.floor(Math.random() * max);
+
+}
+
+function addTile() {
+
+  const empty = [];
+
+  board.forEach((value,index) => {
+
+    if (value === 0) {
+
+      empty.push(index);
+
+    }
+
+  });
+
+  if (!empty.length) return -1;
+
+  const index = empty[
+
+    randomInt(empty.length)
+
+  ];
+
+  board[index] =
+
+    Math.random() < SETTINGS.fourChance
+
+      ? 4
+
+      : 2;
+
+  return index;
+
+}
+
+/* ========================================
+   16. NEW GAME
+======================================== */
 
 function newGame() {
+
+  cancelMotion();
 
   board = Array(16).fill(0);
 
@@ -3297,14 +3603,24 @@ function newGame() {
 
 }
 
-
 function restartGame() {
+
+  if (
+
+    moving ||
+
+    isModalOpen() ||
+
+    currentPage !== "game"
+
+  ) return;
+
+  inputQueue = [];
 
   $("restartModal")
     .classList.remove("hidden");
 
 }
-
 
 function closeRestartModal() {
 
@@ -3313,8 +3629,11 @@ function closeRestartModal() {
 
 }
 
-
 function confirmRestart() {
+
+  if (currentPage !== "game") return;
+
+  cancelMotion();
 
   closeRestartModal();
 
@@ -3322,92 +3641,172 @@ function confirmRestart() {
 
   newGame();
 
-  renderBoard();
+  renderBoard(true);
 
 }
 
+/* ========================================
+   17. SMOOTH BOARD RENDERER
 
-function addTile() {
+   พื้นหลัง 16 ช่องอยู่คงที่
+   ภาพหลานอยู่ใน Layer แยก
+======================================== */
 
-  const empty = [];
+function initializeBoard() {
 
-  board.forEach((n, i) => {
+  $("boardBackground").innerHTML =
 
-    if (n === 0) {
+    Array.from({length:16}, () =>
 
-      empty.push(i);
+      '<div class="board-cell"></div>'
 
-    }
-
-  });
-
-
-  if (!empty.length) return -1;
-
-
-  const index = empty[
-
-    Math.floor(Math.random() * empty.length)
-
-  ];
-
-
-  board[index] =
-
-    Math.random() < 0.9 ? 2 : 4;
-
-
-  return index;
+    ).join("");
 
 }
 
+function positionPiece(piece,index) {
 
-/* =========================================
-   14. RENDER BOARD
-========================================= */
+  piece.style.setProperty(
 
-function renderBoard(newIndex = -1) {
+    "--col",
 
-  if (!currentMascot) return;
+    index % 4
 
+  );
 
-  $("board").innerHTML = board.map((n, i) => {
+  piece.style.setProperty(
 
-    if (!n) {
+    "--row",
 
-      return '<div class="tile"></div>';
+    Math.floor(index / 4)
 
-    }
+  );
 
-    return `
+  piece.dataset.index = index;
 
-      <div class="tile filled
-        ${i === newIndex ? "pop" : ""}">
+}
 
-        ${photoHTML(
+function createPiece(value,index,animation="") {
 
-          currentMascot.id,
+  const piece = document.createElement("div");
 
-          Math.min(n, 2048)
+  piece.className = "game-piece";
 
-        )}
+  piece.dataset.value = value;
 
-        <div class="tile-number">
+  positionPiece(piece,index);
 
-          ${n}
+  piece.innerHTML = `
 
-        </div>
+    <div class="piece-content">
+
+      ${photoHTML(
+
+        currentMascot.id,
+
+        Math.min(value,2048)
+
+      )}
+
+      <div class="tile-number">
+
+        ${value}
 
       </div>
 
-    `;
+    </div>
 
-  }).join("");
+  `;
 
+  if (animation) {
+
+    piece.classList.add(animation);
+
+  }
+
+  $("pieceLayer").appendChild(piece);
+
+  return piece;
+
+}
+
+function cancelMotion() {
+
+  motionVersion++;
+
+  moving = false;
+
+  inputQueue = [];
+
+  pointerStart = null;
+
+  swipeTriggered = false;
+
+  if (queueFrame !== null) {
+
+    cancelAnimationFrame(queueFrame);
+
+    queueFrame = null;
+
+  }
+
+  $("pieceLayer")
+
+    ?.querySelectorAll(".game-piece")
+
+    .forEach(piece => {
+
+      piece.getAnimations?.()
+
+        .forEach(animation => {
+
+          animation.cancel();
+
+        });
+
+    });
+
+}
+
+function renderBoard(animateStart=false) {
+
+  if (!currentMascot) return;
+
+  cancelMotion();
+
+  $("pieceLayer").innerHTML = "";
+
+  pieceElements = new Map();
+
+  board.forEach((value,index) => {
+
+    if (!value) return;
+
+    const piece = createPiece(
+
+      value,
+
+      index,
+
+      animateStart ? "spawn" : ""
+
+    );
+
+    pieceElements.set(index,piece);
+
+  });
+
+  updateScoreDisplay();
+
+}
+
+function updateScoreDisplay() {
+
+  if (!currentMascot) return;
 
   $("score").textContent =
-    format(score);
 
+    format(score);
 
   $("personalBest").textContent =
 
@@ -3417,7 +3816,6 @@ function renderBoard(newIndex = -1) {
 
     );
 
-
   $("mascotBest").textContent =
 
     format(
@@ -3426,67 +3824,214 @@ function renderBoard(newIndex = -1) {
 
     );
 
-
   $("undoBtn").disabled =
 
-    !previous || undoUsed;
+    moving ||
+
+    !previous ||
+
+    undoUsed;
+
+  $("restartBtn").disabled = moving;
+
+  $("gameHint").innerHTML =
+
+    gameOver
+
+      ? "จบเกมแล้วค่ะ กดเริ่มใหม่เพื่อเล่นอีกครั้ง"
+
+      : `
+
+        ปัดขึ้น ลง ซ้าย หรือขวา เพื่อรวมภาพหลาน<br>
+
+        รวมภาพที่เหมือนกันเพื่อปลดล็อกภาพใหม่
+
+      `;
 
 }
 
+function animateScore(gained) {
 
-/* =========================================
-   15. MERGE ENGINE
-========================================= */
+  if (gained <= 0) return;
 
-function mergeLine(line) {
+  const parent = $("score").parentElement;
 
-  const values = line.filter(n => n !== 0);
+  const element = document.createElement("div");
 
-  const result = [];
+  element.className = "score-floating";
+
+  element.textContent = "+" + format(gained);
+
+  parent.appendChild(element);
+
+  setTimeout(() => {
+
+    element.remove();
+
+  },700);
+
+}
+
+/* ========================================
+   18. CALCULATE MOVEMENT
+
+   คำนวณเส้นทางของภาพทุกชิ้น
+   แต่ละชิ้นรวมได้ครั้งเดียวต่อการปัด
+======================================== */
+
+function calculateMove(direction) {
+
+  const nextBoard = Array(16).fill(0);
+
+  const movements = [];
+
+  const mergedIndices = new Set();
 
   let gained = 0;
 
+  for (let i = 0; i < 4; i++) {
 
-  for (let i = 0; i < values.length; i++) {
+    const indices = [];
 
-    if (values[i] === values[i + 1]) {
+    for (let j = 0; j < 4; j++) {
 
-      const merged = values[i] * 2;
+      switch (direction) {
 
-      result.push(merged);
+        case "left":
 
-      gained += merged;
+          indices.push(i * 4 + j);
 
-      i++;
+          break;
 
-    } else {
+        case "right":
 
-      result.push(values[i]);
+          indices.push(i * 4 + 3 - j);
+
+          break;
+
+        case "up":
+
+          indices.push(j * 4 + i);
+
+          break;
+
+        case "down":
+
+          indices.push((3 - j) * 4 + i);
+
+          break;
+
+      }
+
+    }
+
+    const items = indices
+
+      .filter(index => board[index] !== 0)
+
+      .map(index => ({
+
+        from: index,
+
+        value: board[index]
+
+      }));
+
+    let target = 0;
+
+    for (let j = 0; j < items.length; j++) {
+
+      const item = items[j];
+
+      const next = items[j + 1];
+
+      const destination = indices[target];
+
+      if (
+
+        next &&
+
+        item.value === next.value
+
+      ) {
+
+        const mergedValue = item.value * 2;
+
+        nextBoard[destination] = mergedValue;
+
+        movements.push({
+
+          from: item.from,
+
+          to: destination,
+
+          merged: true
+
+        });
+
+        movements.push({
+
+          from: next.from,
+
+          to: destination,
+
+          merged: true
+
+        });
+
+        mergedIndices.add(destination);
+
+        gained += mergedValue;
+
+        j++;
+
+      } else {
+
+        nextBoard[destination] = item.value;
+
+        movements.push({
+
+          from: item.from,
+
+          to: destination,
+
+          merged: false
+
+        });
+
+      }
+
+      target++;
 
     }
 
   }
 
-
-  while (result.length < 4) {
-
-    result.push(0);
-
-  }
-
-
   return {
 
-    line: result,
+    nextBoard,
 
-    gained
+    movements,
+
+    mergedIndices,
+
+    gained,
+
+    changed: nextBoard.some(
+
+      (value,index) => value !== board[index]
+
+    )
 
   };
 
 }
 
+/* ========================================
+   19. INPUT QUEUE
+======================================== */
 
-function move(direction) {
+function queueMove(direction) {
 
   if (
 
@@ -3498,113 +4043,332 @@ function move(direction) {
 
   ) return;
 
-
   if (![
 
-    "left", "right", "up", "down"
+    "left",
+
+    "right",
+
+    "up",
+
+    "down"
 
   ].includes(direction)) return;
 
+  if (moving || queueFrame !== null) {
 
-  const oldBoard = [...board];
+    if (inputQueue.length < SETTINGS.maxQueue) {
 
-  const oldScore = score;
-
-  const oldWon = won;
-
-  let gained = 0;
-
-
-  for (let i = 0; i < 4; i++) {
-
-    const indices = [];
-
-
-    for (let j = 0; j < 4; j++) {
-
-      if (direction === "left") {
-
-        indices.push(i * 4 + j);
-
-      }
-
-      if (direction === "right") {
-
-        indices.push(i * 4 + (3 - j));
-
-      }
-
-      if (direction === "up") {
-
-        indices.push(j * 4 + i);
-
-      }
-
-      if (direction === "down") {
-
-        indices.push((3 - j) * 4 + i);
-
-      }
+      inputQueue.push(direction);
 
     }
-
-
-    const result = mergeLine(
-
-      indices.map(index => board[index])
-
-    );
-
-
-    gained += result.gained;
-
-
-    indices.forEach((index, j) => {
-
-      board[index] = result.line[j];
-
-    });
-
-  }
-
-
-  // ถ้ากระดานไม่เปลี่ยน
-  // จะไม่สร้างตัวใหม่และไม่เพิ่มคะแนน
-
-  if (
-
-    oldBoard.every((n, i) => n === board[i])
-
-  ) {
 
     return;
 
   }
 
+  move(direction);
 
-  // เก็บข้อมูลก่อนเดินสำหรับ Undo
+}
+
+function processNextMove() {
+
+  if (moving || queueFrame !== null) return;
+
+  if (
+
+    currentPage !== "game" ||
+
+    gameOver ||
+
+    isModalOpen()
+
+  ) {
+
+    inputQueue = [];
+
+    return;
+
+  }
+
+  if (!inputQueue.length) return;
+
+  const version = motionVersion;
+
+  queueFrame = requestAnimationFrame(() => {
+
+    queueFrame = null;
+
+    if (version !== motionVersion) return;
+
+    if (!inputQueue.length) return;
+
+    const direction = inputQueue.shift();
+
+    move(direction);
+
+  });
+
+}
+
+/* ========================================
+   20. ANIMATE MOVEMENT
+
+   ใช้ Transform เลื่อนภาพจริง
+   ไม่สร้างภาพใหม่ทั้งกระดาน
+======================================== */
+
+function animatePieceMovement(piece,from,to) {
+
+  if (!piece || from === to) {
+
+    return Promise.resolve();
+
+  }
+
+  const layer = $("pieceLayer");
+
+  const gap = parseFloat(
+
+    getComputedStyle($("board"))
+
+      .getPropertyValue("--gap")
+
+  ) || 7;
+
+  const stepX =
+
+    (layer.clientWidth + gap) / 4;
+
+  const stepY =
+
+    (layer.clientHeight + gap) / 4;
+
+  const dx =
+
+    (to % 4 - from % 4) * stepX;
+
+  const dy =
+
+    (
+
+      Math.floor(to / 4) -
+
+      Math.floor(from / 4)
+
+    ) * stepY;
+
+  piece.classList.remove("spawn","merged");
+
+  piece.classList.add("moving");
+
+  if (
+
+    !piece.animate ||
+
+    window.matchMedia(
+
+      "(prefers-reduced-motion: reduce)"
+
+    ).matches
+
+  ) {
+
+    return Promise.resolve();
+
+  }
+
+  const animation = piece.animate(
+
+    [
+
+      {
+
+        transform: "translate3d(0,0,0)"
+
+      },
+
+      {
+
+        transform:
+
+          `translate3d(${dx}px,${dy}px,0)`
+
+      }
+
+    ],
+
+    {
+
+      duration: SETTINGS.moveDuration,
+
+      easing: "cubic-bezier(.2,.7,.25,1)",
+
+      fill: "forwards"
+
+    }
+
+  );
+
+  return animation.finished.catch(() => {});
+
+}
+
+/* ========================================
+   21. COMMIT MOVEMENT
+======================================== */
+
+function commitMovement(result,newIndex) {
+
+  const oldPieces = pieceElements;
+
+  const nextPieces = new Map();
+
+  result.movements.forEach(movement => {
+
+    const piece = oldPieces.get(
+
+      movement.from
+
+    );
+
+    if (!piece) return;
+
+    if (movement.merged) {
+
+      piece.getAnimations?.()
+
+        .forEach(animation => animation.cancel());
+
+      piece.remove();
+
+      return;
+
+    }
+
+    positionPiece(piece,movement.to);
+
+    piece.getAnimations?.()
+
+      .forEach(animation => animation.cancel());
+
+    piece.classList.remove(
+
+      "moving",
+
+      "spawn",
+
+      "merged"
+
+    );
+
+    nextPieces.set(movement.to,piece);
+
+  });
+
+  board.forEach((value,index) => {
+
+    if (!value) return;
+
+    if (nextPieces.has(index)) return;
+
+    let animation = "";
+
+    if (result.mergedIndices.has(index)) {
+
+      animation = "merged";
+
+    } else if (index === newIndex) {
+
+      animation = "spawn";
+
+    }
+
+    const piece = createPiece(
+
+      value,
+
+      index,
+
+      animation
+
+    );
+
+    nextPieces.set(index,piece);
+
+  });
+
+  pieceElements = nextPieces;
+
+}
+
+/* ========================================
+   22. MAIN GAME ENGINE
+======================================== */
+
+async function move(direction) {
+
+  if (
+
+    currentPage !== "game" ||
+
+    !currentMascot ||
+
+    moving ||
+
+    gameOver ||
+
+    isModalOpen()
+
+  ) return;
+
+  const result = calculateMove(direction);
+
+  // ไม่เกิดตัวใหม่หากขยับไม่ได้
+
+  if (!result.changed) {
+
+    processNextMove();
+
+    return;
+
+  }
+
+  moving = true;
+
+  const version = ++motionVersion;
+
+  const mascotId = currentMascot.id;
+
+  $("undoBtn").disabled = true;
+
+  $("restartBtn").disabled = true;
+
+  // เก็บข้อมูลก่อนเดิน
 
   previous = {
 
-    board: oldBoard,
+    board: [...board],
 
-    score: oldScore,
+    score,
 
-    won: oldWon
+    won
 
   };
 
+  // คำนวณกระดานใหม่
 
-  score += gained;
+  board = [...result.nextBoard];
 
+  score += result.gained;
+
+  // เกิดตัวใหม่เพียงหนึ่งตัว
 
   const newIndex = addTile();
 
-
   const reached2048 =
 
-    !won && board.some(n => n >= 2048);
-
+    !won && board.some(value => value >= 2048);
 
   if (reached2048) {
 
@@ -3612,18 +4376,67 @@ function move(direction) {
 
   }
 
-
   gameOver = !canMove();
 
+  // บันทึกก่อนเริ่มแอนิเมชัน
 
   updateRecord();
 
   saveGame();
 
-  renderBoard(newIndex);
+  try {
 
+    await Promise.all(
+
+      result.movements.map(movement => {
+
+        return animatePieceMovement(
+
+          pieceElements.get(movement.from),
+
+          movement.from,
+
+          movement.to
+
+        );
+
+      })
+
+    );
+
+  } catch (error) {
+
+    console.warn(error);
+
+  }
+
+  // ยกเลิกงานเก่าหากเปลี่ยนหน้า
+
+  if (
+
+    version !== motionVersion ||
+
+    currentPage !== "game" ||
+
+    currentMascot?.id !== mascotId
+
+  ) {
+
+    return;
+
+  }
+
+  commitMovement(result,newIndex);
+
+  moving = false;
+
+  updateScoreDisplay();
+
+  animateScore(result.gained);
 
   if (gameOver) {
+
+    inputQueue = [];
 
     showMessage(
 
@@ -3641,7 +4454,13 @@ function move(direction) {
 
     );
 
-  } else if (reached2048) {
+    return;
+
+  }
+
+  if (reached2048) {
+
+    inputQueue = [];
 
     showMessage(
 
@@ -3655,32 +4474,37 @@ function move(direction) {
 
     );
 
+    return;
+
   }
+
+  processNextMove();
 
 }
 
-
-/* =========================================
-   16. CHECK GAME OVER
-========================================= */
+/* ========================================
+   23. CHECK GAME OVER
+======================================== */
 
 function canMove() {
 
-  if (board.includes(0)) return true;
+  if (board.includes(0)) {
 
+    return true;
 
-  for (let r = 0; r < 4; r++) {
+  }
 
-    for (let c = 0; c < 4; c++) {
+  for (let row = 0; row < 4; row++) {
 
-      const i = r * 4 + c;
+    for (let col = 0; col < 4; col++) {
 
+      const index = row * 4 + col;
 
       if (
 
-        c < 3 &&
+        col < 3 &&
 
-        board[i] === board[i + 1]
+        board[index] === board[index + 1]
 
       ) {
 
@@ -3688,12 +4512,11 @@ function canMove() {
 
       }
 
-
       if (
 
-        r < 3 &&
+        row < 3 &&
 
-        board[i] === board[i + 4]
+        board[index] === board[index + 4]
 
       ) {
 
@@ -3705,21 +4528,21 @@ function canMove() {
 
   }
 
-
   return false;
 
 }
 
-
-/* =========================================
-   17. UNDO
-
-   ย้อนกลับได้ 1 ครั้งต่อเกม
-========================================= */
+/* ========================================
+   24. UNDO
+======================================== */
 
 function undoMove() {
 
   if (
+
+    currentPage !== "game" ||
+
+    moving ||
 
     !previous ||
 
@@ -3729,6 +4552,7 @@ function undoMove() {
 
   ) return;
 
+  cancelMotion();
 
   board = [...previous.board];
 
@@ -3736,13 +4560,11 @@ function undoMove() {
 
   won = previous.won;
 
-
   previous = null;
 
   undoUsed = true;
 
-  gameOver = false;
-
+  gameOver = !canMove();
 
   saveGame();
 
@@ -3750,139 +4572,232 @@ function undoMove() {
 
 }
 
+/* ========================================
+   25. TOUCH AND MOUSE CONTROL
 
-/* =========================================
-   18. TOUCH / MOUSE CONTROL
-
-   รองรับปัดนิ้วและลากเมาส์
-========================================= */
-
-let pointerStart = null;
-
+   ปัดถึงระยะ 20px
+   ทำงานทันที ไม่ต้องรอปล่อยนิ้ว
+======================================== */
 
 $("board").addEventListener(
 
   "pointerdown",
 
-  e => {
+  event => {
 
-    if (isModalOpen()) return;
+    if (
 
-    if (!e.isPrimary) return;
+      currentPage !== "game" ||
 
-    if (e.pointerType === "mouse" &&
-        e.button !== 0) return;
+      gameOver ||
 
+      isModalOpen()
+
+    ) return;
+
+    if (!event.isPrimary) return;
+
+    if (
+
+      event.pointerType === "mouse" &&
+
+      event.button !== 0
+
+    ) return;
+
+    event.preventDefault();
 
     pointerStart = {
 
-      id: e.pointerId,
+      id: event.pointerId,
 
-      x: e.clientX,
+      x: event.clientX,
 
-      y: e.clientY
+      y: event.clientY
 
     };
 
+    swipeTriggered = false;
 
-    $("board").setPointerCapture(
+    try {
 
-      e.pointerId
+      $("board").setPointerCapture(
+
+        event.pointerId
+
+      );
+
+    } catch (error) {}
+
+  },
+
+  {passive:false}
+
+);
+
+function detectSwipe(event) {
+
+  if (!pointerStart || swipeTriggered) {
+
+    return;
+
+  }
+
+  if (event.pointerId !== pointerStart.id) {
+
+    return;
+
+  }
+
+  const dx =
+
+    event.clientX - pointerStart.x;
+
+  const dy =
+
+    event.clientY - pointerStart.y;
+
+  const absX = Math.abs(dx);
+
+  const absY = Math.abs(dy);
+
+  if (
+
+    Math.max(absX,absY) <
+
+    SETTINGS.swipeThreshold
+
+  ) return;
+
+  // หนึ่งการปัด = หนึ่งคำสั่ง
+
+  swipeTriggered = true;
+
+  if (absX > absY) {
+
+    queueMove(
+
+      dx > 0 ? "right" : "left"
+
+    );
+
+  } else {
+
+    queueMove(
+
+      dy > 0 ? "down" : "up"
 
     );
 
   }
 
-);
+}
 
+$("board").addEventListener(
+
+  "pointermove",
+
+  event => {
+
+    if (!pointerStart) return;
+
+    if (event.pointerId !== pointerStart.id) {
+
+      return;
+
+    }
+
+    event.preventDefault();
+
+    detectSwipe(event);
+
+  },
+
+  {passive:false}
+
+);
 
 $("board").addEventListener(
 
   "pointerup",
 
-  e => {
-
-    if (!pointerStart) return;
-
-    if (pointerStart.id !== e.pointerId) return;
-
-
-    const dx = e.clientX - pointerStart.x;
-
-    const dy = e.clientY - pointerStart.y;
-
-
-    pointerStart = null;
-
+  event => {
 
     if (
 
-      Math.max(
+      !pointerStart ||
 
-        Math.abs(dx),
-
-        Math.abs(dy)
-
-      ) < 18
+      event.pointerId !== pointerStart.id
 
     ) return;
 
+    // รองรับกรณีปัดเร็วมาก
 
-    if (Math.abs(dx) > Math.abs(dy)) {
-
-      move(dx > 0 ? "right" : "left");
-
-    } else {
-
-      move(dy > 0 ? "down" : "up");
-
-    }
-
-  }
-
-);
-
-
-$("board").addEventListener(
-
-  "pointercancel",
-
-  () => {
+    detectSwipe(event);
 
     pointerStart = null;
 
-  }
-
-);
-
-
-$("board").addEventListener(
-
-  "lostpointercapture",
-
-  () => {
-
-    pointerStart = null;
+    swipeTriggered = false;
 
   }
 
 );
 
+["pointercancel","lostpointercapture"]
 
-/* =========================================
-   19. KEYBOARD CONTROL
-========================================= */
+  .forEach(type => {
+
+    $("board").addEventListener(
+
+      type,
+
+      event => {
+
+        if (
+
+          pointerStart &&
+
+          pointerStart.id !== event.pointerId
+
+        ) return;
+
+        pointerStart = null;
+
+        swipeTriggered = false;
+
+      }
+
+    );
+
+  });
+
+/* ========================================
+   26. KEYBOARD CONTROL
+======================================== */
 
 document.addEventListener(
 
   "keydown",
 
-  e => {
+  event => {
 
-    if (currentPage !== "game") return;
+    if (
 
-    if (isModalOpen()) return;
+      currentPage !== "game" ||
 
+      isModalOpen()
+
+    ) return;
+
+    if (
+
+      event.target.matches?.(
+
+        "input, textarea, select"
+
+      )
+
+    ) return;
 
     const directions = {
 
@@ -3904,19 +4819,77 @@ document.addEventListener(
 
     };
 
-
     const direction =
 
-      directions[e.key] ||
+      directions[event.key] ||
 
-      directions[e.key.toLowerCase()];
+      directions[event.key.toLowerCase()];
 
+    if (!direction) return;
 
-    if (direction) {
+    event.preventDefault();
 
-      e.preventDefault();
+    // ไม่สะสมคำสั่งจากการกดค้าง
 
-      move(direction);
+    if (event.repeat && moving) return;
+
+    queueMove(direction);
+
+  }
+
+);
+
+/* ========================================
+   27. ANTI DOUBLE TAP ZOOM
+
+   ป้องกันซูมจากการกดซ้ำ
+   ป้องกันลากรูป
+   ป้องกันเมนูจากการกดค้าง
+======================================== */
+
+document.addEventListener(
+
+  "dblclick",
+
+  event => {
+
+    if (
+
+      event.target.closest(
+
+        "button, #board, .student-card"
+
+      )
+
+    ) {
+
+      event.preventDefault();
+
+    }
+
+  },
+
+  {passive:false}
+
+);
+
+document.addEventListener(
+
+  "dragstart",
+
+  event => {
+
+    if (
+
+      event.target.closest(
+
+        "img, #board, .mascot-card"
+
+      )
+
+    ) {
+
+      event.preventDefault();
 
     }
 
@@ -3924,10 +4897,123 @@ document.addEventListener(
 
 );
 
+$("gamePage").addEventListener(
 
-/* =========================================
-   20. RANKING PAGE
-========================================= */
+  "contextmenu",
+
+  event => {
+
+    event.preventDefault();
+
+  }
+
+);
+
+["gesturestart","gesturechange"]
+
+  .forEach(type => {
+
+    $("board").addEventListener(
+
+      type,
+
+      event => {
+
+        event.preventDefault();
+
+      },
+
+      {passive:false}
+
+    );
+
+  });
+
+// ป้องกันแตะปุ่มเดิมซ้ำเร็วเกินไป
+
+const lastButtonTaps = new WeakMap();
+
+document.addEventListener(
+
+  "touchend",
+
+  event => {
+
+    const button = event.target.closest(
+
+      "button"
+
+    );
+
+    if (!button) return;
+
+    const now = performance.now();
+
+    const last = lastButtonTaps.get(button);
+
+    if (
+
+      last !== undefined &&
+
+      now - last < 280
+
+    ) {
+
+      event.preventDefault();
+
+    }
+
+    lastButtonTaps.set(button,now);
+
+  },
+
+  {passive:false}
+
+);
+
+/* ========================================
+   28. RESPONSIVE BOARD
+
+   เมื่อหมุนจอจะไม่ทำให้ภาพค้าง
+======================================== */
+
+let lastBoardWidth = 0;
+
+if ("ResizeObserver" in window) {
+
+  const observer = new ResizeObserver(() => {
+
+    if (currentPage !== "game") return;
+
+    const width = $("board").clientWidth;
+
+    if (!width) return;
+
+    if (
+
+      lastBoardWidth &&
+
+      Math.abs(width - lastBoardWidth) > 1 &&
+
+      moving
+
+    ) {
+
+      renderBoard();
+
+    }
+
+    lastBoardWidth = width;
+
+  });
+
+  observer.observe($("board"));
+
+}
+
+/* ========================================
+   29. RANKING PAGE
+======================================== */
 
 function rankHTML(records) {
 
@@ -3945,8 +5031,7 @@ function rankHTML(records) {
 
   }
 
-
-  return records.map((r, i) => {
+  return records.map((r,i) => {
 
     const mascot = getMascot(r.mascotId);
 
@@ -3957,7 +5042,6 @@ function rankHTML(records) {
       i === 1 ? "silver" :
 
       i === 2 ? "bronze" : "";
-
 
     return `
 
@@ -4011,7 +5095,6 @@ function rankHTML(records) {
 
 }
 
-
 function setRanking(id) {
 
   rankingMascot = id;
@@ -4020,6 +5103,13 @@ function setRanking(id) {
 
 }
 
+function openAllRanking() {
+
+  rankingMascot = "all";
+
+  showPage("ranking");
+
+}
 
 function openMascotRanking() {
 
@@ -4030,7 +5120,6 @@ function openMascotRanking() {
   showPage("ranking");
 
 }
-
 
 function renderRanking() {
 
@@ -4048,16 +5137,13 @@ function renderRanking() {
 
   ];
 
-
   $("rankFilter").innerHTML =
 
     filters.map(m => `
 
       <button
-
         class="filter-btn
           ${rankingMascot === m.id ? "active" : ""}"
-
         onclick="setRanking('${m.id}')">
 
         ${escapeHTML(m.name)}
@@ -4066,12 +5152,7 @@ function renderRanking() {
 
     `).join("");
 
-
   let records = getRecords(rankingMascot);
-
-
-  // อันดับรวมแสดงคะแนนที่ดีที่สุด
-  // ของอุนยายแต่ละคนเพียงหนึ่งรายการ
 
   if (rankingMascot === "all") {
 
@@ -4093,17 +5174,15 @@ function renderRanking() {
 
   }
 
-
   $("rankList").innerHTML =
 
     rankHTML(records);
 
 }
 
-
-/* =========================================
-   21. COLLECTION PAGE
-========================================= */
+/* ========================================
+   30. COLLECTION
+======================================== */
 
 function setCollection(id) {
 
@@ -4112,7 +5191,6 @@ function setCollection(id) {
   renderCollection();
 
 }
-
 
 function openGameCollection() {
 
@@ -4126,7 +5204,6 @@ function openGameCollection() {
 
 }
 
-
 function renderCollection() {
 
   $("collectionFilter").innerHTML =
@@ -4134,10 +5211,8 @@ function renderCollection() {
     MASCOTS.map(m => `
 
       <button
-
         class="filter-btn
           ${collectionMascot === m.id ? "active" : ""}"
-
         onclick="setCollection('${m.id}')">
 
         ${escapeHTML(m.name)}
@@ -4146,18 +5221,15 @@ function renderCollection() {
 
     `).join("");
 
-
   const unlocked =
 
     save.games[collectionMascot]?.unlocked || [];
-
 
   const count = LEVELS.filter(
 
     n => unlocked.includes(n)
 
   ).length;
-
 
   $("collectionContent").innerHTML = `
 
@@ -4173,7 +5245,6 @@ function renderCollection() {
 
         const available = unlocked.includes(n);
 
-
         return `
 
           <div class="collection-item">
@@ -4182,7 +5253,7 @@ function renderCollection() {
 
               ${available
 
-                ? photoHTML(collectionMascot, n)
+                ? photoHTML(collectionMascot,n)
 
                 : `<div class="locked-photo">
                      ${ICONS.lock}
@@ -4210,10 +5281,9 @@ function renderCollection() {
 
 }
 
-
-/* =========================================
-   22. PROFILE PAGE
-========================================= */
+/* ========================================
+   31. PROFILE PAGE
+======================================== */
 
 function renderProfile() {
 
@@ -4221,11 +5291,11 @@ function renderProfile() {
 
     avatarHTML(save.avatarMascot);
 
-
   $("profileName").textContent =
 
-    save.playerName || "ยังไม่ได้ตั้งชื่อ";
+    save.playerName ||
 
+    "ยังไม่ได้ตั้งชื่อ";
 
   const personal = getRecords().filter(r =>
 
@@ -4233,11 +5303,9 @@ function renderProfile() {
 
   );
 
-
   $("profileScore").textContent =
 
     format(personal[0]?.score);
-
 
   $("profilePlayed").textContent =
 
@@ -4247,41 +5315,31 @@ function renderProfile() {
 
     ).length;
 
-
   $("profileRecords").innerHTML =
 
     rankHTML(personal);
 
 }
 
+/* ========================================
+   32. MESSAGE MODAL
+======================================== */
 
-/* =========================================
-   23. MESSAGE MODAL
-========================================= */
-
-function showMessage(title, message) {
+function showMessage(title,message) {
 
   $("messageIcon").innerHTML =
 
     ICONS.trophy;
 
+  $("messageTitle").textContent = title;
 
-  $("messageTitle").textContent =
-
-    title;
-
-
-  $("messageText").textContent =
-
-    message;
-
+  $("messageText").textContent = message;
 
   $("messageModal")
 
     .classList.remove("hidden");
 
 }
-
 
 function closeMessage() {
 
@@ -4291,10 +5349,9 @@ function closeMessage() {
 
 }
 
-
-/* =========================================
-   24. INITIALIZE
-========================================= */
+/* ========================================
+   33. INITIALIZE
+======================================== */
 
 window.addEventListener(
 
@@ -4303,7 +5360,6 @@ window.addEventListener(
   saveGame
 
 );
-
 
 document.addEventListener(
 
@@ -4321,14 +5377,13 @@ document.addEventListener(
 
 );
 
-
 $("playerNameInput").addEventListener(
 
   "keydown",
 
-  e => {
+  event => {
 
-    if (e.key === "Enter") {
+    if (event.key === "Enter") {
 
       saveProfile();
 
@@ -4338,6 +5393,7 @@ $("playerNameInput").addEventListener(
 
 );
 
+initializeBoard();
 
 persist();
 
