@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -1570,6 +1569,14 @@ body.mrsaturnworld-theme { --number-bg:#79518a; --number-ink:#fff; --score-ink:#
 .permpoon-theme .game-actions .cute-btn:nth-child(3) { background:#FBE28E; color:#79572C; box-shadow:0 5px 0 #D5B34C; }
 .permpoon-theme .game-message { background:#FFF9EFE6; }
 
+body.yuzumumu-theme { --bg:#FFF3E5; --number-bg:#302C29; --number-ink:#fff; --score-ink:#A85422; }
+.yuzumumu-theme .board { background:#F49A43; box-shadow:0 5px 0 #A85422; }
+.yuzumumu-theme .board-cell { background:#FFF0DF; }
+.yuzumumu-theme .score-card.current { background:#FFD1A0; }
+.yuzumumu-theme .game-actions .cute-btn { background:#FFF9F2; color:#302C29; box-shadow:0 5px 0 #D6B89D; }
+.yuzumumu-theme .game-actions .cute-btn:nth-child(2) { background:#302C29; color:#fff; box-shadow:0 5px 0 #171513; }
+.yuzumumu-theme .game-actions .cute-btn:nth-child(3) { background:#F49A43; color:#302C29; box-shadow:0 5px 0 #B96527; }
+.yuzumumu-theme .game-message { background:#FFF3E5E6; }
 </style>
 </head>
 
@@ -2629,6 +2636,19 @@ const MASCOTS = [
   },
 
   {
+    id: "yuzumumu",
+    name: "ยูซุมุมุ",
+    en: "Yuzu Mumu",
+    color: "#F49A43",
+    birthday: {th: "16 สิงหาคม 2566", en: "16 August 2023"},
+    surname: {th: "ปุ้ยตระกูลรัตนกิจไพศาล", en: "Puitrakul Rattanakitpaisan"},
+    parents: [
+      {role: "ป๋า", roleEn: "Pa", name: "คณพันธ์ ปุ้ยตระกูล", nameEn: "Kanaphan Puitrakul"},
+      {role: "นุด", roleEn: "Nud", name: "ธนวัฒน์ รัตนกิจไพศาล", nameEn: "Thanawat Rattanakitpaisan"}
+    ],
+    decorations: []
+  },
+  {
     id: "jummo",
     name: "จัมโม่",
     en: "Jummo",
@@ -2998,6 +3018,7 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  yuzumumu: {"profile": "IMG_6506.jpeg", "cover": "IMG_6499.jpeg", "student": "IMG_6502.jpeg", "4": "IMG_6501.jpeg", "2": "IMG_6504.jpeg", "8": "IMG_6507.jpeg", "16": "IMG_6500.jpeg", "32": "IMG_6494.jpeg", "64": "IMG_6496.jpeg", "128": "IMG_6497.jpeg", "256": "IMG_6498.jpeg", "512": "IMG_6505.jpeg", "1024": "IMG_6503.jpeg", "2048": "IMG_6495.jpeg"},
   permpoon: {
     "cover": "IMG_6456.jpeg",
     "student": "IMG_6462.jpeg",
@@ -3068,7 +3089,7 @@ function imagePath(id,type) {
 
   const filename = MASCOT_IMAGES[id]?.[type] || `${type}.jpg`;
 
-  return `images/${id}/${filename}`;
+  return id === "yuzumumu" ? `images/${filename}` : `images/${id}/${filename}`;
 
 }
 
@@ -3534,6 +3555,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("yuzumumu-theme", page === "game" && currentMascot?.id === "yuzumumu");
   document.body.classList.toggle("permpoon-theme", page === "game" && currentMascot?.id === "permpoon");
   document.body.classList.toggle("polcasan-theme", page === "game" && currentMascot?.id === "polcasan");
   document.body.classList.toggle("nongnooong-theme", page === "game" && currentMascot?.id === "nongnooong");
@@ -3748,7 +3770,7 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-  const palette = {polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4392,6 +4414,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "yuzumumu") return "#FFF0DF";
   if (currentMascot?.id === "permpoon") return "#E0F4F1";
   if (currentMascot?.id === "mrsaturnworld") return "#DDF0F6";
   if (currentMascot?.id === "nongnooong") return "#ffdfbd";
