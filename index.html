@@ -1561,7 +1561,16 @@ body.mrsaturnworld-theme { --number-bg:#79518a; --number-ink:#fff; --score-ink:#
 #gamePage .tile-number { background:var(--number-bg,#ffffffdf); color:var(--number-ink,#415b78); }
 #gamePage .score-value, #gamePage .score-floating { color:var(--score-ink,#415b78); }
 
- .student-card{border-color:var(--card-edge);box-shadow:0 4px 0 var(--card-edge)} .student-card .school-header{background:var(--card-head)} .student-card .student-body{background:var(--card-body);color:var(--card-ink)} .student-card .student-name,.student-card .student-surname,.student-card .student-label,.student-card .student-footer{color:var(--card-ink)} .student-card .student-footer{background:var(--card-edge)} .student-card .barcode{background:repeating-linear-gradient(90deg,var(--card-ink) 0 2px,transparent 2px 4px,var(--card-ink) 4px 5px,transparent 5px 8px)} </style>
+ .student-card{border-color:var(--card-edge);box-shadow:0 4px 0 var(--card-edge)} .student-card .school-header{background:var(--card-head)} .student-card .student-body{background:var(--card-body);color:var(--card-ink)} .student-card .student-name,.student-card .student-surname,.student-card .student-label,.student-card .student-footer{color:var(--card-ink)} .student-card .student-footer{background:var(--card-edge)} .student-card .barcode{background:repeating-linear-gradient(90deg,var(--card-ink) 0 2px,transparent 2px 4px,var(--card-ink) 4px 5px,transparent 5px 8px)} body.permpoon-theme { --bg:#FFF9EF; --number-bg:#A85420; --number-ink:#fff; --score-ink:#286F78; }
+.permpoon-theme .board { background:#83D5D3; box-shadow:0 5px 0 #459B98; }
+.permpoon-theme .board-cell { background:#E0F4F1; }
+.permpoon-theme .score-card.current { background:#FBE2AA; }
+.permpoon-theme .game-actions .cute-btn { background:#BFE8E5; color:#286F78; box-shadow:0 5px 0 #75BDB8; }
+.permpoon-theme .game-actions .cute-btn:nth-child(2) { background:#FFD0A3; color:#85461E; box-shadow:0 5px 0 #DB985D; }
+.permpoon-theme .game-actions .cute-btn:nth-child(3) { background:#FBE28E; color:#79572C; box-shadow:0 5px 0 #D5B34C; }
+.permpoon-theme .game-message { background:#FFF9EFE6; }
+
+</style>
 </head>
 
 <body>
@@ -2608,9 +2617,14 @@ const MASCOTS = [
     id: "permpoon",
     name: "เพิ่มพูน",
     en: "Permpoon",
-    color: "#f4c6d7",
+    color: "#83D5D3",
     studentId: "002",
-    parents: [],
+    birthday: {th: "15 สิงหาคม 2566", en: "15 August 2023"},
+    surname: {th: "เลิศรัตน์โกสุมภ์ตั้งศักดิ์ยืน", en: "Lertratkosum Tangsakyuen"},
+    parents: [
+      {role: "ท่านปอนด์", roleEn: "Than Pond", name: "ณราวิชญ์ เลิศรัตน์โกสุมภ์", nameEn: "Naravit Lertratkosum"},
+      {role: "พ่อพ่อ", roleEn: "Daddy", name: "ภูวินทร์ ตั้งศักดิ์ยืน", nameEn: "Phuwin Tangsakyuen"}
+    ],
     decorations: []
   },
 
@@ -2655,6 +2669,12 @@ const MASCOTS = [
   }
 
 ];
+
+// Display-only student numbers; mascot IDs and saved scores are unchanged.
+MASCOTS.forEach(m => { m.studentId = "—"; });
+MASCOTS.filter(m => m.birthday?.en && Number.isFinite(Date.parse(m.birthday.en)))
+  .sort((a,b) => Date.parse(a.birthday.en)-Date.parse(b.birthday.en) || a.name.localeCompare(b.name,"th"))
+  .forEach((m,i) => { m.studentId = String(i+1).padStart(3,"0"); });
 
 const LEVELS = [
   2,4,8,16,32,64,
@@ -2978,6 +2998,22 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  permpoon: {
+    "cover": "IMG_6456.jpeg",
+    "student": "IMG_6462.jpeg",
+    "profile": "63517158-92D0-44A9-8B18-A6231AC2F71B.jpeg",
+    "2": "IMG_6466.jpeg",
+    "4": "IMG_6468.jpeg",
+    "8": "IMG_6467.jpeg",
+    "16": "IMG_6463.jpeg",
+    "32": "IMG_6459.jpeg",
+    "64": "IMG_6470.jpeg",
+    "128": "IMG_6458.jpeg",
+    "256": "IMG_6465.jpeg",
+    "512": "IMG_6471.jpeg",
+    "1024": "IMG_6461.jpeg",
+    "2048": "E71BA51F-42E7-42EF-B334-3F2C0FE41EBF.jpeg"
+},
   mrsaturnworld: {
     "cover": "IMG_6401.jpeg",
     "profile": "IMG_6405.jpeg",
@@ -3498,6 +3534,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("permpoon-theme", page === "game" && currentMascot?.id === "permpoon");
   document.body.classList.toggle("polcasan-theme", page === "game" && currentMascot?.id === "polcasan");
   document.body.classList.toggle("nongnooong-theme", page === "game" && currentMascot?.id === "nongnooong");
   document.body.classList.toggle("mrsaturnworld-theme", page === "game" && currentMascot?.id === "mrsaturnworld");
@@ -4355,6 +4392,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "permpoon") return "#E0F4F1";
   if (currentMascot?.id === "mrsaturnworld") return "#DDF0F6";
   if (currentMascot?.id === "nongnooong") return "#ffdfbd";
 
