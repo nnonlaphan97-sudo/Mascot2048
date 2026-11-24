@@ -3,16 +3,22 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>MASCOT 2048</title>
 
 <style>
+
+/* =========================================
+   GLOBAL
+========================================= */
+
 :root {
   --theme: #a8d4f5;
-  --bg: #f6f8fc;
-  --text: #283347;
+  --bg: #f5f8fc;
+  --text: #34435b;
+  --muted: #8c9aaf;
+  --blue: #669bd1;
 }
 
 * {
@@ -24,7 +30,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: Arial, Tahoma, sans-serif;
 }
 
 button, input {
@@ -32,21 +38,37 @@ button, input {
 }
 
 button {
-  cursor: pointer;
   border: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .app {
-  max-width: 520px;
+  width: 100%;
+  max-width: 560px;
   margin: auto;
-  padding: 20px 16px 100px;
+  padding: 18px 12px 110px;
 }
 
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .logo {
@@ -56,142 +78,43 @@ header {
 }
 
 .logo span {
-  color: #7faed8;
+  color: #78acd8;
 }
 
-.icon-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 15px;
-  background: white;
-  color: #34445a;
-  display: grid;
-  place-items: center;
-}
-
-svg {
-  width: 22px;
-  height: 22px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* WORLD HIGH SCORE */
-
-.champion {
-  position: relative;
-  overflow: hidden;
-  padding: 24px;
-  border-radius: 28px;
-  background: linear-gradient(
-    145deg, #fff9e9, #f8e4b4
-  );
-  text-align: center;
-  margin-bottom: 28px;
-  border: 1px solid #ebd7a3;
-}
-
-.champion-label {
-  font-size: 11px;
+.logo-subtitle {
+  color: var(--muted);
+  font-size: 10px;
   letter-spacing: 2px;
-  font-weight: 800;
-  color: #a18446;
+  margin-top: 4px;
 }
 
-.crown {
-  margin: 12px auto;
-  color: #c6a052;
-}
-
-.crown svg {
-  width: 36px;
-  height: 36px;
-}
-
-.champion-photo {
-  width: 100px;
-  height: 100px;
-  margin: 10px auto;
-  border-radius: 50%;
-  border: 4px solid white;
-  overflow: hidden;
-  background: #ffffff88;
-}
-
-.champion-name {
+.section-title {
   font-size: 19px;
   font-weight: 800;
-  margin-top: 12px;
-}
-
-.champion-mascot {
-  font-size: 13px;
-  color: #9b814c;
-  margin-top: 5px;
-}
-
-.champion-score {
-  font-size: 40px;
-  font-weight: 900;
-  color: #84672e;
-  margin: 8px 0;
+  margin: 24px 0 14px;
 }
 
 .small {
-  font-size: 12px;
-  opacity: .65;
+  font-size: 11px;
+  color: var(--muted);
 }
 
-/* CHARACTER SELECTION */
-
-.section-title {
-  font-size: 20px;
-  font-weight: 800;
-  margin: 20px 0 14px;
-}
-
-.search {
-  width: 100%;
-  padding: 15px;
-  border: 1px solid #e4e8ee;
-  border-radius: 15px;
-  background: white;
-  outline: none;
-  margin-bottom: 16px;
-}
-
-.mascot-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-
-.mascot-card {
-  padding: 9px;
-  border-radius: 22px;
-  background: white;
-  border: 1px solid #e9edf2;
-  color: var(--text);
-  overflow: hidden;
+.empty {
+  padding: 28px 10px;
   text-align: center;
+  color: var(--muted);
+  font-size: 13px;
 }
 
-.mascot-card:active {
-  transform: scale(.97);
-}
 
-.mascot-photo {
-  aspect-ratio: 1 / 1;
-  border-radius: 16px;
-  overflow: hidden;
-}
+/* =========================================
+   PHOTO
+========================================= */
 
 .photo {
+  position: relative;
   width: 100%;
   height: 100%;
-  position: relative;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -206,337 +129,1147 @@ svg {
 }
 
 .placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  color: #7d98b2;
   font-size: 10px;
-  letter-spacing: 1px;
-  opacity: .45;
 }
 
-.mascot-name {
+.placeholder svg {
+  width: 27px;
+  height: 27px;
+  opacity: .65;
+}
+
+.header-avatar {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: #dceafb;
+  overflow: hidden;
+  box-shadow: 0 3px 10px #7195b324;
+}
+
+
+/* =========================================
+   WORLD CHAMPION
+========================================= */
+
+.champion {
+  position: relative;
+  overflow: hidden;
+  border-radius: 27px;
+  padding: 24px 16px;
+  background: linear-gradient(
+    145deg,
+    #fffdf3,
+    #fff0c9,
+    #f7e0ad
+  );
+  border: 1px solid #ecd6a0;
+  text-align: center;
+}
+
+.champion::before,
+.champion::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: #ffffff40;
+  pointer-events: none;
+}
+
+.champion::before {
+  top: -70px;
+  left: -50px;
+}
+
+.champion::after {
+  right: -60px;
+  bottom: -80px;
+}
+
+.champion-label {
+  color: #a88b4b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.crown {
+  color: #c9a14d;
+  margin: 10px 0;
+}
+
+.crown svg {
+  width: 38px;
+  height: 38px;
+}
+
+.world-photo-wrap {
+  width: 106px;
+  height: 106px;
+  margin: auto;
+  position: relative;
+}
+
+.champion-photo {
+  width: 106px;
+  height: 106px;
+  border: 4px solid white;
+  border-radius: 50%;
+  background: #ffffff88;
+  overflow: hidden;
+}
+
+.champion-avatar {
+  position: absolute;
+  right: -8px;
+  bottom: -5px;
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  border: 3px solid white;
+  background: #dceafb;
+  overflow: hidden;
+}
+
+.champion-name {
+  font-size: 19px;
   font-weight: 800;
-  font-size: 17px;
-  margin-top: 12px;
-}
-
-.mascot-en {
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: #98a1af;
-  margin-top: 4px;
-}
-
-.record {
-  border-top: 1px solid #edf0f5;
-  margin-top: 12px;
-  padding: 12px 2px 6px;
-}
-
-.record-label {
-  font-size: 10px;
-  color: #ad8c46;
-}
-
-.record-name {
-  font-size: 12px;
-  margin: 5px 0;
+  margin-top: 15px;
   overflow-wrap: anywhere;
 }
 
-.record-score {
-  font-size: 19px;
-  font-weight: 800;
-}
-
-/* GAME */
-
-.game-title {
-  text-align: center;
-  font-size: 27px;
-  font-weight: 900;
-  margin: 20px 0 5px;
-}
-
-.game-player {
-  text-align: center;
+.champion-mascot {
   font-size: 13px;
-  color: #8993a4;
-  margin-bottom: 20px;
+  color: #a68a51;
+  margin-top: 5px;
 }
 
-.score-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.score-box {
-  background: white;
-  padding: 13px 5px;
-  text-align: center;
-  border-radius: 16px;
-}
-
-.score-label {
-  font-size: 10px;
-  color: #8993a4;
-}
-
-.score-value {
-  font-size: 20px;
+.champion-score {
+  font-size: 40px;
   font-weight: 900;
-  margin-top: 6px;
+  color: #967335;
+  margin: 8px 0;
+  font-variant-numeric: tabular-nums;
 }
 
-.board {
+.champion-description {
+  font-size: 11px;
+  color: #aa935e;
+}
+
+
+/* =========================================
+   MASCOT SELECTION — 4 PER ROW
+========================================= */
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 25px 0 13px;
+}
+
+.section-heading h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.sort-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.search {
+  width: 100%;
+  border: 1px solid #e2eaf3;
+  border-radius: 15px;
+  background: white;
+  padding: 13px;
+  outline: none;
+  margin-bottom: 15px;
+  font-size: 13px;
+}
+
+.search:focus {
+  border-color: #a8c9eb;
+}
+
+.mascot-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 7px;
-  padding: 8px;
-  background: var(--theme);
-  border-radius: 18px;
-  touch-action: none;
-  user-select: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.tile {
+.mascot-card {
   position: relative;
-  aspect-ratio: 1 / 1;
-  background: #ffffff55;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid #e6edf4;
+  border-radius: 14px;
+  background: white;
+  text-align: center;
+  box-shadow: 0 3px 8px #526c9010;
+  transition: transform .15s ease;
+}
+
+.mascot-card:active {
+  transform: scale(.95);
+}
+
+.mascot-photo {
+  position: relative;
+  aspect-ratio: 1;
   border-radius: 10px;
   overflow: hidden;
 }
 
-.tile.filled {
+.mascot-rank {
+  position: absolute;
+  z-index: 3;
+  top: 4px;
+  left: 4px;
+  min-width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: #fffffff0;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 900;
+  box-shadow: 0 2px 5px #00000010;
+}
+
+.mascot-rank.first {
+  background: #ffe3a1;
+  color: #99712a;
+}
+
+.mascot-name {
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+
+.mascot-en {
+  font-size: 8px;
+  color: #a0adbd;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.record {
+  margin-top: 8px;
+  padding: 7px 0 4px;
+  border-top: 1px solid #edf1f6;
+}
+
+.record-label {
+  font-size: 8px;
+  color: #b39455;
+}
+
+.record-name {
+  font-size: 10px;
+  margin: 5px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-score {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+
+/* =========================================
+   GAME HEADER
+========================================= */
+
+.game-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 17px;
+  gap: 10px;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
   background: white;
+  box-shadow: 0 3px 0 #dce5ef;
+}
+
+.back-btn:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.game-title {
+  font-size: 21px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.game-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px 0;
+  font-size: 12px;
+  color: #7e8da2;
+}
+
+.game-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #dceafb;
+}
+
+
+/* =========================================
+   BLUE KINDERGARTEN STUDENT CARD
+========================================= */
+
+.student-card {
+  position: relative;
+  overflow: hidden;
+  padding: 17px;
+  border-radius: 20px;
+  border: 1px solid #a8c9e8;
+  background: linear-gradient(
+    135deg,
+    #f0f8ff,
+    #d5eafb,
+    #c5e0f6
+  );
+  box-shadow: 0 5px 12px #719ac31a;
+  color: #345d85;
+}
+
+.student-card::before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -90px;
+  bottom: -80px;
+  border: 22px solid #ffffff45;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.school-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-bottom: 1px solid #a9cbe7;
+  padding-bottom: 12px;
+}
+
+.school-logo {
+  width: 42px;
+  height: 46px;
+}
+
+.school-name {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.school-en {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+  color: #6d95b8;
+}
+
+.student-body {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 0;
+}
+
+.student-photo {
+  width: 100px;
+  flex-shrink: 0;
+  aspect-ratio: 3 / 4;
+  background: #f5faff;
+  border: 3px solid white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.student-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.student-label {
+  color: #7195b4;
+  font-size: 10px;
+}
+
+.student-name {
+  font-size: 21px;
+  font-weight: 900;
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+
+.student-en {
+  font-size: 10px;
+  color: #7298b9;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.student-parent {
+  font-size: 12px;
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.student-id {
+  font-size: 10px;
+  color: #7195b4;
+  margin-top: 9px;
+}
+
+.student-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #b5d2ea;
+  padding-top: 11px;
+}
+
+.barcode {
+  display: flex;
+  height: 24px;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.barcode span {
+  display: block;
+  background: #3c6286;
+}
+
+.student-footer-text {
+  font-size: 8px;
+  letter-spacing: 1.3px;
+  color: #6d95b8;
+}
+
+
+/* =========================================
+   SCORE
+========================================= */
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.score-box {
+  background: white;
+  border: 1px solid #e8edf5;
+  border-radius: 16px;
+  padding: 12px 4px;
+  text-align: center;
+}
+
+.score-label {
+  font-size: 10px;
+  color: #8c9aaf;
+}
+
+.score-value {
+  font-size: clamp(16px, 4.8vw, 23px);
+  font-weight: 900;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================
+   2048 BOARD
+========================================= */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  padding: 8px;
+  border-radius: 20px;
+  background: var(--theme);
+  box-shadow:
+    0 5px 0 #00000012,
+    inset 0 2px 4px #ffffff45;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 1;
+  background: #ffffff45;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.tile.filled {
+  background: #f8fbff;
 }
 
 .tile-number {
   position: absolute;
   bottom: 4px;
   right: 4px;
-  background: #ffffffdf;
-  padding: 3px 7px;
+  padding: 3px 6px;
   border-radius: 7px;
-  font-size: 12px;
+  background: #ffffffe8;
+  font-size: 11px;
   font-weight: 900;
   z-index: 2;
 }
 
 .tile.pop {
-  animation: pop .16s ease;
+  animation: tilePop .18s ease;
 }
 
-@keyframes pop {
-  from { transform: scale(.83); }
-  to { transform: scale(1); }
+@keyframes tilePop {
+  from {
+    transform: scale(.78);
+    opacity: .65;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
+
+.instructions {
+  color: var(--muted);
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 17px 0;
+}
+
+
+/* =========================================
+   CUTE GAME BUTTONS
+========================================= */
 
 .game-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+  padding-bottom: 6px;
+}
+
+.cute-btn {
+  position: relative;
+  min-width: 0;
+  height: 87px;
+  border: 2px solid #ffffffaa;
+  border-radius: 23px;
   display: flex;
-  gap: 10px;
-  margin: 16px 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+
+  box-shadow:
+    0 5px 0 var(--button-shadow),
+    0 8px 12px #0000000a,
+    inset 0 2px 0 #ffffff88;
+
+  transition:
+    transform .12s ease,
+    box-shadow .12s ease;
 }
 
-.action-btn {
-  flex: 1;
-  padding: 13px;
-  background: white;
-  border-radius: 13px;
-  font-weight: 700;
-  color: var(--text);
+.cute-btn::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 19px;
+  height: 5px;
+  background: #ffffff99;
+  border-radius: 20px;
+  transform: rotate(-15deg);
 }
 
-.action-btn:disabled {
-  opacity: .4;
+.cute-btn svg {
+  width: 34px;
+  height: 34px;
+  transition: transform .2s ease;
+}
+
+.cute-undo {
+  background: #dbeaff;
+  color: #527bb5;
+  --button-shadow: #9dbce7;
+}
+
+.cute-restart {
+  background: #ffe0e9;
+  color: #c16d8c;
+  --button-shadow: #e8a6bb;
+}
+
+.cute-ranking {
+  background: #fff0c5;
+  color: #ae893a;
+  --button-shadow: #e5c577;
+}
+
+.cute-btn:active:not(:disabled) {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 var(--button-shadow);
+}
+
+.cute-btn:active:not(:disabled) svg {
+  transform: scale(.85) rotate(-10deg);
+}
+
+.cute-btn:disabled {
+  opacity: .45;
+  filter: saturate(.5);
 }
 
 .primary {
   width: 100%;
-  background: #283347;
-  color: white;
-  padding: 15px;
-  border-radius: 15px;
-  font-weight: 700;
+  border-radius: 16px;
+  padding: 14px;
+  background: #a9cfee;
+  color: #365e87;
+  font-weight: 800;
+  box-shadow: 0 4px 0 #82b1d9;
 }
 
-.instructions {
-  text-align: center;
-  font-size: 12px;
-  line-height: 1.8;
-  color: #8993a4;
-  margin: 18px 0;
+.primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #82b1d9;
 }
 
-/* RANKING */
+
+/* =========================================
+   RANKING
+========================================= */
 
 .rank-filter {
   display: flex;
+  gap: 7px;
   overflow-x: auto;
-  gap: 8px;
-  margin-bottom: 18px;
+  padding-bottom: 7px;
+  margin-bottom: 15px;
+  scrollbar-width: none;
+}
+
+.rank-filter::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-btn {
   flex-shrink: 0;
-  padding: 10px 15px;
+  padding: 10px 14px;
   border-radius: 20px;
   background: white;
-  color: var(--text);
+  color: #7d8da2;
+  font-size: 12px;
 }
 
 .filter-btn.active {
-  background: #283347;
-  color: white;
+  background: #b8d9f5;
+  color: #3d6c9a;
+  font-weight: 800;
 }
 
 .rank-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
+  padding: 12px 9px;
+  margin-bottom: 9px;
+  border-radius: 17px;
   background: white;
-  border-radius: 16px;
-  padding: 14px;
-  margin-bottom: 8px;
+  border: 1px solid #e8edf4;
 }
 
 .rank-number {
   width: 25px;
   text-align: center;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
+  flex-shrink: 0;
+}
+
+.rank-number.gold {
+  color: #c8a044;
+}
+
+.rank-number.silver {
+  color: #9aa9ba;
+}
+
+.rank-number.bronze {
+  color: #bc9270;
+}
+
+.rank-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #dceafb;
 }
 
 .rank-info {
-  flex: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
+  flex: 1;
 }
 
 .rank-name {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .rank-mascot {
-  font-size: 11px;
-  color: #8993a4;
-  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
 }
 
 .rank-score {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 900;
+  flex-shrink: 0;
 }
 
-/* NAVIGATION */
 
-nav {
-  position: fixed;
+/* =========================================
+   PROFILE
+========================================= */
+
+.profile-card {
+  background: white;
+  padding: 23px 17px;
+  border-radius: 25px;
+  text-align: center;
+  border: 1px solid #e5edf5;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: 105px;
+  margin: auto;
+}
+
+.profile-avatar {
+  width: 105px;
+  height: 105px;
+  border: 4px solid #e0effc;
+  border-radius: 50%;
+  background: #dceafb;
+  overflow: hidden;
+}
+
+.edit-avatar-btn {
+  position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 520px;
-  display: flex;
-  justify-content: space-around;
-  background: #ffffffee;
-  backdrop-filter: blur(15px);
-  border-top: 1px solid #e9edf2;
-  padding: 12px 0 max(14px, env(safe-area-inset-bottom));
-  z-index: 10;
+  right: -3px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #92bde6;
+  border: 3px solid white;
+  color: white;
+  display: grid;
+  place-items: center;
 }
 
-.nav-btn {
+.edit-avatar-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 900;
+  margin-top: 15px;
+  overflow-wrap: anywhere;
+}
+
+.profile-subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 6px 0 20px;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.profile-stat {
+  background: #f0f6fc;
+  padding: 13px 4px;
+  border-radius: 15px;
+}
+
+.profile-stat-value {
+  font-size: 23px;
+  font-weight: 900;
+  margin-top: 7px;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 20px;
+}
+
+.avatar-option {
+  min-width: 0;
   background: transparent;
-  color: #9aa3b2;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 6px;
+  padding: 0;
   font-size: 10px;
 }
 
-.nav-btn.active {
-  color: #5089c1;
+.avatar-option-photo {
+  position: relative;
+  aspect-ratio: 1;
+  border: 3px solid transparent;
+  border-radius: 13px;
+  overflow: hidden;
 }
 
-/* MODAL */
+.avatar-option.selected .avatar-option-photo {
+  border-color: #669bd1;
+}
 
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #17263d88;
-  backdrop-filter: blur(5px);
+.avatar-option-name {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.avatar-check {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
   display: grid;
   place-items: center;
-  padding: 24px;
+  background: #669bd1;
+  color: white;
+  border-radius: 50%;
+  z-index: 3;
 }
 
-.modal-box {
-  width: 100%;
-  max-width: 360px;
-  background: white;
-  border-radius: 26px;
-  padding: 25px;
-  text-align: center;
+.avatar-check svg {
+  width: 13px;
+  height: 13px;
 }
 
-.modal-box h2 {
-  margin-top: 0;
-}
 
-.modal-box input {
-  width: 100%;
-  padding: 15px;
-  border-radius: 13px;
-  border: 1px solid #dce3ec;
-  margin: 12px 0;
-  outline: none;
-}
-
-.modal-box p {
-  color: #8993a4;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.cancel-btn {
-  background: transparent;
-  color: #8993a4;
-  padding: 12px;
-}
-
-.empty {
-  text-align: center;
-  padding: 30px;
-  color: #8993a4;
-  font-size: 13px;
-}
+/* =========================================
+   COLLECTION
+========================================= */
 
 .collection-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
 .collection-item {
   background: white;
   padding: 7px;
-  border-radius: 14px;
+  border-radius: 15px;
   text-align: center;
+  border: 1px solid #e6edf4;
 }
 
 .collection-photo {
   aspect-ratio: 1;
-  border-radius: 9px;
+  border-radius: 10px;
   overflow: hidden;
-  background: #e8edf3;
+  background: #e9f0f7;
 }
 
-.locked {
-  filter: grayscale(1);
-  opacity: .45;
+.collection-number {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 0 3px;
+}
+
+.locked-photo {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #a8b7c8;
+}
+
+.locked-photo svg {
+  width: 28px;
+  height: 28px;
+}
+
+
+/* =========================================
+   BOTTOM NAVIGATION
+========================================= */
+
+nav {
+  position: fixed;
+  z-index: 20;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  justify-content: space-around;
+  background: #ffffffee;
+  backdrop-filter: blur(15px);
+  border-top: 1px solid #e5ecf4;
+  padding: 12px 0 max(14px, env(safe-area-inset-bottom));
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  color: #9baabd;
+  font-size: 10px;
+}
+
+.nav-btn svg {
+  width: 23px;
+  height: 23px;
+}
+
+.nav-btn.active {
+  color: #6199cc;
+  font-weight: 800;
+}
+
+
+/* =========================================
+   CUSTOM MODALS
+========================================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #253b5966;
+  backdrop-filter: blur(5px);
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 390px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: 23px 18px;
+  border-radius: 27px;
+  background: white;
+  text-align: center;
+  box-shadow: 0 15px 50px #263e5926;
+  animation: modalPop .2s ease;
+}
+
+@keyframes modalPop {
+  from {
+    transform: scale(.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-box h2 {
+  font-size: 21px;
+  margin: 13px 0 9px;
+}
+
+.modal-box p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.modal-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin: auto;
+  border-radius: 50%;
+  background: #e2effb;
+  color: #699dcd;
+}
+
+.modal-icon.pink {
+  background: #ffe0eb;
+  color: #c67a98;
+}
+
+.modal-icon svg {
+  width: 35px;
+  height: 35px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #dce7f1;
+  border-radius: 13px;
+  outline: none;
+  margin: 10px 0;
+}
+
+.modal-input:focus {
+  border-color: #83b3df;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 13px 7px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.modal-cancel {
+  background: #e4effc;
+  color: #6489b5;
+}
+
+.modal-confirm {
+  background: #ffdae7;
+  color: #bb6b8a;
+}
+
+.input-label {
+  display: block;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 14px;
+}
+
+.cancel-text {
+  background: transparent;
+  padding: 13px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.error-text {
+  color: #b85d70;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 360px) {
+
+  .app {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .mascot-grid {
+    gap: 5px;
+  }
+
+  .mascot-card {
+    padding: 4px;
+  }
+
+  .mascot-name {
+    font-size: 10px;
+  }
+
+  .record-score {
+    font-size: 11px;
+  }
+
+  .student-photo {
+    width: 85px;
+  }
+
+  .student-name {
+    font-size: 18px;
+  }
+
+  .game-actions {
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 </style>
@@ -546,23 +1279,35 @@ nav {
 
 <div class="app">
 
+<!-- =====================================
+     HEADER
+===================================== -->
+
 <header>
-  <div class="logo">
-    MASCOT <span>2048</span>
+
+  <div>
+    <div class="logo">
+      MASCOT <span>2048</span>
+    </div>
+
+    <div class="logo-subtitle">
+      BLUE KINDERGARTEN
+    </div>
   </div>
 
-  <button class="icon-btn"
-    aria-label="โปรไฟล์"
+  <button
+    class="header-avatar"
+    id="headerAvatar"
+    aria-label="โปรไฟล์คุณอุนยาย"
     onclick="showPage('profile')">
-    <svg viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="1.8">
-      <circle cx="12" cy="8" r="4"/>
-      <path d="M4 22v-3a8 8 0 0116 0v3"/>
-    </svg>
   </button>
+
 </header>
 
-<!-- HOME -->
+
+<!-- =====================================
+     HOME PAGE
+===================================== -->
 
 <section id="homePage">
 
@@ -573,14 +1318,44 @@ nav {
     </div>
 
     <div class="crown">
-      <svg viewBox="0 0 24 24"
-        fill="currentColor">
-        <path d="M2 6l5 5 5-8 5 8 5-5-3 14H5z"/>
+
+      <svg viewBox="0 0 48 48" fill="none">
+
+        <path
+          d="M6 15L16 23L24 7L32 23L42 15L36 37H12Z"
+          fill="#D8B568"
+          stroke="#C59C4A"
+          stroke-width="2"
+          stroke-linejoin="round"/>
+
+        <circle cx="6" cy="12" r="4"
+          fill="#E8C87E"/>
+
+        <circle cx="24" cy="6" r="4"
+          fill="#E8C87E"/>
+
+        <circle cx="42" cy="12" r="4"
+          fill="#E8C87E"/>
+
+        <path d="M13 31H35"
+          stroke="#FFF1CB"
+          stroke-width="3"
+          stroke-linecap="round"/>
+
       </svg>
+
     </div>
 
-    <div class="champion-photo"
-      id="worldPhoto">
+    <div class="world-photo-wrap">
+
+      <div class="champion-photo"
+        id="worldPhoto">
+      </div>
+
+      <div class="champion-avatar hidden"
+        id="worldAvatar">
+      </div>
+
     </div>
 
     <div class="champion-name"
@@ -594,98 +1369,346 @@ nav {
     <div class="champion-score"
       id="worldScore">0</div>
 
-    <div class="small">
+    <div class="champion-description">
       คะแนนสูงสุดจากหลานทุกตัว
     </div>
 
   </div>
 
-  <div class="section-title">
-    เลือกหลานของคุณ
+  <div class="section-heading">
+
+    <h2>เลือกหลานของคุณ</h2>
+
+    <span class="sort-label">
+      คะแนนสูงสุด ↓
+    </span>
+
   </div>
 
-  <input class="search"
+  <input
+    class="search"
     id="searchMascot"
     placeholder="ค้นหาชื่อหลาน..."
     oninput="renderHome()">
 
-  <div class="mascot-grid"
-    id="mascotGrid"></div>
+  <div
+    class="mascot-grid"
+    id="mascotGrid">
+  </div>
 
 </section>
 
-<!-- GAME -->
+
+<!-- =====================================
+     GAME PAGE
+===================================== -->
 
 <section id="gamePage" class="hidden">
 
-  <button class="action-btn"
-    onclick="showPage('home')">
-    ← เปลี่ยนหลาน
-  </button>
+  <div class="game-topbar">
 
-  <div class="game-title"
-    id="gameTitle"></div>
+    <button class="back-btn"
+      aria-label="กลับหน้าเลือกหลาน"
+      onclick="showPage('home')">
 
-  <div class="game-player"
-    id="gamePlayer"></div>
+      <svg viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round">
 
-  <div class="score-grid">
+        <path d="M15 5L8 12L15 19"/>
 
-    <div class="score-box">
-      <div class="score-label">คะแนน</div>
-      <div class="score-value"
-        id="score">0</div>
+      </svg>
+
+    </button>
+
+    <div class="game-title"
+      id="gameTitle"></div>
+
+    <button class="back-btn"
+      aria-label="อันดับประจำหลาน"
+      onclick="openMascotRanking()">
+
+      <svg viewBox="0 0 24 24"
+        fill="none"
+        stroke="#C6A05B"
+        stroke-width="1.8"
+        stroke-linecap="round">
+
+        <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
+        <path d="M7 5H3V8A5 5 0 0 0 8 13"/>
+        <path d="M17 5H21V8A5 5 0 0 1 16 13"/>
+        <path d="M12 15V21M7 21H17"/>
+
+      </svg>
+
+    </button>
+
+  </div>
+
+
+  <!-- STUDENT ID CARD -->
+
+  <div class="student-card">
+
+    <div class="school-header">
+
+      <svg class="school-logo"
+        viewBox="0 0 48 52">
+
+        <path
+          d="M24 3L44 11V28Q42 40 24 49Q6 40 4 28V11Z"
+          fill="#FFFFFF"
+          stroke="#76A7D0"
+          stroke-width="2"/>
+
+        <path
+          d="M11 23L24 13L37 23V37H11Z"
+          fill="#91BFE5"/>
+
+        <rect x="20" y="27"
+          width="8" height="10"
+          rx="1" fill="white"/>
+
+        <rect x="14" y="25"
+          width="4" height="5"
+          rx="1" fill="white"/>
+
+        <rect x="30" y="25"
+          width="4" height="5"
+          rx="1" fill="white"/>
+
+        <path d="M24 6V13M24 6H34L30 9H24"
+          stroke="#76A7D0"
+          stroke-width="1.5"
+          fill="#76A7D0"/>
+
+      </svg>
+
+      <div>
+
+        <div class="school-name">
+          โรงเรียนอนุบาลสีฟ้า
+        </div>
+
+        <div class="school-en">
+          BLUE KINDERGARTEN
+        </div>
+
+      </div>
+
     </div>
 
-    <div class="score-box">
-      <div class="score-label">สถิติของคุณ</div>
-      <div class="score-value"
-        id="personalBest">0</div>
+    <div class="student-body">
+
+      <div class="student-photo"
+        id="studentPhoto"></div>
+
+      <div class="student-info">
+
+        <div class="student-label">
+          ชื่อ – นามสกุล
+        </div>
+
+        <div class="student-name"
+          id="studentName"></div>
+
+        <div class="student-en"
+          id="studentEnglish"></div>
+
+        <div id="studentParents"></div>
+
+        <div class="student-id"
+          id="studentId"></div>
+
+      </div>
+
     </div>
 
-    <div class="score-box">
-      <div class="score-label">แชมป์ประจำหลาน</div>
-      <div class="score-value"
-        id="mascotBest">0</div>
+    <div class="student-footer">
+
+      <div class="barcode"
+        id="studentBarcode"></div>
+
+      <div class="student-footer-text">
+        STUDENT ID CARD
+      </div>
+
     </div>
 
   </div>
 
+
+  <!-- CURRENT PLAYER -->
+
+  <div class="game-player">
+
+    <div class="game-avatar"
+      id="gameAvatar"></div>
+
+    <span id="gamePlayer"></span>
+
+  </div>
+
+
+  <!-- SCORE -->
+
+  <div class="score-grid">
+
+    <div class="score-box">
+
+      <div class="score-label">
+        คะแนน
+      </div>
+
+      <div class="score-value"
+        id="score">0</div>
+
+    </div>
+
+    <div class="score-box">
+
+      <div class="score-label">
+        สถิติของคุณ
+      </div>
+
+      <div class="score-value"
+        id="personalBest">0</div>
+
+    </div>
+
+    <div class="score-box">
+
+      <div class="score-label">
+        แชมป์ประจำหลาน
+      </div>
+
+      <div class="score-value"
+        id="mascotBest">0</div>
+
+    </div>
+
+  </div>
+
+
+  <!-- BOARD -->
+
   <div class="board" id="board"></div>
+
+
+  <!-- CUTE BUTTONS -->
 
   <div class="game-actions">
 
-    <button class="action-btn"
+    <button
+      class="cute-btn cute-undo"
       id="undoBtn"
       onclick="undoMove()">
-      ย้อนกลับ
+
+      <svg viewBox="0 0 48 48" fill="none">
+
+        <path d="M19 10L7 22L19 34"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+        <path d="M9 22H28C38 22 41 29 39 36"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"/>
+
+        <circle cx="37" cy="9" r="3"
+          fill="currentColor" opacity=".4"/>
+
+      </svg>
+
+      <span>ย้อนกลับ</span>
+
     </button>
 
-    <button class="action-btn"
+
+    <button
+      class="cute-btn cute-restart"
       onclick="restartGame()">
-      เริ่มใหม่
+
+      <svg viewBox="0 0 48 48" fill="none">
+
+        <path d="M39 20A16 16 0 1 0 38 31"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"/>
+
+        <path d="M39 8V21H26"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+        <path
+          d="M24 18C18 11 11 23 24 31C37 23 30 11 24 18Z"
+          fill="currentColor"
+          opacity=".65"/>
+
+      </svg>
+
+      <span>เริ่มใหม่</span>
+
     </button>
 
-    <button class="action-btn"
+
+    <button
+      class="cute-btn cute-ranking"
       onclick="openMascotRanking()">
-      อันดับ
+
+      <svg viewBox="0 0 48 48" fill="none">
+
+        <path
+          d="M14 8H34V22A10 10 0 0 1 14 22Z"
+          fill="currentColor"
+          opacity=".8"/>
+
+        <path
+          d="M14 12H6V17Q6 26 16 26M34 12H42V17Q42 26 32 26"
+          stroke="currentColor"
+          stroke-width="3.5"
+          stroke-linecap="round"/>
+
+        <path d="M24 31V39M15 40H33"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"/>
+
+        <path
+          d="M24 12L26 17L31 18L27 22L28 27L24 24L20 27L21 22L17 18L22 17Z"
+          fill="#FFF8DF"/>
+
+      </svg>
+
+      <span>อันดับ</span>
+
     </button>
 
   </div>
 
   <div class="instructions">
-    ปัดขึ้น ลง ซ้าย หรือขวา<br>
-    รวมภาพที่มีค่าเท่ากันเพื่อปลดล็อกภาพใหม่
+    ปัดขึ้น ลง ซ้าย หรือขวา เพื่อรวมภาพหลาน<br>
+    รวมภาพที่เหมือนกันเพื่อปลดล็อกภาพใหม่
   </div>
 
   <button class="primary"
-    onclick="showPage('collection')">
-    ดูภาพสะสม
+    onclick="openGameCollection()">
+    ดูอัลบั้มสะสมของหลาน
   </button>
 
 </section>
 
-<!-- RANKING -->
+
+<!-- =====================================
+     RANKING PAGE
+===================================== -->
 
 <section id="rankingPage" class="hidden">
 
@@ -700,7 +1723,10 @@ nav {
 
 </section>
 
-<!-- COLLECTION -->
+
+<!-- =====================================
+     COLLECTION PAGE
+===================================== -->
 
 <section id="collectionPage" class="hidden">
 
@@ -715,7 +1741,10 @@ nav {
 
 </section>
 
-<!-- PROFILE -->
+
+<!-- =====================================
+     PROFILE PAGE
+===================================== -->
 
 <section id="profilePage" class="hidden">
 
@@ -723,24 +1752,71 @@ nav {
     โปรไฟล์คุณอุนยาย
   </div>
 
-  <div class="champion">
+  <div class="profile-card">
 
-    <div class="champion-name"
-      id="profileName"></div>
+    <div class="profile-avatar-wrap">
 
-    <div class="champion-score"
-      id="profileScore">0</div>
+      <div class="profile-avatar"
+        id="profileAvatar"></div>
 
-    <div class="small">
-      คะแนนสูงสุดของคุณ
+      <button
+        class="edit-avatar-btn"
+        aria-label="เปลี่ยนรูปโปรไฟล์"
+        onclick="openProfileModal()">
+
+        <svg viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+
+          <path d="M4 16L15 5L19 9L8 20H4Z"/>
+          <path d="M13 7L17 11"/>
+
+        </svg>
+
+      </button>
+
     </div>
 
-  </div>
+    <div class="profile-name"
+      id="profileName"></div>
 
-  <button class="primary"
-    onclick="openNameModal()">
-    เปลี่ยนชื่ออุนยาย
-  </button>
+    <div class="profile-subtitle">
+      คุณอุนยายแห่งอนุบาลสีฟ้า
+    </div>
+
+    <div class="profile-stats">
+
+      <div class="profile-stat">
+
+        <div class="small">
+          คะแนนสูงสุด
+        </div>
+
+        <div class="profile-stat-value"
+          id="profileScore">0</div>
+
+      </div>
+
+      <div class="profile-stat">
+
+        <div class="small">
+          หลานที่เคยเล่น
+        </div>
+
+        <div class="profile-stat-value"
+          id="profilePlayed">0</div>
+
+      </div>
+
+    </div>
+
+    <button class="primary"
+      onclick="openProfileModal()">
+      แก้ไขชื่อและรูปโปรไฟล์
+    </button>
+
+  </div>
 
   <div class="section-title">
     สถิติของหลานแต่ละตัว
@@ -752,82 +1828,153 @@ nav {
 
 </div>
 
-<!-- NAVIGATION -->
+
+<!-- =====================================
+     BOTTOM NAVIGATION
+===================================== -->
 
 <nav>
 
-<button class="nav-btn active"
-  data-page="home"
-  onclick="showPage('home')">
-  <svg viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" stroke-width="1.8">
-    <path d="M3 10l9-8 9 8v11h-6v-7H9v7H3z"/>
-  </svg>
-  หน้าหลัก
-</button>
+  <button class="nav-btn active"
+    data-page="home"
+    onclick="showPage('home')">
 
-<button class="nav-btn"
-  data-page="ranking"
-  onclick="showPage('ranking')">
-  <svg viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" stroke-width="1.8">
-    <path d="M7 3h10v7a5 5 0 01-10 0z"/>
-    <path d="M7 5H3v3a5 5 0 005 5M17 5h4v3a5 5 0 01-5 5M12 15v6M7 21h10"/>
-  </svg>
-  จัดอันดับ
-</button>
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linejoin="round">
 
-<button class="nav-btn"
-  data-page="collection"
-  onclick="showPage('collection')">
-  <svg viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" stroke-width="1.8">
-    <rect x="3" y="3" width="18"
-      height="18" rx="4"/>
-    <circle cx="9" cy="8" r="2"/>
-    <path d="M3 17l6-5 4 4 4-5 4 5"/>
-  </svg>
-  ภาพสะสม
-</button>
+      <path d="M3 10L12 2L21 10V21H15V14H9V21H3Z"/>
 
-<button class="nav-btn"
-  data-page="profile"
-  onclick="showPage('profile')">
-  <svg viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" stroke-width="1.8">
-    <circle cx="12" cy="7" r="4"/>
-    <path d="M4 22v-3a8 8 0 0116 0v3"/>
-  </svg>
-  อุนยาย
-</button>
+    </svg>
+
+    หน้าหลัก
+
+  </button>
+
+
+  <button class="nav-btn"
+    data-page="ranking"
+    onclick="showPage('ranking')">
+
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8">
+
+      <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
+      <path d="M7 5H3V8A5 5 0 0 0 8 13"/>
+      <path d="M17 5H21V8A5 5 0 0 1 16 13"/>
+      <path d="M12 15V21M7 21H17"/>
+
+    </svg>
+
+    จัดอันดับ
+
+  </button>
+
+
+  <button class="nav-btn"
+    data-page="collection"
+    onclick="showPage('collection')">
+
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8">
+
+      <rect x="3" y="3"
+        width="18" height="18" rx="4"/>
+
+      <circle cx="9" cy="8" r="2"/>
+
+      <path d="M3 17L9 12L13 16L17 11L21 16"/>
+
+    </svg>
+
+    ภาพสะสม
+
+  </button>
+
+
+  <button class="nav-btn"
+    data-page="profile"
+    onclick="showPage('profile')">
+
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8">
+
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M4 22V19A8 8 0 0 1 20 19V22"/>
+
+    </svg>
+
+    อุนยาย
+
+  </button>
 
 </nav>
 
-<!-- NAME MODAL -->
 
-<div class="modal hidden" id="nameModal">
+<!-- =====================================
+     EDIT PROFILE MODAL
+===================================== -->
+
+<div class="modal hidden"
+  id="profileModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="profileModalTitle">
 
   <div class="modal-box">
 
-    <h2>สวัสดีคุณอุนยาย</h2>
+    <h2 id="profileModalTitle">
+      โปรไฟล์คุณอุนยาย
+    </h2>
 
     <p>
-      ตั้งชื่อสำหรับแสดงบนตารางอันดับ
-      ของหลานแต่ละตัว
+      ตั้งชื่อและเลือกรูปหลานที่คุณชื่นชอบ
     </p>
 
-    <input id="playerNameInput"
+    <div class="profile-avatar"
+      id="editAvatarPreview"
+      style="margin: auto;">
+    </div>
+
+    <label class="input-label"
+      for="playerNameInput">
+      ชื่อคุณอุนยาย
+    </label>
+
+    <input
+      class="modal-input"
+      id="playerNameInput"
       maxlength="24"
       placeholder="ชื่อคุณอุนยาย"
       autocomplete="off">
 
+    <div class="error-text hidden"
+      id="profileError">
+      กรุณาตั้งชื่อคุณอุนยายก่อนนะคะ
+    </div>
+
+    <div class="input-label">
+      เลือกรูปโปรไฟล์
+    </div>
+
+    <div class="avatar-grid"
+      id="avatarGrid"></div>
+
     <button class="primary"
-      onclick="savePlayerName()">
-      ยืนยัน
+      onclick="saveProfile()">
+      บันทึกโปรไฟล์
     </button>
 
-    <button class="cancel-btn"
-      onclick="closeNameModal()">
+    <button class="cancel-text"
+      onclick="closeProfileModal()">
       ยกเลิก
     </button>
 
@@ -835,11 +1982,87 @@ nav {
 
 </div>
 
-<!-- MESSAGE MODAL -->
 
-<div class="modal hidden" id="messageModal">
+<!-- =====================================
+     RESTART CONFIRMATION
+===================================== -->
+
+<div class="modal hidden"
+  id="restartModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="restartTitle">
 
   <div class="modal-box">
+
+    <div class="modal-icon pink">
+
+      <svg viewBox="0 0 48 48" fill="none">
+
+        <path d="M39 20A16 16 0 1 0 38 31"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"/>
+
+        <path d="M39 8V21H26"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+        <path
+          d="M24 18C18 11 11 23 24 31C37 23 30 11 24 18Z"
+          fill="currentColor"/>
+
+      </svg>
+
+    </div>
+
+    <h2 id="restartTitle">
+      เริ่มเล่นใหม่ไหมคะ?
+    </h2>
+
+    <p>
+      คะแนนรอบนี้จะถูกเริ่มใหม่<br>
+      แต่สถิติสูงสุดและภาพสะสมของคุณอุนยาย<br>
+      จะยังอยู่เหมือนเดิมนะ
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        class="modal-btn modal-cancel"
+        onclick="closeRestartModal()">
+        เล่นต่อก่อน
+      </button>
+
+      <button
+        class="modal-btn modal-confirm"
+        onclick="confirmRestart()">
+        เริ่มใหม่เลย
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================
+     MESSAGE MODAL
+===================================== -->
+
+<div class="modal hidden"
+  id="messageModal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="messageTitle">
+
+  <div class="modal-box">
+
+    <div class="modal-icon"
+      id="messageIcon"></div>
 
     <h2 id="messageTitle"></h2>
 
@@ -854,12 +2077,15 @@ nav {
 
 </div>
 
+
 <script>
 
-// ========================================
-// 1. รายชื่อมาสคอต
-// เพิ่มคาแรกเตอร์ตรงนี้ได้เลย
-// ========================================
+/* =========================================
+   1. MASCOT DATABASE
+
+   เพิ่มข้อมูลหลานทุกตัวตรงนี้
+   parents สามารถกำหนดได้หลายคน
+========================================= */
 
 const MASCOTS = [
 
@@ -867,163 +2093,425 @@ const MASCOTS = [
     id: "polcasan",
     name: "โพก้าซัง",
     en: "POLCASAN",
-    color: "#a8d4f5"
+    fullName: "โพก้าซัง",
+    color: "#a8d4f5",
+    studentId: "001",
+
+    parents: [
+      {
+        role: "ปะป๊า",
+        name: "เต ตะวัน"
+      },
+      {
+        role: "พ่อพ่อ",
+        name: "นิว ฐิติภูมิ"
+      }
+    ]
   },
 
   {
     id: "permpoon",
     name: "เพิ่มพูน",
     en: "PERMPOON",
-    color: "#efc6dd"
+    fullName: "เพิ่มพูน",
+    color: "#efc6dd",
+    studentId: "002",
+
+    parents: []
   },
 
   {
     id: "jummo",
     name: "จัมโม่",
     en: "JUMMO",
-    color: "#efdbb6"
+    fullName: "จัมโม่",
+    color: "#efdbb6",
+    studentId: "003",
+
+    parents: []
   },
 
   {
     id: "babii",
     name: "เบบี๋",
     en: "BABII",
-    color: "#d8c9ef"
+    fullName: "เบบี๋",
+    color: "#d8c9ef",
+    studentId: "004",
+
+    parents: []
   },
 
   {
     id: "lookkhunnoo",
     name: "ลูกคุณหนู",
     en: "LOOK KHUNNOO",
-    color: "#c5dfc8"
+    fullName: "ลูกคุณหนู",
+    color: "#c5dfc8",
+    studentId: "005",
+
+    parents: []
   },
 
   {
     id: "samruay",
     name: "สำรวย",
     en: "SAMRUAY",
-    color: "#efd1b8"
+    fullName: "สำรวย",
+    color: "#efd1b8",
+    studentId: "006",
+
+    parents: []
   }
 
 ];
 
+
 const LEVELS = [
+
   2, 4, 8, 16, 32, 64,
   128, 256, 512, 1024, 2048
+
 ];
 
 
-// ========================================
-// 2. SAVE DATA
-// ========================================
+/* =========================================
+   2. SVG ICONS
+========================================= */
+
+const ICONS = {
+
+  image: `
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5">
+      <rect x="3" y="3"
+        width="18" height="18" rx="4"/>
+      <circle cx="9" cy="8" r="2"/>
+      <path d="M3 17L9 12L13 16L17 11L21 16"/>
+    </svg>
+  `,
+
+  user: `
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7">
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M4 22V19A8 8 0 0 1 20 19V22"/>
+    </svg>
+  `,
+
+  check: `
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M5 12L10 17L19 7"/>
+    </svg>
+  `,
+
+  lock: `
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7">
+      <rect x="5" y="10"
+        width="14" height="11" rx="3"/>
+      <path d="M8 10V6A4 4 0 0 1 16 6V10"/>
+    </svg>
+  `,
+
+  trophy: `
+    <svg viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round">
+      <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
+      <path d="M7 5H3V8A5 5 0 0 0 8 13"/>
+      <path d="M17 5H21V8A5 5 0 0 1 16 13"/>
+      <path d="M12 15V21M7 21H17"/>
+    </svg>
+  `
+
+};
+
+
+/* =========================================
+   3. SAVE DATA
+
+   ใช้ key เดิมเพื่อรักษาข้อมูล
+   จากโค้ดเวอร์ชันแรก
+========================================= */
 
 const SAVE_KEY = "mascot2048_v1";
 
 function loadSave() {
 
   try {
+
     const data = JSON.parse(
       localStorage.getItem(SAVE_KEY)
     );
 
-    if (data) return data;
+    if (data && typeof data === "object") {
+
+      return data;
+
+    }
 
   } catch (error) {
+
     console.warn(error);
+
   }
 
   return {
+
     playerId:
       globalThis.crypto?.randomUUID?.()
       || Date.now().toString(),
 
     playerName: "",
+
+    avatarMascot: MASCOTS[0].id,
+
     games: {},
+
     records: []
+
   };
 }
 
 let save = loadSave();
 
 save.games ||= {};
-save.records ||= [];
+
+save.records = Array.isArray(save.records)
+  ? save.records
+  : [];
+
+save.playerName ||= "";
+
+save.avatarMascot ||= MASCOTS[0].id;
+
+save.playerId ||=
+  globalThis.crypto?.randomUUID?.()
+  || Date.now().toString();
+
 
 function persist() {
-  localStorage.setItem(
-    SAVE_KEY,
-    JSON.stringify(save)
-  );
+
+  try {
+
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify(save)
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "ไม่สามารถบันทึกข้อมูลได้",
+      error
+    );
+
+  }
 }
 
+
+/* =========================================
+   4. GLOBAL VARIABLES
+========================================= */
+
 let currentPage = "home";
+
 let currentMascot = null;
+
 let pendingMascot = null;
+
 let rankingMascot = "all";
+
 let collectionMascot = MASCOTS[0].id;
 
+let draftAvatar = save.avatarMascot;
+
 let board = Array(16).fill(0);
+
 let score = 0;
+
 let previous = null;
+
 let undoUsed = false;
+
 let won = false;
+
 let gameOver = false;
+
 
 const $ = id =>
   document.getElementById(id);
 
+
 const format = n =>
   Number(n || 0).toLocaleString("en-US");
+
 
 function escapeHTML(value) {
 
   return String(value ?? "")
+
     .replaceAll("&", "&amp;")
+
     .replaceAll("<", "&lt;")
+
     .replaceAll(">", "&gt;")
+
     .replaceAll('"', "&quot;")
+
     .replaceAll("'", "&#39;");
+
 }
+
 
 function getMascot(id) {
+
   return MASCOTS.find(m => m.id === id);
+
 }
 
 
-// ========================================
-// 3. รูปภาพ
-// ========================================
+function isModalOpen() {
+
+  return !!document.querySelector(
+    ".modal:not(.hidden)"
+  );
+
+}
+
+
+/* =========================================
+   5. IMAGE SYSTEM
+========================================= */
 
 function imagePath(id, value) {
 
   return `images/${id}/${value}.jpg`;
+
 }
+
 
 function photoHTML(id, value) {
 
+  const mascot = getMascot(id);
+
+  if (!mascot) {
+
+    return `
+      <div class="photo">
+        <div class="placeholder">
+          ${ICONS.image}
+        </div>
+      </div>
+    `;
+
+  }
+
+  const isNumber = typeof value === "number";
+
+  const fallback =
+    value === "profile" ||
+    value === "student"
+      ? imagePath(id, "cover")
+      : "";
+
   return `
+
     <div class="photo">
-      <span class="placeholder">
-        ${value === "cover" ? "PHOTO" : value}
-      </span>
+
+      <div class="placeholder">
+
+        ${ICONS.image}
+
+        ${isNumber ? value : ""}
+
+      </div>
 
       <img
-        src="${imagePath(id, value)}"
-        alt=""
+        src="${escapeHTML(imagePath(id, value))}"
+        data-fallback="${escapeHTML(fallback)}"
+        alt="${escapeHTML(mascot.name)}"
         draggable="false"
-        onerror="this.remove()">
+        onerror="handleImageError(this)">
+
     </div>
+
   `;
+
 }
 
 
-// ========================================
-// 4. NAVIGATION
-// ========================================
+function handleImageError(img) {
+
+  const fallback = img.dataset.fallback;
+
+  if (fallback) {
+
+    img.dataset.fallback = "";
+
+    img.src = fallback;
+
+  } else {
+
+    img.remove();
+
+  }
+}
+
+
+function avatarHTML(id) {
+
+  if (!getMascot(id)) {
+
+    return `
+      <div class="photo">
+        <div class="placeholder">
+          ${ICONS.user}
+        </div>
+      </div>
+    `;
+
+  }
+
+  return photoHTML(id, "profile");
+
+}
+
+
+function renderHeaderAvatar() {
+
+  $("headerAvatar").innerHTML =
+    avatarHTML(save.avatarMascot);
+
+}
+
+
+/* =========================================
+   6. NAVIGATION
+========================================= */
 
 function showPage(page) {
 
+  if (!$(page + "Page")) return;
+
   if (currentPage === "game") {
+
     saveGame();
+
   }
 
   currentPage = page;
@@ -1036,7 +2524,9 @@ function showPage(page) {
 
   });
 
-  $(page + "Page").classList.remove("hidden");
+  $(page + "Page")
+    .classList.remove("hidden");
+
 
   document.querySelectorAll(
     ".nav-btn"
@@ -1049,89 +2539,160 @@ function showPage(page) {
 
   });
 
-  if (page === "home") renderHome();
 
-  if (page === "ranking") renderRanking();
+  if (page === "home") {
 
-  if (page === "collection") renderCollection();
+    renderHome();
 
-  if (page === "profile") renderProfile();
+  }
+
+  if (page === "game") {
+
+    renderGameHeader();
+
+    renderBoard();
+
+  }
+
+  if (page === "ranking") {
+
+    renderRanking();
+
+  }
+
+  if (page === "collection") {
+
+    renderCollection();
+
+  }
+
+  if (page === "profile") {
+
+    renderProfile();
+
+  }
+
+  renderHeaderAvatar();
 
   window.scrollTo(0, 0);
+
 }
 
 
-// ========================================
-// 5. ระบบคะแนน
-// ========================================
+/* =========================================
+   7. SCORE SYSTEM
+========================================= */
 
 function getRecords(id = "all") {
 
   return save.records
+
     .filter(r =>
-      id === "all" || r.mascotId === id
+
+      getMascot(r.mascotId) &&
+
+      Number.isFinite(r.score) &&
+
+      (id === "all" || r.mascotId === id)
+
     )
+
     .sort((a, b) =>
+
       b.score - a.score ||
+
       a.date - b.date
+
     );
+
 }
 
+
 function getChampion(id = "all") {
+
   return getRecords(id)[0] || null;
+
 }
+
 
 function getPersonalBest(id) {
 
   return save.records.find(r =>
 
     r.playerId === save.playerId &&
+
     r.mascotId === id
 
   )?.score || 0;
+
 }
+
 
 function updateRecord() {
 
-  if (!currentMascot || score <= 0) return;
+  if (!currentMascot || score <= 0) {
+
+    return;
+
+  }
 
   const id = currentMascot.id;
 
   let record = save.records.find(r =>
 
     r.playerId === save.playerId &&
+
     r.mascotId === id
 
   );
 
+
   if (!record) {
 
     record = {
+
       playerId: save.playerId,
+
       playerName: save.playerName,
+
+      avatarMascot: save.avatarMascot,
+
       mascotId: id,
+
       score: 0,
+
       date: Date.now()
+
     };
 
     save.records.push(record);
+
   }
+
 
   if (score > record.score) {
 
     record.score = score;
+
     record.date = Date.now();
-    record.playerName = save.playerName;
 
   }
 
+  record.playerName = save.playerName;
+
+  record.avatarMascot = save.avatarMascot;
+
   persist();
+
 }
 
 
-// ========================================
-// 6. HOME PAGE
-// ========================================
+/* =========================================
+   8. HOME PAGE
+
+   เรียงหลานตามคะแนนสูงสุด
+   แสดง 4 ตัวต่อแถว
+========================================= */
 
 function renderHome() {
 
@@ -1147,42 +2708,103 @@ function renderHome() {
       champion.playerName;
 
     $("worldMascot").textContent =
-      "หลาน : " + (mascot?.name || "");
+      "หลาน : " + mascot.name;
 
     $("worldScore").textContent =
       format(champion.score);
 
     $("worldPhoto").innerHTML =
-      photoHTML(champion.mascotId, "cover");
+      photoHTML(mascot.id, "cover");
+
+    $("worldAvatar").innerHTML =
+      avatarHTML(
+        champion.avatarMascot ||
+        champion.mascotId
+      );
+
+    $("worldAvatar")
+      .classList.remove("hidden");
 
   } else {
 
     $("worldName").textContent =
       "ยังไม่มีแชมป์";
 
-    $("worldMascot").textContent = "—";
+    $("worldMascot").textContent =
+      "มาเป็นแชมป์คนแรกกันเถอะ";
+
     $("worldScore").textContent = "0";
 
-    $("worldPhoto").innerHTML =
-      '<div class="photo">—</div>';
+    $("worldPhoto").innerHTML = `
+      <div class="photo">
+        <div class="placeholder">
+          ${ICONS.trophy}
+        </div>
+      </div>
+    `;
+
+    $("worldAvatar")
+      .classList.add("hidden");
+
   }
+
 
   const query = $("searchMascot")
     .value.toLowerCase().trim();
 
-  $("mascotGrid").innerHTML = MASCOTS
+
+  const sortedMascots = [...MASCOTS]
+
+    .sort((a, b) => {
+
+      const bestA = getChampion(a.id);
+
+      const bestB = getChampion(b.id);
+
+      return (
+
+        (bestB?.score || 0) -
+        (bestA?.score || 0)
+
+        ||
+
+        (bestA?.date || Infinity) -
+        (bestB?.date || Infinity)
+
+      );
+
+    });
+
+
+  const visibleMascots = sortedMascots
+
+    .map((m, index) => ({
+
+      ...m,
+
+      rank: index + 1
+
+    }))
 
     .filter(m =>
-      (m.name + m.en)
-        .toLowerCase().includes(query)
-    )
 
-    .map(m => {
+      (m.name + " " + m.en)
+        .toLowerCase()
+        .includes(query)
+
+    );
+
+
+  $("mascotGrid").innerHTML =
+
+    visibleMascots.map(m => {
 
       const best = getChampion(m.id);
 
       return `
-        <button class="mascot-card"
+
+        <button
+          class="mascot-card"
           onclick="selectMascot('${m.id}')">
 
           <div class="mascot-photo"
@@ -1190,88 +2812,222 @@ function renderHome() {
 
             ${photoHTML(m.id, "cover")}
 
+            <div class="mascot-rank
+              ${m.rank === 1 && best ? "first" : ""}">
+
+              #${m.rank}
+
+            </div>
+
           </div>
 
           <div class="mascot-name">
-            ${m.name}
+
+            ${escapeHTML(m.name)}
+
           </div>
 
           <div class="mascot-en">
-            ${m.en}
+
+            ${escapeHTML(m.en)}
+
           </div>
 
           <div class="record">
 
             <div class="record-label">
-              คุณอุนยายแชมป์
+
+              อุนยายแชมป์
+
             </div>
 
-            <div class="record-name">
+            <div class="record-name"
+              title="${escapeHTML(best?.playerName || "")}">
+
               ${escapeHTML(
-                best?.playerName || "ยังไม่มีแชมป์"
+                best?.playerName ||
+                "ยังไม่มีแชมป์"
               )}
+
             </div>
 
             <div class="record-score">
+
               ${format(best?.score)}
+
             </div>
 
           </div>
 
         </button>
+
       `;
 
     }).join("");
+
+
+  if (!visibleMascots.length) {
+
+    $("mascotGrid").innerHTML = `
+
+      <div class="empty"
+        style="grid-column:1/-1">
+
+        ไม่พบชื่อหลานที่ค้นหา
+
+      </div>
+
+    `;
+
+  }
 }
 
 
-// ========================================
-// 7. PLAYER NAME
-// ========================================
+/* =========================================
+   9. PROFILE EDITOR
+========================================= */
 
-function openNameModal() {
+function openProfileModal() {
+
+  draftAvatar =
+    save.avatarMascot || MASCOTS[0].id;
 
   $("playerNameInput").value =
     save.playerName;
 
-  $("nameModal").classList.remove("hidden");
+  $("profileError")
+    .classList.add("hidden");
+
+  $("profileModalTitle").textContent =
+
+    save.playerName
+
+      ? "แก้ไขโปรไฟล์"
+
+      : "สวัสดีคุณอุนยาย";
+
+
+  renderAvatarPicker();
+
+  $("profileModal")
+    .classList.remove("hidden");
 
 }
 
-function closeNameModal() {
+
+function renderAvatarPicker() {
+
+  $("editAvatarPreview").innerHTML =
+    avatarHTML(draftAvatar);
+
+
+  $("avatarGrid").innerHTML =
+
+    MASCOTS.map(m => `
+
+      <button
+
+        class="avatar-option
+          ${draftAvatar === m.id ? "selected" : ""}"
+
+        onclick="selectAvatar('${m.id}')">
+
+        <div class="avatar-option-photo"
+          style="background:${m.color}">
+
+          ${avatarHTML(m.id)}
+
+          ${draftAvatar === m.id
+
+            ? `<div class="avatar-check">
+                 ${ICONS.check}
+               </div>`
+
+            : ""
+
+          }
+
+        </div>
+
+        <div class="avatar-option-name">
+
+          ${escapeHTML(m.name)}
+
+        </div>
+
+      </button>
+
+    `).join("");
+
+}
+
+
+function selectAvatar(id) {
+
+  if (!getMascot(id)) return;
+
+  draftAvatar = id;
+
+  renderAvatarPicker();
+
+}
+
+
+function closeProfileModal() {
 
   pendingMascot = null;
 
-  $("nameModal").classList.add("hidden");
+  $("profileModal")
+    .classList.add("hidden");
+
 }
 
-function savePlayerName() {
 
-  const name =
-    $("playerNameInput").value.trim();
+function saveProfile() {
+
+  const name = $("playerNameInput")
+    .value.trim();
 
   if (!name) {
+
+    $("profileError")
+      .classList.remove("hidden");
 
     $("playerNameInput").focus();
 
     return;
+
   }
 
+
   save.playerName = name;
+
+  save.avatarMascot = draftAvatar;
+
+
+  // เปลี่ยนชื่อและรูปในสถิติเดิมทั้งหมด
 
   save.records.forEach(r => {
 
     if (r.playerId === save.playerId) {
+
       r.playerName = name;
+
+      r.avatarMascot = draftAvatar;
+
     }
 
   });
+
 
   persist();
 
   const pending = pendingMascot;
 
-  closeNameModal();
+  closeProfileModal();
+
+  renderHeaderAvatar();
+
 
   if (pending) {
 
@@ -1282,47 +3038,69 @@ function savePlayerName() {
     showPage(currentPage);
 
   }
+
 }
 
 
-// ========================================
-// 8. SELECT MASCOT
-// ========================================
+/* =========================================
+   10. SELECT MASCOT
+========================================= */
 
 function selectMascot(id) {
+
+  const mascot = getMascot(id);
+
+  if (!mascot) return;
+
 
   if (!save.playerName) {
 
     pendingMascot = id;
 
-    openNameModal();
+    openProfileModal();
 
     return;
+
   }
+
 
   saveGame();
 
-  currentMascot = getMascot(id);
-
-  if (!currentMascot) return;
+  currentMascot = mascot;
 
   collectionMascot = id;
 
   document.documentElement.style.setProperty(
+
     "--theme",
+
     currentMascot.color
+
   );
+
 
   const old = save.games[id];
 
-  if (old?.board) {
+
+  if (
+
+    Array.isArray(old?.board) &&
+
+    old.board.length === 16
+
+  ) {
 
     board = [...old.board];
-    score = old.score || 0;
+
+    score = Number(old.score) || 0;
+
     previous = old.previous || null;
+
     undoUsed = !!old.undoUsed;
+
     won = !!old.won;
-    gameOver = !!old.gameOver;
+
+    gameOver = !canMove();
 
   } else {
 
@@ -1330,21 +3108,118 @@ function selectMascot(id) {
 
   }
 
+
+  showPage("game");
+
+}
+
+
+/* =========================================
+   11. STUDENT CARD
+========================================= */
+
+function renderStudentCard() {
+
+  if (!currentMascot) return;
+
+  const m = currentMascot;
+
+
+  $("studentPhoto").innerHTML =
+    photoHTML(m.id, "student");
+
+
+  $("studentName").textContent =
+    m.fullName || m.name;
+
+
+  $("studentEnglish").textContent =
+    m.en;
+
+
+  $("studentId").textContent =
+    "รหัสนักเรียน " + m.studentId;
+
+
+  if (m.parents?.length) {
+
+    $("studentParents").innerHTML =
+
+      m.parents.map(parent => `
+
+        <div class="student-parent">
+
+          ${escapeHTML(parent.role)} :
+
+          <strong>
+            ${escapeHTML(parent.name)}
+          </strong>
+
+        </div>
+
+      `).join("");
+
+  } else {
+
+    $("studentParents").innerHTML = `
+
+      <div class="student-parent">
+
+        ข้อมูลผู้ปกครอง : —
+
+      </div>
+
+    `;
+
+  }
+
+
+  // บาร์โค้ดตกแต่งประจำบัตร
+
+  const seed =
+    Number(m.studentId) || 1;
+
+  $("studentBarcode").innerHTML =
+
+    Array.from({ length: 27 }, (_, i) => {
+
+      const width =
+        (i * 7 + seed) % 3 + 1;
+
+      return `
+        <span style="width:${width}px"></span>
+      `;
+
+    }).join("");
+
+}
+
+
+function renderGameHeader() {
+
+  if (!currentMascot) return;
+
+
   $("gameTitle").textContent =
     currentMascot.en + " 2048";
+
 
   $("gamePlayer").textContent =
     "คุณอุนยาย : " + save.playerName;
 
-  showPage("game");
 
-  renderBoard();
+  $("gameAvatar").innerHTML =
+    avatarHTML(save.avatarMascot);
+
+
+  renderStudentCard();
+
 }
 
 
-// ========================================
-// 9. GAME SAVE
-// ========================================
+/* =========================================
+   12. GAME SAVE
+========================================= */
 
 function saveGame() {
 
@@ -1353,62 +3228,104 @@ function saveGame() {
   const old =
     save.games[currentMascot.id] || {};
 
+
   const unlocked = new Set(
+
     old.unlocked || []
+
   );
+
 
   board.forEach(n => {
 
-    if (n > 0) unlocked.add(n);
+    if (n > 0) {
+
+      unlocked.add(n);
+
+    }
 
   });
+
 
   save.games[currentMascot.id] = {
 
     board: [...board],
+
     score,
+
     previous,
+
     undoUsed,
+
     won,
+
     gameOver,
+
     unlocked: [...unlocked]
 
   };
 
+
   persist();
+
 }
 
 
-// ========================================
-// 10. START GAME
-// ========================================
+/* =========================================
+   13. NEW GAME
+========================================= */
 
 function newGame() {
 
   board = Array(16).fill(0);
 
   score = 0;
+
   previous = null;
+
   undoUsed = false;
+
   won = false;
+
   gameOver = false;
 
   addTile();
+
   addTile();
 
   saveGame();
+
 }
+
 
 function restartGame() {
 
-  if (!confirm("ต้องการเริ่มเกมใหม่หรือไม่?")) {
-    return;
-  }
+  $("restartModal")
+    .classList.remove("hidden");
+
+}
+
+
+function closeRestartModal() {
+
+  $("restartModal")
+    .classList.add("hidden");
+
+}
+
+
+function confirmRestart() {
+
+  closeRestartModal();
+
+  updateRecord();
 
   newGame();
 
   renderBoard();
+
 }
+
 
 function addTile() {
 
@@ -1416,75 +3333,119 @@ function addTile() {
 
   board.forEach((n, i) => {
 
-    if (n === 0) empty.push(i);
+    if (n === 0) {
+
+      empty.push(i);
+
+    }
 
   });
 
-  if (!empty.length) return;
+
+  if (!empty.length) return -1;
+
 
   const index = empty[
+
     Math.floor(Math.random() * empty.length)
+
   ];
 
+
   board[index] =
+
     Math.random() < 0.9 ? 2 : 4;
+
+
+  return index;
+
 }
 
 
-// ========================================
-// 11. RENDER BOARD
-// ========================================
+/* =========================================
+   14. RENDER BOARD
+========================================= */
 
-function renderBoard() {
+function renderBoard(newIndex = -1) {
 
   if (!currentMascot) return;
 
-  $("board").innerHTML = board.map(n => {
+
+  $("board").innerHTML = board.map((n, i) => {
 
     if (!n) {
+
       return '<div class="tile"></div>';
+
     }
 
     return `
-      <div class="tile filled pop">
+
+      <div class="tile filled
+        ${i === newIndex ? "pop" : ""}">
 
         ${photoHTML(
+
           currentMascot.id,
+
           Math.min(n, 2048)
+
         )}
 
         <div class="tile-number">
+
           ${n}
+
         </div>
 
       </div>
+
     `;
 
   }).join("");
 
+
   $("score").textContent =
     format(score);
 
+
   $("personalBest").textContent =
-    format(getPersonalBest(currentMascot.id));
+
+    format(
+
+      getPersonalBest(currentMascot.id)
+
+    );
+
 
   $("mascotBest").textContent =
-    format(getChampion(currentMascot.id)?.score);
+
+    format(
+
+      getChampion(currentMascot.id)?.score
+
+    );
+
 
   $("undoBtn").disabled =
+
     !previous || undoUsed;
+
 }
 
 
-// ========================================
-// 12. MERGE ENGINE
-// ========================================
+/* =========================================
+   15. MERGE ENGINE
+========================================= */
 
 function mergeLine(line) {
 
   const values = line.filter(n => n !== 0);
 
   const result = [];
+
+  let gained = 0;
+
 
   for (let i = 0; i < values.length; i++) {
 
@@ -1494,7 +3455,7 @@ function mergeLine(line) {
 
       result.push(merged);
 
-      score += merged;
+      gained += merged;
 
       i++;
 
@@ -1503,7 +3464,9 @@ function mergeLine(line) {
       result.push(values[i]);
 
     }
+
   }
+
 
   while (result.length < 4) {
 
@@ -1511,110 +3474,200 @@ function mergeLine(line) {
 
   }
 
-  return result;
+
+  return {
+
+    line: result,
+
+    gained
+
+  };
+
 }
+
 
 function move(direction) {
 
   if (
+
     currentPage !== "game" ||
+
     gameOver ||
-    !$("messageModal").classList.contains("hidden")
+
+    isModalOpen()
+
   ) return;
 
+
+  if (![
+
+    "left", "right", "up", "down"
+
+  ].includes(direction)) return;
+
+
   const oldBoard = [...board];
+
   const oldScore = score;
+
+  const oldWon = won;
+
+  let gained = 0;
+
 
   for (let i = 0; i < 4; i++) {
 
-    let indices = [];
+    const indices = [];
+
 
     for (let j = 0; j < 4; j++) {
 
       if (direction === "left") {
+
         indices.push(i * 4 + j);
+
       }
 
       if (direction === "right") {
+
         indices.push(i * 4 + (3 - j));
+
       }
 
       if (direction === "up") {
+
         indices.push(j * 4 + i);
+
       }
 
       if (direction === "down") {
+
         indices.push((3 - j) * 4 + i);
+
       }
+
     }
 
-    const merged = mergeLine(
+
+    const result = mergeLine(
+
       indices.map(index => board[index])
+
     );
+
+
+    gained += result.gained;
+
 
     indices.forEach((index, j) => {
 
-      board[index] = merged[j];
+      board[index] = result.line[j];
 
     });
+
   }
 
-  if (oldBoard.every((n, i) => n === board[i])) {
 
-    score = oldScore;
+  // ถ้ากระดานไม่เปลี่ยน
+  // จะไม่สร้างตัวใหม่และไม่เพิ่มคะแนน
+
+  if (
+
+    oldBoard.every((n, i) => n === board[i])
+
+  ) {
 
     return;
+
   }
+
+
+  // เก็บข้อมูลก่อนเดินสำหรับ Undo
 
   previous = {
 
     board: oldBoard,
+
     score: oldScore,
-    won
+
+    won: oldWon
 
   };
 
-  addTile();
 
-  updateRecord();
+  score += gained;
 
-  if (board.includes(2048) && !won) {
+
+  const newIndex = addTile();
+
+
+  const reached2048 =
+
+    !won && board.some(n => n >= 2048);
+
+
+  if (reached2048) {
 
     won = true;
 
-    showMessage(
-      "สำเร็จแล้ว!",
-      "คุณอุนยายปลดล็อกภาพ 2048 ของ" +
-      currentMascot.name +
-      " ได้แล้ว สามารถเล่นต่อได้เลย"
-    );
   }
 
-  if (!canMove()) {
 
-    gameOver = true;
+  gameOver = !canMove();
 
-    showMessage(
-      "จบเกม",
-      "คุณอุนยายทำได้ " +
-      format(score) +
-      " คะแนน"
-    );
-  }
+
+  updateRecord();
 
   saveGame();
 
-  renderBoard();
+  renderBoard(newIndex);
+
+
+  if (gameOver) {
+
+    showMessage(
+
+      reached2048
+
+        ? "ปลดล็อก 2048 สำเร็จแล้ว!"
+
+        : "จบเกมแล้วค่ะ",
+
+      "คุณอุนยายทำได้ " +
+
+      format(score) +
+
+      " คะแนน สถิติสูงสุดถูกบันทึกแล้วนะ"
+
+    );
+
+  } else if (reached2048) {
+
+    showMessage(
+
+      "สำเร็จแล้ว!",
+
+      "คุณอุนยายปลดล็อกภาพ 2048 ของ" +
+
+      currentMascot.name +
+
+      " ได้แล้ว สามารถเล่นต่อได้เลย"
+
+    );
+
+  }
+
 }
 
 
-// ========================================
-// 13. CHECK GAME OVER
-// ========================================
+/* =========================================
+   16. CHECK GAME OVER
+========================================= */
 
 function canMove() {
 
   if (board.includes(0)) return true;
+
 
   for (let r = 0; r < 4; r++) {
 
@@ -1622,81 +3675,158 @@ function canMove() {
 
       const i = r * 4 + c;
 
-      if (
-        c < 3 &&
-        board[i] === board[i + 1]
-      ) return true;
 
       if (
+
+        c < 3 &&
+
+        board[i] === board[i + 1]
+
+      ) {
+
+        return true;
+
+      }
+
+
+      if (
+
         r < 3 &&
+
         board[i] === board[i + 4]
-      ) return true;
+
+      ) {
+
+        return true;
+
+      }
 
     }
+
   }
 
+
   return false;
+
 }
 
 
-// ========================================
-// 14. UNDO
-// ใช้ได้ 1 ครั้งต่อเกม
-// ========================================
+/* =========================================
+   17. UNDO
+
+   ย้อนกลับได้ 1 ครั้งต่อเกม
+========================================= */
 
 function undoMove() {
 
-  if (!previous || undoUsed) return;
+  if (
+
+    !previous ||
+
+    undoUsed ||
+
+    isModalOpen()
+
+  ) return;
+
 
   board = [...previous.board];
 
   score = previous.score;
+
   won = previous.won;
 
+
   previous = null;
+
   undoUsed = true;
+
   gameOver = false;
+
 
   saveGame();
 
   renderBoard();
+
 }
 
 
-// ========================================
-// 15. SWIPE CONTROL
-// ========================================
+/* =========================================
+   18. TOUCH / MOUSE CONTROL
 
-let startX = 0;
-let startY = 0;
+   รองรับปัดนิ้วและลากเมาส์
+========================================= */
+
+let pointerStart = null;
+
 
 $("board").addEventListener(
-  "touchstart",
+
+  "pointerdown",
 
   e => {
 
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    if (isModalOpen()) return;
 
-  },
+    if (!e.isPrimary) return;
 
-  { passive: true }
+    if (e.pointerType === "mouse" &&
+        e.button !== 0) return;
+
+
+    pointerStart = {
+
+      id: e.pointerId,
+
+      x: e.clientX,
+
+      y: e.clientY
+
+    };
+
+
+    $("board").setPointerCapture(
+
+      e.pointerId
+
+    );
+
+  }
+
 );
 
+
 $("board").addEventListener(
-  "touchend",
+
+  "pointerup",
 
   e => {
 
-    const dx =
-      e.changedTouches[0].clientX - startX;
+    if (!pointerStart) return;
 
-    const dy =
-      e.changedTouches[0].clientY - startY;
+    if (pointerStart.id !== e.pointerId) return;
+
+
+    const dx = e.clientX - pointerStart.x;
+
+    const dy = e.clientY - pointerStart.y;
+
+
+    pointerStart = null;
+
 
     if (
-      Math.max(Math.abs(dx), Math.abs(dy)) < 20
+
+      Math.max(
+
+        Math.abs(dx),
+
+        Math.abs(dy)
+
+      ) < 18
+
     ) return;
+
 
     if (Math.abs(dx) > Math.abs(dy)) {
 
@@ -1707,170 +3837,334 @@ $("board").addEventListener(
       move(dy > 0 ? "down" : "up");
 
     }
+
   }
+
 );
 
 
-// ========================================
-// 16. KEYBOARD CONTROL
-// ========================================
+$("board").addEventListener(
 
-document.addEventListener("keydown", e => {
+  "pointercancel",
 
-  if (currentPage !== "game") return;
+  () => {
 
-  if (
-    document.querySelector(".modal:not(.hidden)")
-  ) return;
-
-  const directions = {
-
-    ArrowUp: "up",
-    ArrowDown: "down",
-    ArrowLeft: "left",
-    ArrowRight: "right"
-
-  };
-
-  if (directions[e.key]) {
-
-    e.preventDefault();
-
-    move(directions[e.key]);
+    pointerStart = null;
 
   }
-});
+
+);
 
 
-// ========================================
-// 17. RANKING
-// ========================================
+$("board").addEventListener(
+
+  "lostpointercapture",
+
+  () => {
+
+    pointerStart = null;
+
+  }
+
+);
+
+
+/* =========================================
+   19. KEYBOARD CONTROL
+========================================= */
+
+document.addEventListener(
+
+  "keydown",
+
+  e => {
+
+    if (currentPage !== "game") return;
+
+    if (isModalOpen()) return;
+
+
+    const directions = {
+
+      ArrowUp: "up",
+
+      ArrowDown: "down",
+
+      ArrowLeft: "left",
+
+      ArrowRight: "right",
+
+      w: "up",
+
+      s: "down",
+
+      a: "left",
+
+      d: "right"
+
+    };
+
+
+    const direction =
+
+      directions[e.key] ||
+
+      directions[e.key.toLowerCase()];
+
+
+    if (direction) {
+
+      e.preventDefault();
+
+      move(direction);
+
+    }
+
+  }
+
+);
+
+
+/* =========================================
+   20. RANKING PAGE
+========================================= */
 
 function rankHTML(records) {
 
   if (!records.length) {
 
     return `
+
       <div class="empty">
+
         ยังไม่มีผู้ทำสถิติ
+
       </div>
+
     `;
+
   }
+
 
   return records.map((r, i) => {
 
     const mascot = getMascot(r.mascotId);
 
+    const rankClass =
+
+      i === 0 ? "gold" :
+
+      i === 1 ? "silver" :
+
+      i === 2 ? "bronze" : "";
+
+
     return `
+
       <div class="rank-row">
 
-        <div class="rank-number">
+        <div class="rank-number ${rankClass}">
+
           ${i + 1}
+
+        </div>
+
+        <div class="rank-avatar">
+
+          ${avatarHTML(
+
+            r.avatarMascot ||
+
+            r.mascotId
+
+          )}
+
         </div>
 
         <div class="rank-info">
 
           <div class="rank-name">
+
             ${escapeHTML(r.playerName)}
+
           </div>
 
           <div class="rank-mascot">
-            ${mascot?.name || ""}
+
+            หลาน : ${escapeHTML(mascot?.name || "")}
+
           </div>
 
         </div>
 
         <div class="rank-score">
+
           ${format(r.score)}
+
         </div>
 
       </div>
+
     `;
 
   }).join("");
+
 }
+
 
 function setRanking(id) {
 
   rankingMascot = id;
 
   renderRanking();
+
 }
 
+
 function openMascotRanking() {
+
+  if (!currentMascot) return;
 
   rankingMascot = currentMascot.id;
 
   showPage("ranking");
+
 }
+
 
 function renderRanking() {
 
   const filters = [
 
-    { id: "all", name: "ทั้งหมด" },
+    {
+
+      id: "all",
+
+      name: "ทั้งหมด"
+
+    },
 
     ...MASCOTS
 
   ];
 
-  $("rankFilter").innerHTML = filters.map(m => `
 
-    <button
-      class="filter-btn ${
-        rankingMascot === m.id ? "active" : ""
-      }"
-      onclick="setRanking('${m.id}')">
+  $("rankFilter").innerHTML =
 
-      ${m.name}
+    filters.map(m => `
 
-    </button>
+      <button
 
-  `).join("");
+        class="filter-btn
+          ${rankingMascot === m.id ? "active" : ""}"
+
+        onclick="setRanking('${m.id}')">
+
+        ${escapeHTML(m.name)}
+
+      </button>
+
+    `).join("");
+
+
+  let records = getRecords(rankingMascot);
+
+
+  // อันดับรวมแสดงคะแนนที่ดีที่สุด
+  // ของอุนยายแต่ละคนเพียงหนึ่งรายการ
+
+  if (rankingMascot === "all") {
+
+    const seen = new Set();
+
+    records = records.filter(r => {
+
+      if (seen.has(r.playerId)) {
+
+        return false;
+
+      }
+
+      seen.add(r.playerId);
+
+      return true;
+
+    });
+
+  }
+
 
   $("rankList").innerHTML =
-    rankHTML(getRecords(rankingMascot));
+
+    rankHTML(records);
+
 }
 
 
-// ========================================
-// 18. COLLECTION
-// ========================================
+/* =========================================
+   21. COLLECTION PAGE
+========================================= */
 
 function setCollection(id) {
 
   collectionMascot = id;
 
   renderCollection();
+
 }
+
+
+function openGameCollection() {
+
+  if (currentMascot) {
+
+    collectionMascot = currentMascot.id;
+
+  }
+
+  showPage("collection");
+
+}
+
 
 function renderCollection() {
 
   $("collectionFilter").innerHTML =
+
     MASCOTS.map(m => `
 
       <button
-        class="filter-btn ${
-          collectionMascot === m.id
-            ? "active" : ""
-        }"
+
+        class="filter-btn
+          ${collectionMascot === m.id ? "active" : ""}"
+
         onclick="setCollection('${m.id}')">
 
-        ${m.name}
+        ${escapeHTML(m.name)}
 
       </button>
 
     `).join("");
 
+
   const unlocked =
+
     save.games[collectionMascot]?.unlocked || [];
+
+
+  const count = LEVELS.filter(
+
+    n => unlocked.includes(n)
+
+  ).length;
+
 
   $("collectionContent").innerHTML = `
 
     <p class="small">
-      ปลดล็อกแล้ว
-      ${LEVELS.filter(n => unlocked.includes(n)).length}
-      / ${LEVELS.length} ภาพ
+
+      ปลดล็อกแล้ว ${count} / ${LEVELS.length} ภาพ
+
     </p>
 
     <div class="collection-grid">
@@ -1878,6 +4172,7 @@ function renderCollection() {
       ${LEVELS.map(n => {
 
         const available = unlocked.includes(n);
+
 
         return `
 
@@ -1889,24 +4184,19 @@ function renderCollection() {
 
                 ? photoHTML(collectionMascot, n)
 
-                : `<div class="photo locked">
-                     <svg viewBox="0 0 24 24"
-                       fill="none"
-                       stroke="currentColor"
-                       stroke-width="1.8">
-                       <rect x="5" y="10"
-                         width="14" height="11"
-                         rx="3"/>
-                       <path d="M8 10V6a4 4 0
-                         018 0v4"/>
-                     </svg>
+                : `<div class="locked-photo">
+                     ${ICONS.lock}
                    </div>`
 
               }
 
             </div>
 
-            <p class="small">${n}</p>
+            <div class="collection-number">
+
+              ${n}
+
+            </div>
 
           </div>
 
@@ -1915,18 +4205,27 @@ function renderCollection() {
       }).join("")}
 
     </div>
+
   `;
+
 }
 
 
-// ========================================
-// 19. PROFILE
-// ========================================
+/* =========================================
+   22. PROFILE PAGE
+========================================= */
 
 function renderProfile() {
 
+  $("profileAvatar").innerHTML =
+
+    avatarHTML(save.avatarMascot);
+
+
   $("profileName").textContent =
+
     save.playerName || "ยังไม่ได้ตั้งชื่อ";
+
 
   const personal = getRecords().filter(r =>
 
@@ -1934,40 +4233,115 @@ function renderProfile() {
 
   );
 
+
   $("profileScore").textContent =
+
     format(personal[0]?.score);
 
+
+  $("profilePlayed").textContent =
+
+    MASCOTS.filter(m =>
+
+      !!save.games[m.id]?.board
+
+    ).length;
+
+
   $("profileRecords").innerHTML =
+
     rankHTML(personal);
+
 }
 
 
-// ========================================
-// 20. MESSAGE
-// ========================================
+/* =========================================
+   23. MESSAGE MODAL
+========================================= */
 
 function showMessage(title, message) {
 
-  $("messageTitle").textContent = title;
+  $("messageIcon").innerHTML =
 
-  $("messageText").textContent = message;
+    ICONS.trophy;
 
-  $("messageModal").classList.remove("hidden");
+
+  $("messageTitle").textContent =
+
+    title;
+
+
+  $("messageText").textContent =
+
+    message;
+
+
+  $("messageModal")
+
+    .classList.remove("hidden");
+
 }
+
 
 function closeMessage() {
 
-  $("messageModal").classList.add("hidden");
+  $("messageModal")
+
+    .classList.add("hidden");
+
 }
 
 
-// ========================================
-// 21. INITIALIZE
-// ========================================
+/* =========================================
+   24. INITIALIZE
+========================================= */
 
-window.addEventListener("pagehide", saveGame);
+window.addEventListener(
+
+  "pagehide",
+
+  saveGame
+
+);
+
+
+document.addEventListener(
+
+  "visibilitychange",
+
+  () => {
+
+    if (document.hidden) {
+
+      saveGame();
+
+    }
+
+  }
+
+);
+
+
+$("playerNameInput").addEventListener(
+
+  "keydown",
+
+  e => {
+
+    if (e.key === "Enter") {
+
+      saveProfile();
+
+    }
+
+  }
+
+);
+
 
 persist();
+
+renderHeaderAvatar();
 
 renderHome();
 
