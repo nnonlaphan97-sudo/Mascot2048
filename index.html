@@ -1527,6 +1527,12 @@ html[lang="en"] .score-label {
 @keyframes schoolCup { 45%{transform:translateY(-4px) scale(1.04)} }
 @media(prefers-reduced-motion:reduce){.game-actions .mascot-decoration svg{animation:none!important}}
 #profileModal label { display:block; text-align:left; font-size:14px; margin:8px 0 4px; color:#527ca8; }
+
+body.nongnooong-theme { --bg:#fff6e9; }
+.nongnooong-theme .board { box-shadow:0 5px 0 #e7ab76; }
+.nongnooong-theme .score-card { box-shadow:0 3px 0 #f0dcc5; }
+.nongnooong-theme .game-actions .cute-btn { background:#ffdfbd; box-shadow:0 5px 0 #e7ab76; color:#925b32; }
+.nongnooong-theme .game-message { background:#fff6e9e6; }
 </style>
 </head>
 
@@ -2541,6 +2547,21 @@ const MASCOTS = [
   },
 
   {
+    id: "nongnooong",
+    name: "น้องนุ่ง",
+    en: "Nong Nooong",
+    color: "#f7d9b6",
+    studentId: "007",
+    birthday: {th: "27 กันยายน 2567", en: "27 September 2024"},
+    surname: {th: "ทาศิลป์ปิยะนพโรจน์", en: "Thasilp Piyanopparoj"},
+    parents: [
+      {role: "อากู๋ซี", roleEn: "Agoo Sea", name: "เดชชาติ ทาศิลป์", nameEn: "Dechchart Tasilp"},
+      {role: "อาเฮียคีน", roleEn: "Ahia Keen", name: "สุวิจักขณ์ ปิยะนพโรจน์", nameEn: "Suvijak Piyanopharoj"}
+    ],
+    decorations: []
+  },
+
+  {
     id: "permpoon",
     name: "เพิ่มพูน",
     en: "Permpoon",
@@ -2914,6 +2935,22 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  nongnooong: {
+    "cover": "IMG_6370.jpeg",
+    "profile": "8E76EA06-B457-4335-8E43-E1ABA82B7A88.jpeg",
+    "student": "7412DC28-9952-438D-A646-7C460E9AC0E6.jpeg",
+    "2": "A2B10DE6-91E6-4F29-A126-76785E1C64FD.jpeg",
+    "4": "9CC438FF-2330-43ED-8896-DC63B83FE201.jpeg",
+    "8": "38D3C542-0FED-40B2-A8CE-4C7F7CE191AD.jpeg",
+    "16": "0DE6E1C1-4681-4F92-8250-1C9A0647659C.jpeg",
+    "32": "2620E19D-7D86-4CC5-AFC6-66C7D415F83A.jpeg",
+    "64": "3603CED4-94FB-4DA8-AE0E-D0BA491930FB.jpeg",
+    "128": "383539A7-B16E-4EF4-9794-056625AD9CC3.jpeg",
+    "256": "C3D3E22D-7934-4E9D-B3C9-4869D7D41A7E.jpeg",
+    "512": "0940C9FD-A5C1-48D7-B00D-6EB28465D879.jpeg",
+    "1024": "351C0DF5-4614-49B5-959E-3E579F70D9F7.jpeg",
+    "2048": "5925AC8C-E29A-4FD3-9AE6-0715C327C023.jpeg"
+},
   polcasan: {
     cover: "IMG_6308.jpeg",
     profile: "07C074C9-5D0F-40F8-8200-B285C5A7CA1E.jpeg",
@@ -3394,6 +3431,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  document.body.classList.toggle("nongnooong-theme", page === "game" && currentMascot?.id === "nongnooong");
 
   document.querySelectorAll(".page")
     .forEach(element => {
@@ -4247,6 +4285,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "nongnooong") return "#ffdfbd";
 
   const colors = [
 
