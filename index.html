@@ -1762,6 +1762,23 @@ html[data-mode="dark"] .lunar-theme .score-card.current,html[data-mode="dark"] .
 html[data-mode="dark"] .lunar-theme .score-card:not(.current),html[data-mode="dark"] .lunar-theme .game-actions .cute-btn:nth-child(3) {background:#60512E!important;}
 html[data-mode="dark"] .lunar-theme .score-card:last-child,html[data-mode="dark"] .lunar-theme .game-actions .cute-btn:first-child {background:#354B64!important;}
 
+body.domaii-theme { --bg:#FFF3F3; --number-bg:#29282D; --number-ink:#FFFFFF; --score-ink:#29282D; }
+.domaii-theme .board {background:#29282D;box-shadow:0 5px 0 #B92F39;}
+.domaii-theme .board-cell {background:#E9C7CA;}
+.domaii-theme .score-card.current {background:#E1DDE2;}
+.domaii-theme .score-card:not(.current) {background:#F5BEC2;box-shadow:0 3px 0 #D93640;}
+.domaii-theme .score-card:last-child {background:#FFD8B5;}
+.domaii-theme .game-actions .cute-btn {background:#FFD8B5;color:#29282D;box-shadow:0 5px 0 #D93640;}
+.domaii-theme .game-actions .cute-btn:nth-child(2) {background:#E1DDE2;box-shadow:0 5px 0 #A69DA8;}
+.domaii-theme .game-actions .cute-btn:nth-child(3) {background:#F5BEC2;box-shadow:0 5px 0 #F59A50;}
+.domaii-theme .game-message {background:#FFF3F3E6;}
+.domaii-theme .mascot-decoration {--theme:#D93640;}
+html[data-mode="dark"] body.domaii-theme {background:#211E22!important;}
+html[data-mode="dark"] .domaii-theme .board {background:#29282D!important;}
+html[data-mode="dark"] .domaii-theme .board-cell {background:#49363C!important;}
+html[data-mode="dark"] .domaii-theme .score-card.current,html[data-mode="dark"] .domaii-theme .game-actions .cute-btn:nth-child(2) {background:#39363D!important;}
+html[data-mode="dark"] .domaii-theme .score-card:not(.current),html[data-mode="dark"] .domaii-theme .game-actions .cute-btn:nth-child(3) {background:#633239!important;}
+html[data-mode="dark"] .domaii-theme .score-card:last-child,html[data-mode="dark"] .domaii-theme .game-actions .cute-btn:first-child {background:#65452E!important;}
 </style>
 </head>
 
@@ -3057,6 +3074,35 @@ const MASCOTS = [
     }
   ],
   "decorations": []
+},
+{
+  "id": "domaii",
+  "name": "โดเมียร์",
+  "en": "DOMIIA",
+  "color": "#D93640",
+  "birthday": {
+    "th": "12 มกราคม 2568",
+    "en": "12 January 2025"
+  },
+  "surname": {
+    "th": "สุขุมพันธนาสารพงศ์สถาปัตย์",
+    "en": "Sukumpantanasan Pongsathaporn"
+  },
+  "parents": [
+    {
+      "role": "แด๊ดดี๊",
+      "roleEn": "Daddy",
+      "name": "ธนพนธ์ สุขุมพันธนาสาร",
+      "nameEn": "Tanapon Sukumpantanasan"
+    },
+    {
+      "role": "ปะป๊า",
+      "roleEn": "Papa",
+      "name": "พงศภัค พงศ์สถาปัตย์",
+      "nameEn": "Pongsapak Pongsathaporn"
+    }
+  ],
+  "decorations": []
 }
 ];
 
@@ -3388,6 +3434,7 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  domaii: {"profile": "IMG_6975.jpeg", "cover": "IMG_6987.jpeg", "student": "IMG_6988.jpeg", "2": "IMG_6976.jpeg", "4": "IMG_6985.jpeg", "8": "IMG_6979.jpeg", "16": "IMG_6977.jpeg", "32": "IMG_6978.jpeg", "64": "IMG_6980.jpeg", "128": "IMG_6984.jpeg", "256": "IMG_6986.jpeg", "512": "IMG_6982.jpeg", "1024": "IMG_6983.jpeg", "2048": "IMG_6981.jpeg"},
   lunar: {"profile": "IMG_6935.jpeg", "student": "IMG_6948.jpeg", "cover": "IMG_6936.jpeg", "2": "IMG_6937.jpeg", "4": "IMG_6947.jpeg", "8": "IMG_6945.jpeg", "16": "IMG_6946.jpeg", "32": "IMG_6944.jpeg", "64": "IMG_6943.jpeg", "128": "IMG_6941.jpeg", "256": "IMG_6942.jpeg", "512": "IMG_6939.jpeg", "1024": "IMG_6940.jpeg", "2048": "IMG_6938.jpeg"},
   paody: {"profile": "IMG_6899.jpeg", "student": "IMG_6897.jpeg", "cover": "IMG_6900.jpeg", "2": "IMG_6908.jpeg", "4": "IMG_6906.jpeg", "8": "IMG_6895.jpeg", "16": "IMG_6898.jpeg", "32": "IMG_6901.jpeg", "64": "IMG_6896.jpeg", "128": "IMG_6903.jpeg", "256": "IMG_6907.jpeg", "512": "IMG_6905.jpeg", "1024": "IMG_6904.jpeg", "2048": "IMG_6902.jpeg"},
   lykyou: {"profile": "IMG_6860.jpeg", "student": "IMG_6861.jpeg", "cover": "IMG_6873.jpeg", "2": "IMG_6871.jpeg", "4": "IMG_6872.jpeg", "8": "IMG_6869.jpeg", "16": "IMG_6865.jpeg", "32": "IMG_6862.jpeg", "64": "IMG_6867.jpeg", "128": "IMG_6866.jpeg", "256": "IMG_6863.jpeg", "512": "IMG_6868.jpeg", "1024": "IMG_6864.jpeg", "2048": "IMG_6870.jpeg"},
@@ -3938,6 +3985,7 @@ function showPage(page) {
   currentPage = page;
   document.body.classList.toggle("kingman-theme", page === "game" && currentMascot?.id === "kingman");
   document.body.classList.toggle("muvmuv-theme", page === "game" && currentMascot?.id === "muvmuv");
+  document.body.classList.toggle("domaii-theme", page === "game" && currentMascot?.id === "domaii");
   document.body.classList.toggle("lunar-theme", page === "game" && currentMascot?.id === "lunar");
   document.body.classList.toggle("paody-theme", page === "game" && currentMascot?.id === "paody");
   document.body.classList.toggle("lykyou-theme", page === "game" && currentMascot?.id === "lykyou");
@@ -4163,7 +4211,7 @@ function renderStudentCard() {
 
   const mascot = currentMascot;
   $("studentCard").classList.toggle("lykyou-card", mascot.id === "lykyou");
-  const palette = {lunar:['#292929','#FFF9E9','#292929','#A6C9EF'],paody:['#D94D53','#FFF5E5','#994047','#83B76A'],lykyou:['#383B45','#E9EDF2','#383B45','#94CEE8'],muvmuv:['#E58B45','#FFF0E5','#965834','#F3B4CB'],kingman:['#987146','#F5EBD9','#765332','#A3BD77'],samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {domaii:['#29282D','#F9E8E8','#29282D','#D93640'],lunar:['#292929','#FFF9E9','#292929','#A6C9EF'],paody:['#D94D53','#FFF5E5','#994047','#83B76A'],lykyou:['#383B45','#E9EDF2','#383B45','#94CEE8'],muvmuv:['#E58B45','#FFF0E5','#965834','#F3B4CB'],kingman:['#987146','#F5EBD9','#765332','#A3BD77'],samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4807,6 +4855,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "domaii") return Math.log2(value) % 2 === 0 ? "#D93640" : "#F59A50";
   if (currentMascot?.id === "lunar") return Math.log2(value) % 2 === 0 ? "#A6C9EF" : "#F6D66B";
   if (currentMascot?.id === "paody") return Math.log2(value) % 2 === 0 ? "#83B76A" : "#FFF5E5";
   if (currentMascot?.id === "lykyou") return Math.log2(value) % 2 === 0 ? "#F4D775" : "#94CEE8";
