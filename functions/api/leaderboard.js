@@ -24,7 +24,15 @@ const ids = [
   "metaa",
   "any",
   "guinzly",
-  "momo"
+  "momo",
+  "ceri",
+  "nilknhake",
+  "rexxa",
+  "vimmy",
+  "jewel",
+  "ponpon",
+  "flarey",
+  "renjin"
 ];
 
 const reply = (data, status = 200) =>
@@ -39,9 +47,11 @@ export async function onRequest({ request, env }) {
   try {
     const db = env.DB;
 
+    // GET LEADERBOARD
     if (request.method === "GET") {
       const { results } = await db.prepare(
-        `SELECT s.*, p.playerName, p.playerTitle, p.avatarMascot
+        `SELECT s.*, p.playerName,
+         p.playerTitle, p.avatarMascot
          FROM scores s
          JOIN players p ON p.id = s.playerId
          ORDER BY score DESC, date ASC`
@@ -56,6 +66,7 @@ export async function onRequest({ request, env }) {
 
     const b = await request.json();
 
+    // VALIDATE PLAYER
     if (
       typeof b.id !== "string" ||
       b.id.length > 100 ||
@@ -83,6 +94,7 @@ export async function onRequest({ request, env }) {
       return reply({ error: "auth" }, 403);
     }
 
+    // CREATE OR UPDATE PROFILE
     if (b.action === "profile") {
       const name = String(b.name || "").trim();
       const title = String(b.title || "").trim();
@@ -120,6 +132,7 @@ export async function onRequest({ request, env }) {
             b.id,
             hash
           ).run();
+
         } else {
           await db.prepare(
             "INSERT INTO players VALUES (?,?,?,?,?,?)"
@@ -132,6 +145,7 @@ export async function onRequest({ request, env }) {
             b.avatar
           ).run();
         }
+
       } catch (e) {
         if (String(e).includes("UNIQUE")) {
           return reply({ error: "duplicate" }, 409);
@@ -147,6 +161,7 @@ export async function onRequest({ request, env }) {
       return reply({ error: "auth" }, 403);
     }
 
+    // SAVE HIGH SCORE
     if (
       b.action === "score" &&
       Array.isArray(b.records)
@@ -163,11 +178,11 @@ export async function onRequest({ request, env }) {
         .map(r =>
           db.prepare(
             `INSERT INTO scores VALUES (?,?,?,?)
-             ON CONFLICT(playerId,mascotId)
+             ON CONFLICT(playerId, mascotId)
              DO UPDATE SET
-               score=excluded.score,
-               date=excluded.date
-             WHERE excluded.score>scores.score`
+               score = excluded.score,
+               date = excluded.date
+             WHERE excluded.score > scores.score`
           ).bind(
             b.id,
             r.mascotId,
