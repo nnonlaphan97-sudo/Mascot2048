@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -1682,6 +1681,23 @@ html[data-mode="dark"] .kingman-theme .board-cell {background:#414C34!important;
 html[data-mode="dark"] .kingman-theme .score-card.current,html[data-mode="dark"] .kingman-theme .game-actions .cute-btn:first-child {background:#465637!important;}
 html[data-mode="dark"] .kingman-theme .score-card:not(.current),html[data-mode="dark"] .kingman-theme .game-actions .cute-btn:nth-child(2) {background:#64503A!important;}
 html[data-mode="dark"] .kingman-theme .score-card:last-child,html[data-mode="dark"] .kingman-theme .game-actions .cute-btn:nth-child(3) {background:#665831!important;}
+body.muvmuv-theme { --bg:#FFF9F0; --number-bg:#965834; --number-ink:#FFFFFF; --score-ink:#965834; }
+.muvmuv-theme .board { background:#F5A05B; box-shadow:0 5px 0 #E58B45; }
+.muvmuv-theme .board-cell { background:#F8D6E2; }
+.muvmuv-theme .score-card.current { background:#F9D8B8; }
+.muvmuv-theme .score-card:not(.current) { background:#F3B4CB; box-shadow:0 3px 0 #F5A05B; }
+.muvmuv-theme .score-card:last-child { background:#F9D8B8; }
+.muvmuv-theme .game-actions .cute-btn { background:#F9D8B8; color:#965834; box-shadow:0 5px 0 #F3B4CB; }
+.muvmuv-theme .game-actions .cute-btn:nth-child(2) { background:#F3B4CB; box-shadow:0 5px 0 #F5A05B; }
+.muvmuv-theme .game-actions .cute-btn:nth-child(3) { background:#F9D8B8; box-shadow:0 5px 0 #E58B45; }
+.muvmuv-theme .game-message { background:#FFF9F0E6; }
+.muvmuv-theme .mascot-decoration { --theme:#F3B4CB; }
+html[data-mode="dark"] body.muvmuv-theme {background:#302523!important;}
+html[data-mode="dark"] .muvmuv-theme .board {background:#875535!important;}
+html[data-mode="dark"] .muvmuv-theme .board-cell {background:#67434D!important;}
+html[data-mode="dark"] .muvmuv-theme .score-card.current,html[data-mode="dark"] .muvmuv-theme .game-actions .cute-btn:first-child {background:#684532!important;}
+html[data-mode="dark"] .muvmuv-theme .score-card:not(.current),html[data-mode="dark"] .muvmuv-theme .game-actions .cute-btn:nth-child(2) {background:#66404F!important;}
+html[data-mode="dark"] .muvmuv-theme .score-card:last-child,html[data-mode="dark"] .muvmuv-theme .game-actions .cute-btn:nth-child(3) {background:#684532!important;}
 </style>
 </head>
 
@@ -2859,6 +2875,20 @@ const MASCOTS = [
     decorations: []
   }
 
+  ,{
+    id: "muvmuv",
+    name: "เมิฟเมิฟ",
+    en: "Muv Muv",
+    color: "#F3B4CB",
+    birthday: {th: "24 พฤษภาคม 2567", en: "24 May 2024"},
+    surname: {th: "วอสเบียนลิ้มปติยากร", en: "Vosbein Limpatiyakorn"},
+    parents: [
+      {role: "มี้มิ้ลค์", roleEn: "Mommy Milk", name: "พรรษา วอสเบียน", nameEn: "Pansa Vosbein"},
+      {role: "มะมี้เลิฟ", roleEn: "Mommy Love", name: "ภัทรานิษฐ์ ลิ้มปติยากร", nameEn: "Pattranite Limpatiyakorn"}
+    ],
+    decorations: []
+  }
+
 ];
 
 // Display-only student numbers; mascot IDs and saved scores are unchanged.
@@ -3189,6 +3219,7 @@ function wait(ms) {
 }
 
 const MASCOT_IMAGES = {
+  muvmuv: {"profile": "IMG_6825.jpeg", "student": "IMG_6837.jpeg", "cover": "IMG_6826.jpeg", "2": "IMG_6828.jpeg", "4": "IMG_6836.jpeg", "8": "IMG_6838.jpeg", "16": "IMG_6835.jpeg", "32": "IMG_6831.jpeg", "64": "IMG_6827.jpeg", "128": "IMG_6830.jpeg", "256": "IMG_6832.jpeg", "512": "IMG_6834.jpeg", "1024": "C1F24EBD-08AE-41D4-B854-C218F961E752.jpeg", "2048": "IMG_6829.jpeg"},
   kingman: {"profile": "IMG_6778.jpeg", "student": "IMG_6783.jpeg", "cover": "IMG_6779.jpeg", "2": "IMG_6780.jpeg", "4": "IMG_6781.jpeg", "8": "IMG_6784.jpeg", "16": "IMG_6787.jpeg", "32": "IMG_6789.jpeg", "64": "IMG_6788.jpeg", "128": "IMG_6790.jpeg", "256": "IMG_6791.jpeg", "512": "IMG_6785.jpeg", "1024": "IMG_6786.jpeg", "2048": "IMG_6782.jpeg"},
   samruay: {"profile": "IMG_6744.jpeg", "student": "IMG_6748.jpeg", "cover": "IMG_6745.jpeg", "2": "IMG_6755.jpeg", "4": "IMG_6756.jpeg", "8": "IMG_6751.jpeg", "16": "IMG_6747.jpeg", "32": "IMG_6746.jpeg", "64": "IMG_6750.jpeg", "128": "IMG_6754.jpeg", "256": "IMG_6757.jpeg", "512": "IMG_6752.jpeg", "1024": "IMG_6753.jpeg", "2048": "IMG_6749.jpeg"},
   lookkhunnoo: {"profile": "IMG_6719.jpeg", "student": "IMG_6716.jpeg", "cover": "IMG_6713.jpeg", "2": "IMG_6715.jpeg", "4": "IMG_6717.jpeg", "8": "IMG_6714.jpeg", "16": "IMG_6710.jpeg", "32": "IMG_6711.jpeg", "64": "IMG_6709.jpeg", "128": "IMG_6712.jpeg", "256": "IMG_6720.jpeg", "512": "IMG_6721.jpeg", "1024": "IMG_6722.jpeg", "2048": "IMG_6718.jpeg"},
@@ -3734,6 +3765,7 @@ function showPage(page) {
 
   currentPage = page;
   document.body.classList.toggle("kingman-theme", page === "game" && currentMascot?.id === "kingman");
+  document.body.classList.toggle("muvmuv-theme", page === "game" && currentMascot?.id === "muvmuv");
   document.body.classList.toggle("samruay-theme", page === "game" && currentMascot?.id === "samruay");
   document.body.classList.toggle("lookkhunnoo-theme", page === "game" && currentMascot?.id === "lookkhunnoo");
   document.body.classList.toggle("babii-theme", page === "game" && currentMascot?.id === "babii");
@@ -3955,7 +3987,7 @@ function renderStudentCard() {
   if (!currentMascot) return;
 
   const mascot = currentMascot;
-  const palette = {kingman:['#987146','#F5EBD9','#765332','#A3BD77'],samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
+  const palette = {muvmuv:['#E58B45','#FFF0E5','#965834','#F3B4CB'],kingman:['#987146','#F5EBD9','#765332','#A3BD77'],samruay:['#383431','#F5E8D3','#514237','#E7BD60'],lookkhunnoo:['#777580','#F2EEF0','#514B56','#E8A6C5'],babii:['#78AD51','#FCE5EE','#527B39','#F2A8C4'],avocean:['#8270AB','#E8F2DC','#436D59','#A8CD8B'],tomafox:['#C73D36','#FFF1E8','#783D35','#749B50'],jaidee:['#DDA52C','#FFF8DC','#80601F','#85AB65'],yuzumumu:['#35302D','#FFF3E5','#35302D','#ED9748'],polcasan:['#26343F','#F0F8FF','#26343F','#A5CFEF'],nongnooong:['#B9632D','#FFF2DF','#8B451E','#F0BA86'],mrsaturnworld:['#80578F','#F9EFF9','#694379','#B5E0EE'],permpoon:['#287572','#EAF8F5','#205F5D','#F8D859']}[mascot.id] || ['#52677d','#ffffff','#42566b',mascot.color];
   ['head','body','ink','edge'].forEach((k,i)=>$('studentCard').style.setProperty('--card-'+k,palette[i]));
   $("studentCard").innerHTML = `
 
@@ -4599,6 +4631,7 @@ function setTilePosition(element,row,col) {
 }
 
 function tileColor(value) {
+  if (currentMascot?.id === "muvmuv") return Math.log2(value) % 2 === 0 ? "#F3B4CB" : "#FFF9F0";
   if (currentMascot?.id === "kingman") return Math.log2(value) % 2 === 0 ? "#F3D16C" : "#A3BD77";
   if (currentMascot?.id === "samruay") return Math.log2(value) % 2 === 0 ? "#E7BD60" : "#D9C5AD";
   if (currentMascot?.id === "lookkhunnoo") return Math.log2(value) % 2 === 0 ? "#E8A6C5" : "#EBC58C";
