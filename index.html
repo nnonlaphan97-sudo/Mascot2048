@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -2600,7 +2601,7 @@ html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;
 
     <label for="playerTitleInput" data-i18n="playerTitleLabel"></label>
     <input id="playerTitleInput" class="name-input" maxlength="24" data-placeholder="playerTitle" autocomplete="off" list="playerTitleSuggestions">
-    <datalist id="playerTitleSuggestions"><option value="อุนยาย"><option value="น้องยาน"><option value="แกรนนี่"></datalist>
+    <datalist id="playerTitleSuggestions"><option value="อุนยาย"><option value="น้องยาย"><option value="แกรนนี่"></datalist>
     <label for="playerNameInput" data-i18n="playerNameLabel"></label>
     <input id="playerNameInput"
       class="name-input"
@@ -4107,7 +4108,11 @@ let profileBusy = false;
 function onlineSecret(){ if(!save.onlineSecret){save.onlineSecret=Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('');persist();} return save.onlineSecret; }
 async function onlinePost(action,extra){const r=await fetch('/api/leaderboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,id:save.playerId,secret:onlineSecret(),...extra})});const b=await r.json();if(!r.ok)throw Error(b.error||'server');return b;}
 async function refreshOnline(){try{const r=await fetch('/api/leaderboard',{cache:'no-store'});if(!r.ok)throw Error();const b=await r.json();if(!Array.isArray(b.records))throw Error();onlineRecords=b.records;onlineReady=true;if(currentPage==='home')renderHome();if(currentPage==='ranking')renderRanking();if(currentPage==='game')renderScores();}catch(e){onlineReady=false;}}
-async function syncOnline(){if(onlineBusy||profileBusy||!save.onlineRegistered)return;onlineBusy=true;try{await onlinePost('score',{records:save.records.filter(r=>r.playerId===save.playerId).map(({mascotId,score})=>({mascotId,score}))});await refreshOnline();}catch(e){}finally{onlineBusy=false;}}
+let syncTimer;
+function queueScoreSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncOnline,800);}
+async function syncOnline(){if(onlineBusy||profileBusy||!save.onlineRegistered)return;onlineBusy=true;try{const best=new Map();for(const r of save.records){if(r.playerId!==save.playerId||!MASCOTS.some(m=>m.id===r.mascotId))continue;const score=Number(r.score);if(Number.isSafeInteger(score)&&score>0&&score%4===0&&score<=100000000)best.set(r.mascotId,Math.max(best.get(r.mascotId)||0,score));}await onlinePost('score',{records:[...best].map(([mascotId,score])=>({mascotId,score}))});await refreshOnline();}catch(e){console.warn('Score sync failed:',e.message);}finally{onlineBusy=false;}}
+window.addEventListener('online',syncOnline);
+
 function getRecords(id = "all") {
   const combined=new Map();for(const r of [...onlineRecords,...save.records.filter(r=>r.playerId===save.playerId)]){const k=r.playerId+'|'+r.mascotId; if(!combined.has(k)||combined.get(k).score<=r.score)combined.set(k,r);}
   return [...combined.values()]
@@ -4197,6 +4202,7 @@ function updateRecord() {
       existing.score = game.score;
 
       existing.date = Date.now();
+      queueScoreSync();
 
     }
 
@@ -4218,6 +4224,7 @@ function updateRecord() {
       date: Date.now()
 
     });
+    queueScoreSync();
 
   }
 
@@ -6395,26 +6402,6 @@ function renderRanking() {
   if (query) {
     const matchingIds = new Set(matches.map(m => m.id));
     records = getRecords("all").filter(r => matchingIds.has(r.mascotId) && (rankingFilter === "all" || !matchingIds.has(rankingFilter) || r.mascotId === rankingFilter));
-  }
-
-  if (rankingFilter === "all" && !query) {
-
-    const seen = new Set();
-
-    records = records.filter(record => {
-
-      if (seen.has(record.playerId)) {
-
-        return false;
-
-      }
-
-      seen.add(record.playerId);
-
-      return true;
-
-    });
-
   }
 
   if (!records.length) {
