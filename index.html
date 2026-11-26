@@ -2087,6 +2087,9 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
 @media(prefers-reduced-motion:reduce){#personalModal .record-eyebrow svg g{animation:none}}
 
 </style>
+<style>
+#finishedReportModal{padding:12px;z-index:110;background:#17283b88}#finishedReportModal .report-sheet{width:min(100%,480px);max-width:480px;max-height:94dvh;padding:12px;border:0;border-radius:18px;background:#f5f7fa;overscroll-behavior:contain}#reportPreview canvas{display:block;width:100%;height:auto;box-shadow:0 3px 14px #20334b20}#reportLoading{text-align:center;padding:25px 8px}#finishedReportModal .report-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}#finishedReportModal button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 8px;background:#e5edf5;color:#344b69;touch-action:manipulation}#finishedReportModal #shareScoreBtn{grid-column:1/-1;background:var(--theme);color:#17283b}#finishedReportModal button:disabled{opacity:.5}html[data-mode="dark"] #finishedReportModal .report-sheet{background:#303641!important}
+</style>
 </head>
 
 <body>
@@ -2489,8 +2492,7 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
           onclick="newGame()"
           data-i18n="playAgain">
         </button>
-        <button id="shareScoreBtn" class="primary-btn" type="button" onclick="shareFinishedScore()" style="margin-top:8px;touch-action:manipulation">แชร์คะแนน</button>
-        <div id="shareScoreStatus" role="status" style="font-size:12px;margin-top:5px"></div>
+
 
       </div>
 
@@ -2893,6 +2895,7 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
 </div>
 
 
+<div id="finishedReportModal" class="modal hidden"><div class="modal-card report-sheet" role="dialog" aria-modal="true" aria-label="Student report card"><div id="reportLoading" role="status"></div><div id="reportPreview"></div><div class="report-actions"><button id="shareScoreBtn" type="button" onclick="shareFinishedScore()">แชร์ใบเกรด</button><button id="reportAgain" type="button" onclick="leaveFinishedReport(false)">เล่นอีกครั้ง</button><button id="reportHome" type="button" onclick="leaveFinishedReport(true)">กลับหน้าหลัก</button></div><div id="shareScoreStatus" role="status"></div></div></div>
 <div id="personalModal" class="modal hidden"><div class="modal-card record-card" role="dialog" aria-modal="true"><div id="personalEyebrow" class="record-eyebrow"></div><div id="personalTitle" class="record-title"></div><div id="personalText" class="record-text"></div><div id="personalContent" style="display:contents"></div><button class="record-button" onclick="closeModal('personalModal')" data-i18n="continue"></button></div></div>
 <!-- MESSAGE MODAL -->
 
@@ -6329,92 +6332,67 @@ function maybePersonalCelebration(){
 }
 function reportGrade(v){return [[4096,'A+','ยอดเยี่ยมที่สุด','Outstanding'],[2048,'A','ยอดเยี่ยม','Excellent'],[1024,'B+','ดีมาก','Very good'],[512,'B','ดี','Good'],[256,'C+','ค่อนข้างดี','Fairly good'],[128,'C','ปานกลาง','Fair'],[64,'D+','พอใช้','Satisfactory'],[0,'D','กำลังพัฒนา','Developing']].find(r=>v>=r[0]);}
 
-async function shareFinishedScore() {
-  if (!game?.over || !currentMascot) return;
-  const button = $('shareScoreBtn'), status = $('shareScoreStatus');
-  if (button.disabled) return;
-  const mascot = currentMascot, score = game.score, th = currentLanguage === 'th';
-  const name = mascotName(mascot), guardian = playerDisplayName();
-  const url = 'https://mascot2048.pages.dev/';
-  button.disabled = true; status.textContent = th ? 'กำลังสร้างรูป...' : 'Creating image...';
-  try {
-    const finished=game;
-    let schoolRank='—', mascotRank='—';
-    try {
-      let rows=reportRankJob?.game===finished ? await reportRankJob.promise : null;
-      if(!rows && finished.periodSubmitted && save.onlineRegistered) rows=(await getRankingData('all')).records;
-      if(Array.isArray(rows)) {
-        const sorted=rows.slice().sort((a,b)=>b.score-a.score||a.date-b.date);
-        const mine=r=>r.playerId===save.playerId && r.mascotId===mascot.id;
-        const own=sorted.find(mine);
-        if(own && Number(own.score)>=score){
-          const seen=new Set(); const school=sorted.filter(r=>!seen.has(r.mascotId)&&seen.add(r.mascotId));
-          const sr=school.findIndex(r=>r.mascotId===mascot.id);
-          const mr=sorted.filter(r=>r.mascotId===mascot.id).findIndex(mine);
-          if(sr>=0)schoolRank=String(sr+1); if(mr>=0)mascotRank=String(mr+1);
-        }
-      }
-    } catch(e){}
+let reportView = null;
+function reportRanks(rows, mascotId, playerId){
+  if(!Array.isArray(rows))return ['—','—'];
+  const sorted=rows.slice().sort((a,b)=>Number(b.score)-Number(a.score)||Number(a.date)-Number(b.date)||String(a.playerId).localeCompare(String(b.playerId)));
+  const seen=new Set();const overall=sorted.filter(r=>!seen.has(r.playerId)&&seen.add(r.playerId));
+  const same=sorted.filter(r=>r.mascotId===mascotId);const a=overall.findIndex(r=>r.playerId===playerId),b=same.findIndex(r=>r.playerId===playerId);
+  return [a<0?'—':String(a+1),b<0?'—':String(b+1)];
+}
+async function makeReportCanvas(finished,mascot,th,rows){
+ const score=finished.score,name=mascotName(mascot),guardian=playerDisplayName();
+ const [schoolRank,mascotRank]=reportRanks(rows,mascot.id,save.playerId);
     const canvas = document.createElement('canvas'); canvas.width=1080; canvas.height=1490;
     const c=canvas.getContext('2d');
     if (!c) throw Error('canvas');
     const color=mascot.color || '#91bce5', ink='#263b51';
     await document.fonts?.ready;
-    c.fillStyle='#fff';c.fillRect(0,0,1080,1490);c.strokeStyle=color;c.lineWidth=5;c.strokeRect(32,32,1016,1426);
+    c.fillStyle='#fff';c.fillRect(0,0,1080,1490);c.fillStyle=color;c.fillRect(0,0,1080,24);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(32,40,1016,1418);c.globalAlpha=.12;c.fillRect(65,65,950,135);c.globalAlpha=1;
     const font='Srinakharinwirot, sans-serif';
     function line(text,y,size,fill=ink,max=900,x=540,align='center'){c.font=`${size}px ${font}`;c.textAlign=align;c.fillStyle=fill;c.fillText(text,x,y,max);}
     function rule(y){c.strokeStyle=color;c.lineWidth=4;c.beginPath();c.moveTo(75,y);c.lineTo(1005,y);c.stroke();}
-    line(th?'โรงเรียนอนุบาลสีฟ้า':'BLUE KINDERGARTEN',125,58);line('BLUE KINDERGARTEN',175,28);rule(205);
+    line(th?'โรงเรียนอนุบาลสีฟ้า':'BLUE KINDERGARTEN',125,58);line(th?'BLUE KINDERGARTEN':'MY LITTLE GRANDKID 2048',175,28);rule(205);
     line(th?'ใบรายงานผลการเรียน':'STUDENT REPORT CARD',285,48);line('STUDENT REPORT CARD',325,25);
-    const highest=Math.max(2,...game.tiles.map(t=>t.value)), g=reportGrade(highest);
+    const highest=Math.max(2,...finished.tiles.map(t=>t.value)), g=reportGrade(highest);
     const photo=new Image();const load=src=>new Promise((resolve,reject)=>{photo.onload=resolve;photo.onerror=reject;photo.src=src;});
-    await load(imagePath(mascot.id,'student'));
-    c.fillStyle=color;c.fillRect(80,370,224,264);const ratio=Math.min(214/photo.naturalWidth,254/photo.naturalHeight);const pw=photo.naturalWidth*ratio,ph=photo.naturalHeight*ratio;c.drawImage(photo,192-pw/2,502-ph/2,pw,ph);
+    try{await load(imagePath(mascot.id,'student'));}catch(e){}
+    c.fillStyle=color;c.fillRect(80,370,224,264);if(photo.naturalWidth){const ratio=Math.min(214/photo.naturalWidth,254/photo.naturalHeight);const pw=photo.naturalWidth*ratio,ph=photo.naturalHeight*ratio;c.drawImage(photo,192-pw/2,502-ph/2,pw,ph);}
     line((th?'ชื่อนักเรียน : ':'Student : ')+name,435,37,ink,650,335,'left');line((th?'ผู้ปกครอง : ':'Guardian : ')+guardian,505,37,ink,650,335,'left');line((th?'วันที่ : ':'Date : ')+new Date().toLocaleDateString(th?'th-TH':'en-GB'),575,33,ink,650,335,'left');
     c.fillStyle=color;c.globalAlpha=.27;c.fillRect(80,680,920,70);c.globalAlpha=1;c.strokeStyle=color;c.lineWidth=2;c.strokeRect(80,680,920,350);for(const y of [750,820,890,960]){c.beginPath();c.moveTo(80,y);c.lineTo(1000,y);c.stroke();}c.beginPath();c.moveTo(570,680);c.lineTo(570,1030);c.stroke();
     line(th?'รายการประเมิน':'Assessment',727,32,ink,450,325);line(th?'ผลการเรียน':'Result',727,32,ink,400,785);line(th?'ระดับที่ไปถึง':'Highest tile',797,32,ink,450,325);line(String(highest),797,34,ink,400,785);line(th?'ผลการประเมิน':'Evaluation',867,32,ink,450,325);line(g[th?2:3],867,32,ink,400,785);
-    line(th?'อันดับหลานในโรงเรียน':'Mascot school rank',937,32,ink,450,325);line(schoolRank,937,34,ink,400,785);line(th?'อันดับของ'+name:name+' rank',1007,32,ink,450,325);line(mascotRank,1007,34,ink,400,785);
-    line(th?'คะแนนที่ทำได้':'TOTAL SCORE',1105,35,ink,500,340);line(formatScore(score),1195,85,ink,500,340);line('TOTAL SCORE',1240,24,ink,500,340);
+    line(th?'อันดับผู้เล่นทั้งโรงเรียน':'Overall player rank',937,32,ink,450,325);line(schoolRank,937,34,ink,400,785);line(th?'อันดับผู้เล่น '+name:name+' player rank',1007,32,ink,450,325);line(mascotRank,1007,34,ink,400,785);
+    c.globalAlpha=.12;c.fillStyle=color;c.fillRect(80,1060,570,220);c.globalAlpha=1;line(th?'คะแนนที่ทำได้':'TOTAL SCORE',1105,35,ink,500,340);line(formatScore(score),1195,85,ink,500,340);line('TOTAL SCORE',1240,24,ink,500,340);
     c.save();c.translate(825,1160);c.rotate(-.19);c.strokeStyle='#b83c43';c.lineWidth=7;for(const r of [125,112]){c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.stroke();}line('BLUE KINDERGARTEN',-65,17,'#b83c43',190,0);line(g[1],40,90,'#b83c43',190,0);line('GRADE',82,23,'#b83c43',190,0);c.restore();rule(1310);line('MY LITTLE GRANDKID 2048',1370,32);line('mascot2048.pages.dev',1420,27);
-    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-    if(!blob) throw Error('image');
-    const file=new File([blob],'grandkid-2048-score.png',{type:'image/png'});
-    let shared=false;
-    if(navigator.share && navigator.canShare?.({files:[file]})) {
-      try {await navigator.share({files:[file],title:'My Little Grandkid 2048',text:name+' · '+formatScore(score)+'\n'+url});shared=true;} catch(e){if(e.name==='AbortError'){status.textContent='';return;}}
-    }
-    if(!shared){const link=document.createElement('a');const objectURL=URL.createObjectURL(blob);link.href=objectURL;link.download=file.name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectURL),60000);}
-    status.textContent='';
-  } catch(e){status.textContent=th?'สร้างรูปไม่สำเร็จ กรุณาลองใหม่':'Could not create image. Please try again.';}
-  finally{button.disabled=false;}
+ return canvas;
 }
-
-function renderGameMessage() {
-
-  if (!game) return;
-  $("shareScoreBtn").textContent = currentLanguage === 'th' ? 'แชร์ใบเกรด' : 'Share report card';
-  if (!game.over) $("shareScoreStatus").textContent = '';
-
-  $("gameMessage").classList.toggle(
-
-    "hidden",
-
-    !game.over
-
-  );
-
-  $("gameMessageTitle").textContent =
-
-    t("gameOver");
-
-  $("gameMessageText").textContent =
-
-    t("finalScore") + " : "
-
-    + formatScore(game.score);
-
+async function showFinishedReport(){
+ if(!game?.over||currentPage!=='game'||hasOpenModal())return;
+ const finished=game,mascot=currentMascot,th=currentLanguage==='th';
+ if(reportView?.game===finished)return;
+ const view=reportView={game:finished,canvas:null,blob:null};
+ $('reportPreview').replaceChildren();$('reportLoading').textContent=th?'กำลังจัดทำใบเกรด…':'Preparing report card…';
+ $('reportLoading').hidden=false;$('shareScoreBtn').disabled=true;$('shareScoreStatus').textContent='';
+ $('shareScoreBtn').textContent=th?'แชร์ใบเกรด':'Share report card';$('reportAgain').textContent=th?'เล่นอีกครั้ง':'Play again';$('reportHome').textContent=th?'กลับหน้าหลัก':'Home';
+ openModal('finishedReportModal');
+ try{
+  let rows=null;
+  try{rows=reportRankJob?.game===finished?await reportRankJob.promise:null;if(!rows&&finished.periodSubmitted&&save.onlineRegistered)rows=(await getRankingData('all')).records;}catch(e){}
+  const canvas=await makeReportCanvas(finished,mascot,th,rows);
+  if(reportView!==view||game!==finished)return;
+  view.canvas=canvas;canvas.setAttribute('aria-label',th?'ใบรายงานผลการเรียน':'Student report card');$('reportPreview').append(canvas);$('reportLoading').hidden=true;
+  view.blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(reportView===view)$('shareScoreBtn').disabled=!view.blob;
+ }catch(e){if(reportView===view)$('reportLoading').textContent=th?'ไม่สามารถสร้างใบเกรดได้':'Could not create report card';}
 }
-
+function leaveFinishedReport(home){closeModal('finishedReportModal');reportView=null;if(home)showPage('home');else newGame();}
+async function shareFinishedScore(){
+ const blob=reportView?.blob;if(!blob)return;
+ const file=new File([blob],'grandkid-2048-report.png',{type:'image/png'});
+ try{if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'My Little Grandkid 2048'});return;}}catch(e){if(e.name==='AbortError')return;}
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function renderGameMessage(){if(!game)return;$('gameMessage').classList.add('hidden');if(game.over)setTimeout(showFinishedReport,0);}
 
 function celebrationEffect(level, mascot, personal=false) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -6510,7 +6488,7 @@ function checkGameOver() {
     clearQueue();
 
     saveGame();
-    reportRankJob={game,promise:submitFinishedPeriod()};
+    if(reportRankJob?.game!==game)reportRankJob={game,promise:submitFinishedPeriod()};
     celebrateFinishedGame();
 
   }
@@ -7361,6 +7339,7 @@ function closeModal(id) {
     window.scrollTo(0, modalScrollY);
   }
   if (wasWin) maybePersonalCelebration();
+  if(id!=="finishedReportModal" && game?.over) setTimeout(showFinishedReport,0);
 }
 document.addEventListener('touchmove', event => {
   if (hasOpenModal() && !event.target.closest('.modal-card')) {
