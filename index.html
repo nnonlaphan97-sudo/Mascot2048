@@ -2069,6 +2069,19 @@ body.modal-locked { position:fixed; width:100%; overflow:hidden; }
 #messageModal .primary-btn{max-width:420px;flex-shrink:0} #messageModal .modal-title{font-size:clamp(24px,6vw,36px)}
 #messageModal.record-mode{background:radial-gradient(ellipse at center,#354769,#111b32);color:white} #messageModal.record-mode .modal-title,#messageModal.record-mode .modal-text{color:#fff0c5} #messageModal.record-mode #messageDecoration{width:95%;max-width:420px;color:#fff0c5} .record-count{font-size:clamp(38px,10vw,65px);font-weight:bold;line-height:1.3} .record-caption{font-size:16px;color:#d7e3f5}
 html[data-mode="dark"] #messageModal:not(.record-mode){background:color-mix(in srgb,var(--theme) 25%,#20252d)}
+
+#messageModal.record-mode:not(.hidden){background:radial-gradient(ellipse at 50% 42%,#354c75,#101d37 80%)!important;}
+html[data-mode="dark"] #messageModal .modal-card,#messageModal.record-mode .modal-card{background:transparent!important;box-shadow:none!important;border:0!important;}
+#messageModal.record-mode .modal-card{padding:24px;gap:12px;}
+#messageModal.record-mode #messageDecoration{display:flex;flex-direction:column;align-items:center;gap:8px;order:2;margin:24px auto 8px;width:100%;max-width:420px;}
+#messageModal.record-mode #messageTitle{order:0;color:#fff0c5!important;font-size:clamp(28px,8vw,40px);margin:0;}
+#messageModal.record-mode #messageText{order:1;color:#e4eaf7!important;line-height:1.6;overflow-wrap:anywhere;margin:0;}
+#messageModal.record-mode .primary-btn{order:3;width:auto!important;min-width:150px;padding:12px 36px;border-radius:30px;background:#f1d397!important;color:#3f3850!important;box-shadow:none!important;margin-top:18px;}
+#messageModal.record-mode .record-count{color:#fff2c8;font-size:clamp(40px,12vw,68px);line-height:1.15;font-variant-numeric:tabular-nums;}
+.record-eyebrow{font-size:12px;letter-spacing:3px;color:#f2d38e;order:-1;}
+.record-gain{border:1px solid #d4b77788;border-radius:30px;padding:8px 18px;margin-top:12px;color:#ffe4a7;}
+.record-new-label{font-size:14px;color:#f2d38e;}
+
 </style>
 </head>
 
@@ -6291,12 +6304,12 @@ function maybePersonalCelebration(){
   if(!game || currentPage!=="game" || hasOpenModal() || game.personalCelebrated || !(game.celebrationBase?.personal>0) || game.score<=game.celebrationBase.personal) return false;
   game.personalCelebrated=true; saveGame(); clearQueue();
   const th=currentLanguage==='th', old=game.celebrationBase.personal, score=game.score, modal=$("messageModal"), decoration=$("messageDecoration");
-  modal.classList.add('record-mode'); decoration.replaceChildren();
+  modal.classList.add('record-mode'); decoration.replaceChildren(); modal.querySelector('.record-eyebrow')?.remove(); const eyebrow=document.createElement('div'); eyebrow.className='record-eyebrow'; eyebrow.textContent='PERSONAL BEST'; modal.querySelector('.modal-card').prepend(eyebrow);
   const caption=document.createElement('div');caption.className='record-caption';caption.textContent=(th?'สถิติเดิม · ':'Previous best · ')+formatScore(old);
   const count=document.createElement('div');count.className='record-count';
-  const gain=document.createElement('div');gain.textContent='+'+formatScore(score-old)+(th?' คะแนน':' points');
-  decoration.append(caption,count,gain); $("messageTitle").textContent=th?'เก่งมากเลย!':'Amazing job!'; $("messageText").textContent=th?'หลานทำลายสถิติของตัวเองได้แล้ว':'You beat your personal best!';
-  openModal('messageModal'); celebrationEffect(2,currentMascot); const start=performance.now();
+  const gain=document.createElement('div');gain.className='record-gain';gain.textContent='+'+formatScore(score-old)+(th?' คะแนน':' points');
+  const label=document.createElement('div');label.className='record-new-label';label.textContent=th?'สถิติใหม่':'New record'; decoration.append(caption,count,label,gain); $("messageTitle").textContent=th?'เก่งมากเลย!':'Amazing job!'; $("messageText").textContent=th?(playerDisplayName()||'คุณ')+'ทำลายสถิติของตัวเองได้แล้ว':(playerDisplayName()||'You')+' — new personal best!';
+  openModal('messageModal'); celebrationEffect(2,currentMascot,true); const start=performance.now();
   function tick(now){if(!count.isConnected || modal.classList.contains('hidden'))return;const t=Math.min(1,(now-start)/1200);count.textContent=formatScore(Math.round(old+(score-old)*(1-Math.pow(1-t,3))));if(t<1)requestAnimationFrame(tick)} requestAnimationFrame(tick);return true;
 }
 function reportGrade(v){return [[4096,'A+','ยอดเยี่ยมที่สุด','Outstanding'],[2048,'A','ยอดเยี่ยม','Excellent'],[1024,'B+','ดีมาก','Very good'],[512,'B','ดี','Good'],[256,'C+','ค่อนข้างดี','Fairly good'],[128,'C','ปานกลาง','Fair'],[64,'D+','พอใช้','Satisfactory'],[0,'D','กำลังพัฒนา','Developing']].find(r=>v>=r[0]);}
@@ -6370,21 +6383,21 @@ function renderGameMessage() {
 }
 
 
-function celebrationEffect(level, mascot) {
+function celebrationEffect(level, mascot, personal=false) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:99999;pointer-events:none';
-  document.body.append(canvas);
+  if(personal){canvas.className="record-fireworks";canvas.style.position="absolute";canvas.style.zIndex="1";$("messageModal").append(canvas);}else document.body.append(canvas);
   const ctx = canvas.getContext('2d');
   if (!ctx) { canvas.remove(); return; }
   const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
   canvas.width = w*dpr; canvas.height = h*dpr; ctx.scale(dpr,dpr);
   const colors = level===3 ? ['#FFD45A','#FF719B','#8BD7FF','#BBA0FF','#91E4B1','#FFFFFF'] : [mascot.color || '#83BCE8','#FFD45A','#FFFFFF'];
   const effectSession=gameSession;
-  const particles = [], start = performance.now(), duration = level===3 ? 6500 : level===2 ? 3500 : 1800;
+  const particles = [], start = performance.now(), duration = personal ? 5000 : level===3 ? 6500 : level===2 ? 3500 : 1800;
   let next = 0;
   function frame(now) {
-    if (gameSession!==effectSession || currentPage !== 'game' || now-start > duration+1200) { canvas.remove(); return; }
+    if (!canvas.isConnected || gameSession!==effectSession || currentPage !== 'game' || now-start > duration+1200) { canvas.remove(); return; }
     ctx.clearRect(0,0,w,h);
     if (now-start < duration && now >= next) {
       next = now + (level===3 ? 230 : 520);
@@ -7302,7 +7315,7 @@ function openModal(id) {
 }
 function closeModal(id) {
   const wasWin = id === "messageModal" && !$(id).classList.contains("record-mode");
-  if (id === 'messageModal') $(id).querySelector('.win-heart-rain')?.remove();
+  if (id === 'messageModal') { $(id).querySelector('.win-heart-rain')?.remove(); $(id).querySelector('.record-fireworks')?.remove(); $(id).querySelector('.record-eyebrow')?.remove(); }
   $(id).classList.add('hidden');
   if (!hasOpenModal() && document.body.classList.contains('modal-locked')) {
     document.body.classList.remove('modal-locked');
