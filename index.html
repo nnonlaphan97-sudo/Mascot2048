@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -2034,6 +2033,9 @@ html[data-mode="dark"] .period-home .world-label{color:#e4eaf3;}
 .champion-podium .world-caption{font-size:clamp(7px,6cqw,10px);margin:0;text-align:center;line-height:1.1;max-width:100%;overflow-wrap:anywhere}
 html[data-mode="dark"] .champion-podium{background:#303641;border-color:#46505d;box-shadow:none}html[data-mode="dark"] .podium-title{color:#e4eaf3}html[data-mode="dark"] .champion-podium .all-home{background:#55482d!important}html[data-mode="dark"] .champion-podium .month-home{background:#493c60!important}html[data-mode="dark"] .champion-podium .week-home{background:#344b65!important}
 .podium-star{animation:podiumTwinkle 3s ease-in-out infinite alternate}.podium-star:nth-child(even){animation-delay:1s}@keyframes podiumTwinkle{to{opacity:.35}}@media(prefers-reduced-motion:reduce){.podium-star{animation:none}}
+
+#homePage { animation:none; overflow-anchor:none; }
+#mascotGrid { overflow-anchor:none; }
 </style>
 </head>
 
@@ -2195,9 +2197,7 @@ html[data-mode="dark"] .champion-podium{background:#303641;border-color:#46505d;
 
     </div>
 
-    <div class="world-caption"
-      id="monthWorldCaption">
-    </div>
+
 
   </div>
 
@@ -2251,9 +2251,7 @@ html[data-mode="dark"] .champion-podium{background:#303641;border-color:#46505d;
 
     </div>
 
-    <div class="world-caption"
-      id="weekWorldCaption">
-    </div>
+
 
   </div>
 
@@ -4192,9 +4190,7 @@ async function refreshPeriod() {
     periodStatus = "ready";
   } catch(e) {
     if (token !== periodRequest) return;
-    periodStatus = "error";
-    periodRecords = [];
-    periodKey = "";
+    if (periodStatus !== "ready") { periodStatus = "error"; periodRecords = []; periodKey = ""; }
   } finally {
     if (token === periodRequest) {
       periodPending = false;
@@ -4339,11 +4335,12 @@ function setLanguage(language) {
 
 let onlineRecords = [];
 let onlineReady = false;
+let onlineRefreshBusy = false;
 let onlineBusy = false;
 let profileBusy = false;
 function onlineSecret(){ if(!save.onlineSecret){save.onlineSecret=Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('');persist();} return save.onlineSecret; }
 async function onlinePost(action,extra){const r=await fetch('/api/leaderboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,id:save.playerId,secret:onlineSecret(),...extra})});const b=await r.json();if(!r.ok)throw Error(b.error||'server');return b;}
-async function refreshOnline(){try{const r=await fetch('/api/leaderboard',{cache:'no-store'});if(!r.ok)throw Error();const b=await r.json();if(!Array.isArray(b.records))throw Error();onlineRecords=b.records;onlineReady=true;if(currentPage==='home')renderHome();if(currentPage==='ranking')renderRanking();if(currentPage==='game')renderScores();}catch(e){onlineReady=false;}}
+async function refreshOnline(){if(onlineRefreshBusy)return;onlineRefreshBusy=true;try{const r=await fetch('/api/leaderboard',{cache:'no-store'});if(!r.ok)throw Error();const b=await r.json();if(!Array.isArray(b.records))throw Error();onlineRecords=b.records;onlineReady=true;if(currentPage==='home')renderHome();if(currentPage==='ranking')renderRanking();if(currentPage==='game')renderScores();}catch(e){/* retain last successful records */}finally{onlineRefreshBusy=false;}}
 let syncTimer;
 function queueScoreSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncOnline,800);}
 async function syncOnline(){if(onlineBusy||profileBusy||!save.onlineRegistered)return;onlineBusy=true;try{const best=new Map();for(const r of save.records){if(r.playerId!==save.playerId||!MASCOTS.some(m=>m.id===r.mascotId))continue;const score=Number(r.score);if(Number.isSafeInteger(score)&&score>0&&score%4===0&&score<=100000000)best.set(r.mascotId,Math.max(best.get(r.mascotId)||0,score));}await onlinePost('score',{records:[...best].map(([mascotId,score])=>({mascotId,score}))});await refreshOnline();}catch(e){console.warn('Score sync failed:',e.message);}finally{onlineBusy=false;}}
@@ -4486,6 +4483,7 @@ function clearQueue() {
 }
 
 function showPage(page) {
+  if (page === currentPage) return;
 
   if (currentPage === "game"
     && page !== "game") {
@@ -4559,8 +4557,7 @@ function showPage(page) {
 
   if (page === "home") { renderHome(); refreshHomePeriods(); }
 
-  if (page === "ranking") renderRanking();
-    refreshPeriod();
+  if (page === "ranking") { renderRanking(); refreshPeriod(); }
 
   if (page === "profile") renderProfile();
 
@@ -4590,73 +4587,88 @@ async function refreshHomePeriods() {
         if (data.period !== type || !data.periodKey || !Array.isArray(data.records)) throw Error('invalid');
         const records = data.records.filter(r=>MASCOTS.some(m=>m.id===r.mascotId)).sort((a,b)=>b.score-a.score||a.date-b.date);
         homePeriods[type]={status:'ready',key:data.periodKey,champion:records[0]||null};
-      } catch(e) { homePeriods[type]={status:'error'}; }
+      } catch(e) { if(homePeriods[type].status !== 'ready') homePeriods[type]={status:'error'}; }
       if(currentPage==='home') renderHomeChampions();
     }));
   } finally { homePeriodBusy=false; }
+}
+const renderedMarkup = new WeakMap();
+function stableHTML(element, markup) {
+  if (renderedMarkup.get(element) === markup) return;
+  element.innerHTML = markup;
+  renderedMarkup.set(element, markup);
+}
+function stableText(element, value) {
+  value = String(value ?? '');
+  if (element.textContent !== value) element.textContent = value;
 }
 function renderHomeChampions() {
   const th=currentLanguage==='th';
   for(const type of ['week','month']) {
     const state=homePeriods[type], c=state.champion, prefix=type+'World';
-    $(prefix+'Name').textContent=c?(th?'อันดับ 1 · ':'No. 1 · ')+mascotName(getMascot(c.mascotId)):state.status==='loading'?(th?'กำลังโหลด...':'Loading...'):state.status==='error'?(th?'โหลดข้อมูลไม่ได้':'Unable to load'):t('noChampion');
-    $(prefix+'Mascot').textContent=c?taughtBy(c):state.status==='ready'?t('startPlaying'):'';
-    $(prefix+'Score').textContent=state.status==='ready'?formatScore(c?.score):'—';
-    $(prefix+'Avatar').innerHTML=c?photoHTML((c.playerId===save.playerId?save.avatarMascot:c.avatarMascot)||c.mascotId,'profile'):'';
-    $(prefix+'MascotPhoto').innerHTML=c?photoHTML(c.mascotId,'cover'):'';
-    let label='';
-    if(state.key){
-      const start=new Date(state.key+(type==='month'?'-01':'')+'T00:00:00+07:00');
-      const [y,m]=state.key.split('-').map(Number);
-      const end=new Date(type==='week'?start.getTime()+6*86400000:Date.UTC(y,m,0)-7*3600000);
-      const fmt=d=>d.toLocaleDateString(th?'th-TH':'en-GB',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'});
-      const short=d=>d.toLocaleDateString(th?'th-TH':'en-GB',{timeZone:'Asia/Bangkok',day:'numeric',month:'short'}); label=short(start)+' – '+short(end); $(prefix+'Caption').title=fmt(start)+' – '+fmt(end);
-    }
-    $(prefix+'Caption').textContent=label;
+    stableText($(prefix+'Name'), c?(th?'อันดับ 1 · ':'No. 1 · ')+mascotName(getMascot(c.mascotId)):state.status==='loading'?(th?'กำลังโหลด...':'Loading...'):state.status==='error'?(th?'โหลดข้อมูลไม่ได้':'Unable to load'):t('noChampion'));
+    stableText($(prefix+'Mascot'), c?taughtBy(c):state.status==='ready'?t('startPlaying'):'');
+    stableText($(prefix+'Score'), state.status==='ready'?formatScore(c?.score):'—');
+    stableHTML($(prefix+'Avatar'), c?photoHTML((c.playerId===save.playerId?save.avatarMascot:c.avatarMascot)||c.mascotId,'profile'):'');
+    stableHTML($(prefix+'MascotPhoto'), c?photoHTML(c.mascotId,'cover'):'');
+
   }
 }
 
+function updateHomeGrid(grid, markup) {
+  if (renderedMarkup.get(grid) === markup) return;
+  const template = document.createElement('template');
+  template.innerHTML = markup;
+  const old = new Map([...grid.children].filter(el=>el.dataset.mascot).map(el=>[el.dataset.mascot,el]));
+  const desired = [...template.content.children].map(next=>{
+    const existing=old.get(next.dataset.mascot);
+    if (!existing) return next;
+    for(const selector of ['.mascot-position','.mascot-name','.mascot-en','.record-label','.record-name','.record-score']) {
+      const a=existing.querySelector(selector), b=next.querySelector(selector);
+      if(a&&b){stableText(a,b.textContent);if(a.className!==b.className)a.className=b.className;}
+    }
+    return existing;
+  });
+  const keep=new Set(desired);
+  for(const child of [...grid.children]) if(!keep.has(child)) child.remove();
+  desired.forEach((child,i)=>{if(grid.children[i]!==child)grid.insertBefore(child,grid.children[i]||null);});
+  renderedMarkup.set(grid,markup);
+}
 function renderHome() {
   renderHomeChampions();
 
-  $("homeAvatar").innerHTML =
-
-    photoHTML(save.avatarMascot,"profile");
+  stableHTML($("homeAvatar"), photoHTML(save.avatarMascot,"profile"));
 
   const champion = getChampion();
 
-  $("worldName").textContent = champion
+  stableText($("worldName"), champion
 
     ? (currentLanguage === "th" ? "อันดับ 1 · " : "No. 1 · ") + mascotName(getMascot(champion.mascotId))
 
-    : t("noChampion");
+    : t("noChampion"));
 
-  $("worldMascot").textContent = champion
+  stableText($("worldMascot"), champion
 
     ? taughtBy(champion)
 
-    : t("startPlaying");
+    : t("startPlaying"));
 
-  $("worldScore").textContent =
+  stableText($("worldScore"), formatScore(champion?.score));
 
-    formatScore(champion?.score);
-
-  $("worldAvatar").innerHTML =
-
-    photoHTML(
+  stableHTML($("worldAvatar"), photoHTML(
 
       (champion?.playerId === save.playerId ? save.avatarMascot : champion?.avatarMascot)
       || champion?.mascotId || save.avatarMascot,
 
       "profile"
 
-    );
+    ));
 
-  $("worldMascotPhoto").innerHTML = champion
+  stableHTML($("worldMascotPhoto"), champion
 
     ? photoHTML(champion.mascotId,"cover")
 
-    : "";
+    : "");
 
   const query = $("mascotSearch").value
     .trim()
@@ -4691,7 +4703,7 @@ function renderHome() {
 
   if (!filtered.length) {
 
-    $("mascotGrid").innerHTML = `
+    stableHTML($("mascotGrid"), `
 
       <div class="empty-state"
         style="grid-column:1/-1">
@@ -4700,13 +4712,13 @@ function renderHome() {
 
       </div>
 
-    `;
+    `);
 
     return;
 
   }
 
-  $("mascotGrid").innerHTML = filtered
+  updateHomeGrid($("mascotGrid"), filtered
 
     .map(({mascot,rank}) => {
 
@@ -4714,7 +4726,7 @@ function renderHome() {
 
       return `
 
-        <button class="mascot-card"
+        <button class="mascot-card" data-mascot="${mascot.id}"
           onclick="selectMascot('${mascot.id}')">
 
           ${photoHTML(mascot.id,"cover")}
@@ -4768,7 +4780,7 @@ function renderHome() {
 
       `;
 
-    }).join("");
+    }).join(""));
 
 }
 
@@ -6671,8 +6683,8 @@ function setRankingFilter(id) {
 function renderRanking() {
   const th = currentLanguage === 'th';
   const labels = {week:th?'สัปดาห์นี้':'This week',month:th?'เดือนนี้':'This month',all:th?'ตลอดกาล':'All time'};
-  $('rankingPeriods').innerHTML = ['week','month','all'].map(p => `<button class="filter-chip ${rankingPeriod===p?'active':''}" onclick="setRankingPeriod('${p}')" aria-pressed="${rankingPeriod===p}">${labels[p]}</button>`).join('');
-  $('rankingPeriodDate').textContent = periodDateLabel();
+  stableHTML($('rankingPeriods'), ['week','month','all'].map(p => `<button class="filter-chip ${rankingPeriod===p?'active':''}" onclick="setRankingPeriod('${p}')" aria-pressed="${rankingPeriod===p}">${labels[p]}</button>`).join(''));
+  stableText($('rankingPeriodDate'), periodDateLabel());
   const query = $("rankingSearch").value.trim().toLowerCase();
   const matches = [...MASCOTS].filter(m => (m.name + " " + m.en).toLowerCase().includes(query)).sort(byMascotName);
   const filters = [
@@ -6687,9 +6699,7 @@ function renderRanking() {
 
   ];
 
-  $("rankingFilters").innerHTML =
-
-    filters.map(item => `
+  stableHTML($("rankingFilters"), filters.map(item => `
 
       <button class="filter-chip
         ${rankingFilter === item.id ? "active" : ""}"
@@ -6700,16 +6710,12 @@ function renderRanking() {
 
       </button>
 
-    `).join("");
+    `).join(""));
 
   const matchingIds = new Set(matches.map(m => m.id));
   const seen = new Set();
   if (rankingPeriod !== 'all' && periodStatus !== 'ready') {
-    $('rankingList').textContent = '';
-    const msg = document.createElement('div');
-    msg.className = 'empty-state';
-    msg.textContent = periodStatus === 'error' ? (th?'โหลดอันดับไม่ได้ กรุณาลองใหม่':'Unable to load ranking. Please retry.') : (th?'กำลังโหลดอันดับ...':'Loading ranking...');
-    $('rankingList').append(msg);
+    stableHTML($('rankingList'), `<div class="empty-state">${periodStatus === 'error' ? (th?'โหลดอันดับไม่ได้ กรุณาลองใหม่':'Unable to load ranking. Please retry.') : (th?'กำลังโหลดอันดับ...':'Loading ranking...')}</div>`);
     return;
   }
   const source = rankingPeriod === 'all' ? getRecords(rankingFilter) : periodRecords.filter(r => MASCOTS.some(m=>m.id===r.mascotId) && (rankingFilter==='all'||r.mascotId===rankingFilter)).slice().sort((a,b)=>b.score-a.score||a.date-b.date);
@@ -6725,7 +6731,7 @@ function renderRanking() {
 
   if (!records.length) {
 
-    $("rankingList").innerHTML = `
+    stableHTML($("rankingList"), `
 
       <div class="empty-state">
 
@@ -6737,15 +6743,13 @@ function renderRanking() {
 
       </div>
 
-    `;
+    `);
 
     return;
 
   }
 
-  $("rankingList").innerHTML =
-
-    records.map((record,index) => `
+  stableHTML($("rankingList"), records.map((record,index) => `
 
       <div class="ranking-row
         ${index === 0 ? "top" : ""}">
@@ -6792,7 +6796,7 @@ function renderRanking() {
 
       </div>
 
-    `).join("");
+    `).join(""));
 
 }
 
@@ -7255,7 +7259,7 @@ renderHome();
 refreshHomePeriods();
 refreshOnline();
 syncOnline();
-setInterval(()=>{syncOnline();refreshOnline();if(currentPage==='ranking')refreshPeriod();if(currentPage==='home')refreshHomePeriods();},15000);
+setInterval(()=>{refreshOnline();if(currentPage==='ranking')refreshPeriod();if(currentPage==='home')refreshHomePeriods();},15000);
 reportActivity('visit');
 setInterval(()=>{if(!document.hidden) reportActivity('heartbeat');},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden) reportActivity('heartbeat');});
