@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#edf5ff">
-<title>MASCOT 2048</title>
+<title>My Little Grandkid 2048</title>
 
 <style>
 
@@ -262,7 +261,7 @@ h1,h2,h3,p {
 }
 
 /* ========================================
-   06. GRAND CHAMPION
+   06. <span data-i18n="topGrandkid"></span>
 ======================================== */
 
 .world-card {
@@ -1984,6 +1983,11 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
 .avatar-option.selected::after{content:"✓";position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;background:#2879c9;color:white;display:grid;place-items:center;font-weight:bold;box-shadow:0 1px 4px #0004;pointer-events:none;}
 @media(prefers-reduced-motion:reduce){.avatar-option{transition:none;}.avatar-option:active{transform:none;}}
 
+
+#gamePage .score-card {border:1px solid rgba(0,0,0,.23); box-shadow:0 3px 0 rgba(0,0,0,.16);}
+#gamePage .score-card :is(.score-label,.score-value,.score-champion-name){color:var(--card-contrast,#171619)!important;}
+#gamePage .score-label{font-weight:600;}
+html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;}
 </style>
 </head>
 
@@ -2003,7 +2007,7 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
       </div>
 
       <h1 class="brand-title">
-        MASCOT 2048
+        My Little Grandkid 2048
       </h1>
 
       <div class="brand-subtitle"
@@ -2056,7 +2060,7 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
 
       </svg>
 
-      GRAND CHAMPION
+      <span data-i18n="topGrandkid"></span>
 
     </div>
 
@@ -2150,7 +2154,7 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
     </div>
 
     <div class="credit-copyright">
-      © 2026 MASCOT 2048
+      © 2026 My Little Grandkid 2048
     </div>
 
   </footer>
@@ -2379,7 +2383,7 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
     <div>
 
       <div class="brand-small">
-        MASCOT COLLECTION
+        GRANDKID COLLECTION
       </div>
 
       <h2 data-i18n="mascotCollection"></h2>
@@ -2479,7 +2483,7 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
     </div>
 
     <div class="credit-copyright">
-      © 2026 MASCOT 2048
+      © 2026 My Little Grandkid 2048
     </div>
 
   </footer>
@@ -2591,7 +2595,8 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
     </div>
 
     <label for="playerTitleInput" data-i18n="playerTitleLabel"></label>
-    <input id="playerTitleInput" class="name-input" maxlength="24" data-placeholder="playerTitle" autocomplete="off">
+    <input id="playerTitleInput" class="name-input" maxlength="24" data-placeholder="playerTitle" autocomplete="off" list="playerTitleSuggestions">
+    <datalist id="playerTitleSuggestions"><option value="อุนยาย"><option value="น้องยาน"><option value="แกรนนี่"></datalist>
     <label for="playerNameInput" data-i18n="playerNameLabel"></label>
     <input id="playerNameInput"
       class="name-input"
@@ -2700,21 +2705,22 @@ const LANG = {
 
   th: {
 
-    school: "โรงเรียนอนุบาลหมีฟ้า",
+    school: "โรงเรียนอนุบาลสีฟ้า",
+    topGrandkid: "หลานที่ได้คะแนนสูงสุด",
 
     worldCaption:
-      "คะแนนสูงสุดจากหลานทุกคน · ภายในเครื่อง",
+      "คะแนนสูงสุดจากหลานทุกตัว",
 
     chooseMascot: "เลือกหลานที่อยากเล่น",
     searchMascot: "ค้นหาชื่อหลาน",
 
-    noChampion: "ยังไม่มีแชมป์",
+    noChampion: "ยังไม่มีคะแนน",
     startPlaying: "มาเริ่มเล่นกันเลย",
 
-    mascotChampion: "แชมป์ของหลาน",
+    mascotChampion: "สถิติสูงสุดของหลาน",
 
     playingWith: "เล่นกับ",
-    grandma: "คุณอุนยาย",
+    grandma: "ผู้เล่น",
 
     score: "คะแนน",
     personalBest: "สถิติของเรา",
@@ -2727,14 +2733,14 @@ const LANG = {
     collection: "อัลบั้ม",
     profile: "โปรไฟล์",
 
-    grandmaRanking: "อันดับคุณอุนยาย",
+    grandmaRanking: "อันดับหลาน",
     localRanking: "อันดับออนไลน์",
 
     all: "ทั้งหมด",
     noScores: "ยังไม่มีคะแนน",
 
     firstChampion:
-      "มาเป็นแชมป์คนแรกกันนะ",
+      "มาสอนหลานทำคะแนนกันเถอะ",
 
     mascotCollection: "อัลบั้มหลาน",
 
@@ -2745,7 +2751,7 @@ const LANG = {
     photos: "ภาพ",
 
     profileSubtitle:
-      "คุณอุนยายแห่งโรงเรียนอนุบาลหมีฟ้า",
+      "ครอบครัวโรงเรียนอนุบาลสีฟ้า",
 
     editProfile:
       "แก้ไขชื่อและรูปโปรไฟล์",
@@ -2768,14 +2774,14 @@ const LANG = {
       "เริ่มเล่นใหม่ไหมคะ?",
 
     restartHint:
-      "คะแนนรอบนี้จะเริ่มใหม่ แต่สถิติสูงสุดและภาพสะสมของคุณอุนยายจะยังอยู่เหมือนเดิม",
+      "คะแนนรอบนี้จะเริ่มใหม่ แต่สถิติสูงสุดและภาพสะสมของคุณจะยังอยู่เหมือนเดิม",
 
     keepPlaying: "เล่นต่อก่อน",
     newGame: "เริ่มใหม่เลย",
     playAgain: "เล่นอีกครั้ง",
 
     gameOver:
-      "เก่งมากเลยคุณอุนยาย!",
+      "เก่งมากเลย!",
 
     finalScore: "คะแนนรอบนี้",
 
@@ -2793,13 +2799,13 @@ const LANG = {
     studentNo: "เลขประจำตัวนักเรียน",
     birthday: "วันเกิด",
     surname: "นามสกุล",
-    playerTitle: "คำเรียก (เช่น อุนยาย อุนยา)",
+    playerTitle: "คำเรียก (เช่น อุนยาย น้องยาน แกรนนี่)",
     playerTitleLabel: "คำเรียก",
     playerNameLabel: "ชื่อของคุณ",
 
     designer: "ออกแบบโดย ปังปุง",
 
-    winTitle: "คุณอุนยายทำได้แล้ว!",
+    winTitle: "ทำได้แล้ว!",
 
     winText:
       "ปลดล็อกภาพระดับ 2048 สำเร็จ เล่นต่อเพื่อทำคะแนนสูงขึ้นได้เลย",
@@ -2813,20 +2819,21 @@ const LANG = {
   en: {
 
     school: "Blue Kindergarten",
+    topGrandkid: "Highest-scoring grandkid",
 
     worldCaption:
-      "Highest score across all mascots · Local",
+      "Highest score across all grandkids",
 
-    chooseMascot: "Choose your mascot",
-    searchMascot: "Search mascots",
+    chooseMascot: "Choose your grandkid",
+    searchMascot: "Search grandkids",
 
-    noChampion: "No champion yet",
+    noChampion: "No scores yet",
     startPlaying: "Let's start playing!",
 
-    mascotChampion: "Mascot Champion",
+    mascotChampion: "Grandkid’s Best",
 
     playingWith: "Playing with",
-    grandma: "Grandma",
+    grandma: "Player",
 
     score: "Score",
     personalBest: "Personal Best",
@@ -2839,16 +2846,16 @@ const LANG = {
     collection: "Collection",
     profile: "Profile",
 
-    grandmaRanking: "Grandma Rankings",
+    grandmaRanking: "Grandkid Rankings",
     localRanking: "Online Leaderboard",
 
     all: "All",
     noScores: "No scores yet",
 
     firstChampion:
-      "Become the first champion!",
+      "Help your grandkid earn the first score!",
 
-    mascotCollection: "Mascot Collection",
+    mascotCollection: "Grandkid Collection",
 
     collectionHint:
       "Collect photos by merging tiles",
@@ -2857,7 +2864,7 @@ const LANG = {
     photos: "photos",
 
     profileSubtitle:
-      "Grandma of Blue Kindergarten",
+      "Blue Kindergarten Family",
 
     editProfile:
       "Edit name and avatar",
@@ -2886,7 +2893,7 @@ const LANG = {
     newGame: "New Game",
     playAgain: "Play Again",
 
-    gameOver: "Great job, Grandma!",
+    gameOver: "Great job!",
 
     finalScore: "Final score",
 
@@ -2903,20 +2910,20 @@ const LANG = {
     studentNo: "Student No.",
     birthday: "Birthday",
     surname: "Surname",
-    playerTitle: "Title (e.g. Grandma)",
+    playerTitle: "Title (e.g. Granny)",
     playerTitleLabel: "Title",
     playerNameLabel: "Your name",
 
     designer: "Designed by Pangpung",
 
-    winTitle: "You did it, Grandma!",
+    winTitle: "You did it!",
 
     winText:
       "You've unlocked the 2048 photo! Keep playing to reach a higher score.",
 
     continue: "Continue",
 
-    noResults: "No matching mascots"
+    noResults: "No matching grandkids"
 
   }
 
@@ -4149,6 +4156,9 @@ function playerDisplayName(person = save) {
   return [person.playerTitle, person.playerName || person.name].filter(Boolean).join(currentLanguage === "en" ? " " : "");
 }
 
+function taughtBy(record) { return (currentLanguage === "th" ? "สอนโดย " : "Taught by ") + recordName(record); }
+function teacherOf(mascot, record) { return currentLanguage === "th" ? "คนที่สอนหลาน" + mascotName(mascot) + " คือ " + recordName(record) : mascotName(mascot) + " is taught by " + recordName(record); }
+function byMascotName(a,b) { return mascotName(a).localeCompare(mascotName(b), currentLanguage === "th" ? "th" : "en"); }
 function recordName(record) {
 
   return (record && playerDisplayName(record))
@@ -4326,14 +4336,13 @@ function renderHome() {
 
   $("worldName").textContent = champion
 
-    ? recordName(champion)
+    ? (currentLanguage === "th" ? "อันดับ 1 · " : "No. 1 · ") + mascotName(getMascot(champion.mascotId))
 
     : t("noChampion");
 
   $("worldMascot").textContent = champion
 
-    ? t("playingWith") + " "
-      + mascotName(getMascot(champion.mascotId))
+    ? taughtBy(champion)
 
     : t("startPlaying");
 
@@ -4345,8 +4354,7 @@ function renderHome() {
 
     photoHTML(
 
-      champion?.avatarMascot
-      || champion?.mascotId
+      champion?.mascotId
       || save.avatarMascot,
 
       "profile"
@@ -4382,6 +4390,7 @@ function renderHome() {
 
     }))
 
+    .sort((a,b) => byMascotName(a.mascot,b.mascot))
     .filter(({mascot}) =>
 
       (mascot.name + " " + mascot.en)
@@ -4452,7 +4461,7 @@ function renderHome() {
             <div class="record-name">
 
               ${best
-                ? escapeHTML(recordName(best))
+                ? escapeHTML(teacherOf(mascot,best))
                 : t("noChampion")}
 
             </div>
@@ -4532,7 +4541,7 @@ function renderStudentCard() {
 
           ${currentLanguage === "th"
             ? "BLUE KINDERGARTEN"
-            : "โรงเรียนอนุบาลหมีฟ้า"}
+            : "โรงเรียนอนุบาลสีฟ้า"}
 
         </div>
 
@@ -5689,7 +5698,19 @@ function processQueue() {
    20. SCORE DISPLAY
 ======================================== */
 
+function updateScoreContrast() {
+  document.querySelectorAll('#gamePage .score-card').forEach(card => {
+    if(document.documentElement.dataset.mode==='dark'){card.style.setProperty('--card-contrast','#FFFFFF');return;}
+    const rgb = getComputedStyle(card).backgroundColor.match(/[\d.]+/g);
+    if (!rgb || rgb.length < 3) return;
+    const linear = rgb.slice(0,3).map(v => { const x=Number(v)/255; return x<=0.04045?x/12.92:Math.pow((x+0.055)/1.055,2.4); });
+    const L=linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;
+    card.style.setProperty('--card-contrast', L>0.179 ? '#000000' : '#FFFFFF');
+  });
+}
+
 function renderScores(gained = 0) {
+  updateScoreContrast();
 
   if (!game || !currentMascot) return;
 
@@ -5717,7 +5738,7 @@ function renderScores(gained = 0) {
 
     champion
 
-      ? recordName(champion)
+      ? taughtBy(champion)
 
       : "-";
 
@@ -6276,7 +6297,7 @@ function renderRanking() {
       en:t("all")
     },
 
-    ...MASCOTS
+    ...[...MASCOTS].sort(byMascotName)
 
   ];
 
@@ -6354,8 +6375,7 @@ function renderRanking() {
 
           ${photoHTML(
 
-            record.avatarMascot
-            || record.mascotId,
+            record.mascotId,
 
             "profile"
 
@@ -6367,21 +6387,13 @@ function renderRanking() {
 
           <div class="rank-name">
 
-            ${escapeHTML(recordName(record))}
+            ${escapeHTML(mascotName(getMascot(record.mascotId)))}
 
           </div>
 
           <div class="rank-mascot">
 
-            ${t("playingWith")}
-
-            ${escapeHTML(
-
-              mascotName(
-                getMascot(record.mascotId)
-              )
-
-            )}
+            ${escapeHTML(taughtBy(record))}
 
           </div>
 
@@ -6444,7 +6456,7 @@ function renderCollection() {
 
   $("collectionFilters").innerHTML =
 
-    MASCOTS.map(mascot => `
+    [...MASCOTS].sort(byMascotName).map(mascot => `
 
       <button class="filter-chip
         ${collectionFilter === mascot.id ? "active" : ""}"
@@ -6564,11 +6576,7 @@ function renderProfile() {
 
       .sort((a,b) =>
 
-        getPersonalBest(b.id)
-
-        -
-
-        getPersonalBest(a.id)
+        getPersonalBest(b.id) - getPersonalBest(a.id) || byMascotName(a,b)
 
       )
 
@@ -6621,7 +6629,7 @@ function renderAvatarOptions() {
 
   $("avatarOptions").innerHTML =
 
-    MASCOTS.map(mascot => `
+    [...MASCOTS].sort((a,b) => mascotName(a).localeCompare(mascotName(b), currentLanguage === "th" ? "th" : "en")).map(mascot => `
 
       <button class="avatar-option
         ${selectedAvatar === mascot.id
@@ -6838,6 +6846,7 @@ if (!save.playerName || !save.playerTitle || !save.onlineRegistered) {
 <script>
 function applyDarkMode(mode) {
  document.documentElement.dataset.mode=mode;
+ if(typeof updateScoreContrast==='function') updateScoreContrast();
  const dark=mode==='dark';
  document.querySelectorAll('.dark-toggle').forEach(b=>{
  b.setAttribute('aria-pressed',String(dark));
