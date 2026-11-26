@@ -2363,6 +2363,10 @@ html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;
 
   </header>
 
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="M15 15L21 21"/></svg>
+    <input id="rankingSearch" data-placeholder="searchMascot" autocomplete="off" aria-label="ค้นหาชื่อหลาน / Search grandkids" oninput="rankingFilter = 'all'; renderRanking()">
+  </div>
   <div id="rankingFilters"
     class="filter-row">
   </div>
@@ -4390,7 +4394,6 @@ function renderHome() {
 
     }))
 
-    .sort((a,b) => byMascotName(a.mascot,b.mascot))
     .filter(({mascot}) =>
 
       (mascot.name + " " + mascot.en)
@@ -4974,7 +4977,9 @@ function normalizeGame(stored) {
 
     won: Boolean(stored.won),
 
-    over: false
+    over: Boolean(stored.over),
+    celebrationBase: stored.celebrationBase || null,
+    celebrationDone: Boolean(stored.celebrationDone || stored.over)
 
   };
 
@@ -5039,6 +5044,8 @@ function saveGame() {
     won: game.won,
 
     over: game.over,
+    celebrationBase: game.celebrationBase || null,
+    celebrationDone: Boolean(game.celebrationDone),
 
     unlocked:
       save.collections[currentMascot.id] || []
@@ -5499,6 +5506,9 @@ async function performMove(direction) {
 
   if (busy || !game || game.over) return;
 
+  if (!game.celebrationBase) {
+    game.celebrationBase = { personal: Number(getPersonalBest(currentMascot.id)), mascot: Number(getChampion(currentMascot.id)?.score || 0), all: Number(getChampion()?.score || 0), online: onlineReady };
+  }
   const plan = planMove(direction);
 
   if (!plan.changed) {
@@ -5943,6 +5953,67 @@ function renderGameMessage() {
 
 }
 
+
+function celebrationEffect(level, mascot) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:99999;pointer-events:none';
+  document.body.append(canvas);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) { canvas.remove(); return; }
+  const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+  canvas.width = w*dpr; canvas.height = h*dpr; ctx.scale(dpr,dpr);
+  const colors = level===3 ? ['#FFD45A','#FF719B','#8BD7FF','#BBA0FF','#91E4B1','#FFFFFF'] : [mascot.color || '#83BCE8','#FFD45A','#FFFFFF'];
+  const effectSession=gameSession;
+  const particles = [], start = performance.now(), duration = level===3 ? 6500 : level===2 ? 3500 : 1800;
+  let next = 0;
+  function frame(now) {
+    if (gameSession!==effectSession || currentPage !== 'game' || now-start > duration+1200) { canvas.remove(); return; }
+    ctx.clearRect(0,0,w,h);
+    if (now-start < duration && now >= next) {
+      next = now + (level===3 ? 230 : 520);
+      const x=w*(.15+Math.random()*.7), y=h*(.12+Math.random()*.45);
+      for(let i=0;i<(level===3?75:level===2?45:12);i++) {
+        const a=Math.random()*Math.PI*2, v=1+Math.random()*5;
+        particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,c:colors[i%colors.length],r:2+Math.random()*3,star:level===1||i%7===0});
+      }
+    }
+    for(let i=particles.length-1;i>=0;i--) {
+      const p=particles[i]; p.x+=p.vx;p.y+=p.vy;p.vy+=.055;p.life-=.013;
+      if(p.life<=0){particles.splice(i,1);continue;}
+      ctx.globalAlpha=p.life;ctx.fillStyle=p.c;
+      if(p.star){ctx.beginPath();for(let j=0;j<10;j++){const a=j*Math.PI/5-Math.PI/2,r=j%2?p.r*.45:p.r*1.8;ctx.lineTo(p.x+Math.cos(a)*r,p.y+Math.sin(a)*r);}ctx.closePath();ctx.fill();}else{ctx.fillRect(p.x,p.y,p.r,p.r*1.7);}
+    }
+    ctx.globalAlpha=1;requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+async function celebrateFinishedGame() {
+  const finished=game, mascot=currentMascot, session=gameSession, base=finished.celebrationBase;
+  if(finished.celebrationDone || !base) return;
+  finished.celebrationDone=true; saveGame();
+  let level=finished.score>base.personal?1:0;
+  if(base.online && save.onlineRegistered && finished.score>base.personal) {
+    try {
+      await onlinePost('score',{records:[{mascotId:mascot.id,score:finished.score}]});
+      const response=await fetch('/api/leaderboard',{cache:'no-store'});
+      if(!response.ok) throw Error('offline');
+      const data=await response.json();
+      if(!Array.isArray(data.records)) throw Error('invalid');
+      const rows=data.records.slice().sort((a,b)=>b.score-a.score||a.date-b.date);
+      const isMine=r=>r && r.playerId===save.playerId && r.mascotId===mascot.id && Number(r.score)===finished.score;
+      if(finished.score>base.all && isMine(rows[0])) level=3;
+      else if(finished.score>base.mascot && isMine(rows.find(r=>r.mascotId===mascot.id))) level=2;
+      onlineRecords=data.records; onlineReady=true;
+    } catch(e) { /* no unverified online celebration */ }
+  }
+  if(game!==finished || gameSession!==session || currentPage!=='game' || !game.over || !level) return;
+  const th=currentLanguage==='th';
+  $('gameMessageTitle').textContent=level===3?(th?'อันดับ 1 ของโรงเรียน!':'School No. 1!'):level===2?(th?'อันดับ 1 ของหลาน'+mascotName(mascot)+'!':mascotName(mascot)+' No. 1!'):(th?'ทำลายสถิติของเรา!':'New personal best!');
+  $('gameMessageText').textContent=(th?'สอนโดย ':'Taught by ')+playerDisplayName()+' · '+formatScore(finished.score)+(th?' คะแนน':' points');
+  celebrationEffect(level,mascot);
+}
+
 function checkGameOver() {
 
   if (!game) return;
@@ -5956,6 +6027,7 @@ function checkGameOver() {
     clearQueue();
 
     saveGame();
+    celebrateFinishedGame();
 
   }
 
@@ -6246,6 +6318,7 @@ function openRanking(id = "all") {
     : "home";
 
   rankingFilter = id;
+  $("rankingSearch").value = "";
 
   showPage("ranking");
 
@@ -6280,6 +6353,7 @@ function returnFromRanking() {
 }
 
 function setRankingFilter(id) {
+  $("rankingSearch").value = "";
 
   rankingFilter = id;
 
@@ -6288,7 +6362,8 @@ function setRankingFilter(id) {
 }
 
 function renderRanking() {
-
+  const query = $("rankingSearch").value.trim().toLowerCase();
+  const matches = [...MASCOTS].filter(m => (m.name + " " + m.en).toLowerCase().includes(query)).sort(byMascotName);
   const filters = [
 
     {
@@ -6297,7 +6372,7 @@ function renderRanking() {
       en:t("all")
     },
 
-    ...[...MASCOTS].sort(byMascotName)
+    ...matches
 
   ];
 
@@ -6317,8 +6392,12 @@ function renderRanking() {
     `).join("");
 
   let records = getRecords(rankingFilter);
+  if (query) {
+    const matchingIds = new Set(matches.map(m => m.id));
+    records = getRecords("all").filter(r => matchingIds.has(r.mascotId) && (rankingFilter === "all" || !matchingIds.has(rankingFilter) || r.mascotId === rankingFilter));
+  }
 
-  if (rankingFilter === "all") {
+  if (rankingFilter === "all" && !query) {
 
     const seen = new Set();
 
