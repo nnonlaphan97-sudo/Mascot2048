@@ -4180,15 +4180,30 @@ let periodStatus = "idle";
 let periodRequest = 0;
 let periodPending = false;
 
+const rankingCache = new Map();
+const RANK_REFRESH_MS = 300000;
+async function getRankingData(period = 'all') {
+  const old = rankingCache.get(period);
+  if (old && Date.now() - old.time < RANK_REFRESH_MS) return old.promise;
+  const entry = {time: Date.now(), promise: null};
+  entry.promise = (async () => {
+    const response = await fetch('/api/leaderboard?period='+period,{cache:'no-store'});
+    if (!response.ok) throw Error('offline');
+    const data = await response.json();
+    if (!Array.isArray(data.records)) throw Error('invalid');
+    return data;
+  })();
+  rankingCache.set(period, entry);
+  return entry.promise;
+}
+
 async function refreshPeriod() {
   if (rankingPeriod === "all" || periodPending) return;
   const selected = rankingPeriod;
   const token = ++periodRequest;
   periodPending = true;
   try {
-    const response = await fetch('/api/leaderboard?period='+selected,{cache:'no-store'});
-    if (!response.ok) throw Error('offline');
-    const data = await response.json();
+    const data = await getRankingData(selected);
     if (!Array.isArray(data.records) || data.period !== selected || !data.periodKey) throw Error('invalid');
     if (token !== periodRequest || selected !== rankingPeriod) return;
     periodRecords = data.records;
@@ -4346,10 +4361,10 @@ let onlineBusy = false;
 let profileBusy = false;
 function onlineSecret(){ if(!save.onlineSecret){save.onlineSecret=Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('');persist();} return save.onlineSecret; }
 async function onlinePost(action,extra){const r=await fetch('/api/leaderboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,id:save.playerId,secret:onlineSecret(),...extra})});const b=await r.json();if(!r.ok)throw Error(b.error||'server');return b;}
-async function refreshOnline(){if(onlineRefreshBusy)return;onlineRefreshBusy=true;try{const r=await fetch('/api/leaderboard',{cache:'no-store'});if(!r.ok)throw Error();const b=await r.json();if(!Array.isArray(b.records))throw Error();onlineRecords=b.records;onlineReady=true;if(currentPage==='home')renderHome();if(currentPage==='ranking')renderRanking();if(currentPage==='game')renderScores();}catch(e){/* retain last successful records */}finally{onlineRefreshBusy=false;}}
+async function refreshOnline(){if(onlineRefreshBusy)return;onlineRefreshBusy=true;try{const b=await getRankingData('all');if(!Array.isArray(b.records))throw Error();onlineRecords=b.records;onlineReady=true;if(currentPage==='home')renderHome();if(currentPage==='ranking')renderRanking();if(currentPage==='game')renderScores();}catch(e){/* retain last successful records */}finally{onlineRefreshBusy=false;}}
 let syncTimer;
-function queueScoreSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncOnline,800);}
-async function syncOnline(){if(onlineBusy||profileBusy||!save.onlineRegistered)return;onlineBusy=true;try{const best=new Map();for(const r of save.records){if(r.playerId!==save.playerId||!MASCOTS.some(m=>m.id===r.mascotId))continue;const score=Number(r.score);if(Number.isSafeInteger(score)&&score>0&&score%4===0&&score<=100000000)best.set(r.mascotId,Math.max(best.get(r.mascotId)||0,score));}await onlinePost('score',{records:[...best].map(([mascotId,score])=>({mascotId,score}))});await refreshOnline();}catch(e){console.warn('Score sync failed:',e.message);}finally{onlineBusy=false;}}
+function queueScoreSync(){if(syncTimer)return;syncTimer=setTimeout(()=>{syncTimer=null;syncOnline();},60000);}
+async function syncOnline(){if(onlineBusy||profileBusy||!save.onlineRegistered)return;onlineBusy=true;try{const best=new Map();for(const r of save.records){if(r.playerId!==save.playerId||!MASCOTS.some(m=>m.id===r.mascotId))continue;const score=Number(r.score);if(Number.isSafeInteger(score)&&score>0&&score%4===0&&score<=100000000)best.set(r.mascotId,Math.max(best.get(r.mascotId)||0,score));}await onlinePost('score',{records:[...best].map(([mascotId,score])=>({mascotId,score}))});if(!document.hidden && currentPage!=='game')await refreshOnline();}catch(e){console.warn('Score sync failed:',e.message);}finally{onlineBusy=false;}}
 window.addEventListener('online',syncOnline);
 
 function getRecords(id = "all") {
@@ -4561,9 +4576,9 @@ function showPage(page) {
     page === "game"
   );
 
-  if (page === "home") { renderHome(); refreshHomePeriods(); }
+  if (page === "home") { renderHome(); refreshOnline(); refreshHomePeriods(); }
 
-  if (page === "ranking") { renderRanking(); refreshPeriod(); }
+  if (page === "ranking") { renderRanking(); refreshOnline(); refreshPeriod(); }
 
   if (page === "profile") renderProfile();
 
@@ -4587,9 +4602,7 @@ async function refreshHomePeriods() {
   try {
     await Promise.all(['week','month'].map(async type => {
       try {
-        const response = await fetch('/api/leaderboard?period='+type,{cache:'no-store'});
-        if (!response.ok) throw Error('offline');
-        const data = await response.json();
+        const data = await getRankingData(type);
         if (data.period !== type || !data.periodKey || !Array.isArray(data.records)) throw Error('invalid');
         const records = data.records.filter(r=>MASCOTS.some(m=>m.id===r.mascotId)).sort((a,b)=>b.score-a.score||a.date-b.date);
         homePeriods[type]={status:'ready',key:data.periodKey,champion:records[0]||null};
@@ -6330,8 +6343,9 @@ async function submitFinishedPeriod() {
   saveGame();
   try {
     await onlinePost('gameScore',{mascotId,score:finished.score});
-    refreshHomePeriods();
-    if (currentPage === 'ranking') refreshPeriod();
+    rankingCache.clear();
+    if (currentPage === 'home') { refreshOnline(); refreshHomePeriods(); }
+    if (currentPage === 'ranking') { refreshOnline(); refreshPeriod(); }
   } catch(e) {
     console.warn('Period score submission failed:',e.message);
     // Do not replay old scores into a later competition period.
@@ -7258,7 +7272,10 @@ const activityVisitorId = (() => {
   } catch (_) { return crypto.randomUUID(); }
 })();
 let activityQueue = Promise.resolve();
+let lastHeartbeat = 0;
 function reportActivity(event, mascotId = currentPage === 'game' ? currentMascot?.id : null) {
+  if (event === 'heartbeat' && (document.hidden || Date.now()-lastHeartbeat < 300000)) return;
+  if (event === 'heartbeat' || event === 'visit') lastHeartbeat = Date.now();
   const payload = {visitorId:activityVisitorId,event,mascotId:mascotId || null};
   if (save.onlineRegistered && save.playerId && save.onlineSecret) {
     payload.playerId=save.playerId; payload.secret=save.onlineSecret;
@@ -7277,9 +7294,11 @@ renderHome();
 refreshHomePeriods();
 refreshOnline();
 syncOnline();
-setInterval(()=>{refreshOnline();if(currentPage==='ranking')refreshPeriod();if(currentPage==='home')refreshHomePeriods();},15000);
+function refreshVisibleRankings(){if(document.hidden)return;if(currentPage==='ranking'){refreshOnline();refreshPeriod();}if(currentPage==='home'){refreshOnline();refreshHomePeriods();}}
+setInterval(refreshVisibleRankings,RANK_REFRESH_MS);
+document.addEventListener('visibilitychange',refreshVisibleRankings);
 reportActivity('visit');
-setInterval(()=>{if(!document.hidden) reportActivity('heartbeat');},30000);
+setInterval(()=>{if(!document.hidden) reportActivity('heartbeat');},300000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden) reportActivity('heartbeat');});
 window.addEventListener('online',()=>reportActivity('heartbeat'));
 
