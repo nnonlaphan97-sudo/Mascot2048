@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -4291,6 +4290,7 @@ function showPage(page) {
   }
 
   currentPage = page;
+  reportActivity("heartbeat");
   document.body.classList.toggle("kingman-theme", page === "game" && currentMascot?.id === "kingman");
   document.body.classList.toggle("muvmuv-theme", page === "game" && currentMascot?.id === "muvmuv");
   document.body.classList.toggle("domaii-theme", page === "game" && currentMascot?.id === "domaii");
@@ -5025,6 +5025,7 @@ function normalizeGame(stored) {
 function newGame() {
 
   if (!currentMascot || busy) return;
+  reportActivity("play", currentMascot.id);
 
   gameSession++;
 
@@ -6816,6 +6817,7 @@ async function saveProfile() {
   onlineRecords = onlineRecords.map(record => record.playerId === save.playerId ? {...record, playerName:name, playerTitle:title, avatarMascot:selectedAvatar} : record);
   persist();
 
+  reportActivity("heartbeat");
   closeModal("profileModal");
   refreshOnline();
   syncOnline();
@@ -6939,12 +6941,42 @@ $("playerNameInput").addEventListener(
 
 );
 
+
+// Admin activity: separate from scores and saved games.
+const activityVisitorId = (() => {
+  const key = 'grandkid_activity_visitor_v1';
+  try {
+    let id = localStorage.getItem(key);
+    if (!id || !/^[a-zA-Z0-9_-]{16,100}$/.test(id)) {
+      id = crypto.randomUUID(); localStorage.setItem(key,id);
+    }
+    return id;
+  } catch (_) { return crypto.randomUUID(); }
+})();
+let activityQueue = Promise.resolve();
+function reportActivity(event, mascotId = currentPage === 'game' ? currentMascot?.id : null) {
+  const payload = {visitorId:activityVisitorId,event,mascotId:mascotId || null};
+  if (save.onlineRegistered && save.playerId && save.onlineSecret) {
+    payload.playerId=save.playerId; payload.secret=save.onlineSecret;
+  }
+  activityQueue = activityQueue.then(async () => {
+    try {
+      const response=await fetch('/api/activity',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),keepalive:true,cache:'no-store'});
+      if (!response.ok) console.warn('Activity HTTP',response.status);
+    } catch (_) { console.warn('Activity unavailable'); }
+  });
+}
+
 applyStaticLanguage();
 
 renderHome();
 refreshOnline();
 syncOnline();
 setInterval(()=>{syncOnline();refreshOnline();},15000);
+reportActivity('visit');
+setInterval(()=>{if(!document.hidden) reportActivity('heartbeat');},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) reportActivity('heartbeat');});
+window.addEventListener('online',()=>reportActivity('heartbeat'));
 
 persist();
 
