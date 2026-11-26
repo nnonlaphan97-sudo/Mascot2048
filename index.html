@@ -2043,6 +2043,12 @@ html.modal-locked { overflow:hidden; overscroll-behavior:none; }
 body.modal-locked { position:fixed; width:100%; overflow:hidden; }
 .modal { overscroll-behavior:none; }
 .modal-card { overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch; }
+
+/* Prevent double-tap zoom on navigation and ranking tabs. */
+.bottom-nav, .bottom-nav *, .filter-chip, .filter-chip * {
+  touch-action: manipulation;
+}
+
 </style>
 </head>
 
@@ -2398,7 +2404,7 @@ body.modal-locked { position:fixed; width:100%; overflow:hidden; }
     <div class="score-card">
 
       <div class="score-label"
-        data-i18n="mascotChampion">
+        data-i18n="gameMascotChampion">
       </div>
 
       <div id="mascotBest"
@@ -2904,6 +2910,7 @@ const LANG = {
     startPlaying: "มาเริ่มเล่นกันเลย",
 
     mascotChampion: "เลี้ยงโดย",
+    gameMascotChampion: "สถิติสูงสุดของหลาน",
 
     playingWith: "เล่นกับ",
     grandma: "ผู้เล่น",
@@ -3020,6 +3027,7 @@ const LANG = {
     startPlaying: "Let's start playing!",
 
     mascotChampion: "Raised by",
+    gameMascotChampion: "Mascot High Score",
 
     playingWith: "Playing with",
     grandma: "Player",
@@ -6572,6 +6580,20 @@ document.addEventListener("keydown",event => {
 /* ========================================
    25. ANTI ZOOM
 ======================================== */
+
+// Suppress rapid second taps on tabs in iOS Safari without blocking normal clicks.
+let lastTabTouch = 0;
+document.addEventListener("touchend", event => {
+  if (!event.target.closest?.("#bottomNav, .filter-chip")) {
+    lastTabTouch = 0;
+    return;
+  }
+  if (event.changedTouches.length !== 1 || event.touches.length) return;
+  const now = Date.now();
+  if (now - lastTabTouch < 320 && event.cancelable) event.preventDefault();
+  lastTabTouch = now;
+}, {passive:false, capture:true});
+
 
 document.addEventListener(
 
