@@ -2889,7 +2889,7 @@ const LANG = {
   th: {
 
     school: "โรงเรียนอนุบาลสีฟ้า",
-    topGrandkid: "คะแนนสูงสุดตลอดกาล",
+    topGrandkid: "คะแนนสูงสุด",
     allPodiumCaption: "สถิติสูงสุด", allPodium: "ตลอดกาล", weekPodium: "ประจำสัปดาห์", monthPodium: "ประจำเดือน",
     weekChampion: "คะแนนสูงสุดประจำสัปดาห์",
     monthChampion: "คะแนนสูงสุดประจำเดือน",
@@ -2903,7 +2903,7 @@ const LANG = {
     noChampion: "ยังไม่มีคะแนน",
     startPlaying: "มาเริ่มเล่นกันเลย",
 
-    mascotChampion: "สถิติสูงสุดของหลาน",
+    mascotChampion: "เลี้ยงโดย",
 
     playingWith: "เล่นกับ",
     grandma: "ผู้เล่น",
@@ -3005,7 +3005,7 @@ const LANG = {
   en: {
 
     school: "Blue Kindergarten",
-    topGrandkid: "All-time highest score",
+    topGrandkid: "Highest score",
     allPodiumCaption: "All-time record", allPodium: "All time", weekPodium: "This week", monthPodium: "This month",
     weekChampion: "Weekly highest score",
     monthChampion: "Monthly highest score",
@@ -3019,7 +3019,7 @@ const LANG = {
     noChampion: "No scores yet",
     startPlaying: "Let's start playing!",
 
-    mascotChampion: "Grandkid’s Best",
+    mascotChampion: "Raised by",
 
     playingWith: "Playing with",
     grandma: "Player",
@@ -3499,7 +3499,7 @@ const MASCOTS = [
 },
 {
   "id": "neona",
-  "name": "นีโอน่า",
+  "name": "นีออนน่า",
   "en": "NEONA",
   "color": "#F18EB8",
   "birthday": {
@@ -3526,7 +3526,7 @@ const MASCOTS = [
   ],
   "decorations": []
 },
-{"id": "smyle", "name": "สไมล์ลี่", "en": "SMYLE", "color": "#92C9EF", "birthday": {"th": "3 กุมภาพันธ์ 2568", "en": "3 February 2025"}, "surname": {"th": "นทีธรช่างคำ", "en": "Nateetorn Changkham"}, "parents": [{"role": "ป๊ากาย", "roleEn": "Pa Sky", "name": "วงศ์รวี นทีธร", "nameEn": "Wongravee Nateetorn"}, {"role": "พ่อนิ", "roleEn": "Pho Ni", "name": "หิรัญกฤษฎิ์ ช่างคำ", "nameEn": "Hirunkit Changkham"}], "decorations": []},
+{"id": "smyle", "name": "สไมล์", "en": "SMYLE", "color": "#92C9EF", "birthday": {"th": "3 กุมภาพันธ์ 2568", "en": "3 February 2025"}, "surname": {"th": "นทีธรช่างคำ", "en": "Nateetorn Changkham"}, "parents": [{"role": "ป๊ากาย", "roleEn": "Pa Sky", "name": "วงศ์รวี นทีธร", "nameEn": "Wongravee Nateetorn"}, {"role": "พ่อนิ", "roleEn": "Pho Ni", "name": "หิรัญกฤษฎิ์ ช่างคำ", "nameEn": "Hirunkit Changkham"}], "decorations": []},
 {"id": "wesley", "name": "เวสลีย์", "en": "WESLEY", "color": "#648EC1", "birthday": {"th": "17 กุมภาพันธ์ 2568", "en": "17 February 2025"}, "surname": {"th": "แก้วพันธุ์พงษ์สง่าวรวงศ์", "en": "Kaewpanpong Sangaworawong"}, "parents": [{"role": "ปะป๊าวิลเลี่ยม", "roleEn": "Papa William", "name": "จักรภัทร แก้วพันธุ์พงษ์", "nameEn": "Jakrapatr Kaewpanpong"}, {"role": "ปะป๊าเอส", "roleEn": "Papa Est", "name": "ศุภ สง่าวรวงศ์", "nameEn": "Supha Sangaworawong"}], "decorations": []},
 {"id": "metaa", "name": "เมต้า", "en": "METAA", "color": "#98DFCB", "birthday": {"th": "4 มีนาคม 2568", "en": "4 March 2025"}, "surname": {"th": "โอภาสเอี่ยมขจร", "en": "Opas-iamkajorn"}, "parents": [{"role": "ปะป๊า", "roleEn": "Papa", "name": "เมธวิน โอภาสเอี่ยมขจร", "nameEn": "Metawin Opas-iamkajorn"}], "decorations": []},
 {"id": "any", "name": "เอนี่", "en": "ANY", "color": "#F6AD72", "birthday": {"th": "14 มีนาคม 2568", "en": "14 March 2025"}, "surname": {"th": "กลิ่นเนียมโบรัชตะสุวรรณ์", "en": "Klinnium Boratchatasuwan"}, "parents": [{"role": "มีมี่", "roleEn": "Mimi", "name": "ทสร กลิ่นเนียม", "nameEn": "Tassorn Klinnium"}, {"role": "นีนี่", "roleEn": "Nini", "name": "ภัทราภัสร์ โบรัชตะสุวรรณ์", "nameEn": "Pattraphus Boratchatasuwan"}], "decorations": []},
@@ -4419,7 +4419,7 @@ function playerDisplayName(person = save) {
   return [person.playerTitle, person.playerName || person.name].filter(Boolean).join(currentLanguage === "en" ? " " : "");
 }
 
-function taughtBy(record) { return (currentLanguage === "th" ? "สอนโดย " : "Taught by ") + recordName(record); }
+function taughtBy(record) { return recordName(record); }
 function teacherOf(mascot, record) { return currentLanguage === "th" ? "คนที่สอนหลาน" + mascotName(mascot) + " คือ " + recordName(record) : mascotName(mascot) + " is taught by " + recordName(record); }
 function byMascotName(a,b) { return mascotName(a).localeCompare(mascotName(b), currentLanguage === "th" ? "th" : "en"); }
 function recordName(record) {
@@ -6331,7 +6331,7 @@ async function celebrateFinishedGame() {
   if(game!==finished || gameSession!==session || currentPage!=='game' || !game.over || !level) return;
   const th=currentLanguage==='th';
   $('gameMessageTitle').textContent=level===3?(th?'อันดับ 1 ของโรงเรียน!':'School No. 1!'):level===2?(th?'อันดับ 1 ของหลาน'+mascotName(mascot)+'!':mascotName(mascot)+' No. 1!'):(th?'ทำลายสถิติของเรา!':'New personal best!');
-  $('gameMessageText').textContent=(th?'สอนโดย ':'Taught by ')+playerDisplayName()+' · '+formatScore(finished.score)+(th?' คะแนน':' points');
+  $('gameMessageText').textContent=playerDisplayName()+' · '+formatScore(finished.score)+(th?' คะแนน':' points');
   celebrationEffect(level,mascot);
 }
 
@@ -6802,7 +6802,7 @@ function renderRanking() {
 
           <div class="rank-mascot">
 
-            ${escapeHTML(taughtBy(record))}
+            ${escapeHTML((currentLanguage === "th" ? "เลี้ยงโดย " : "Raised by ") + recordName(record))}
 
           </div>
 
