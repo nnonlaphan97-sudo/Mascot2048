@@ -1,1 +1,715 @@
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Grandkid 2048 Admin</title>
+
+<style>
+@font-face {
+  font-family: SWU;
+  src: url("images/polcasan/Srinakharinwirot-Regular.ttf");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #edf3fb;
+  color: #34465e;
+  font-family: SWU, sans-serif;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 24px 16px 50px;
+}
+
+h1, h2, h3, p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+small {
+  color: #8498b2;
+}
+
+.card {
+  background: white;
+  border-radius: 22px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 0 #dce6f2;
+}
+
+.login {
+  max-width: 400px;
+  margin: 12vh auto 0;
+  text-align: center;
+}
+
+input, button {
+  font: inherit;
+  font-size: 16px;
+  border: 0;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+input {
+  background: #edf3fb;
+  color: #34465e;
+  width: 100%;
+  outline: none;
+}
+
+button {
+  background: #88add6;
+  color: white;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+.login button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  background: white;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 4px 0 #dce6f2;
+}
+
+.number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #638ab9;
+  margin-top: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section {
+  margin-top: 28px;
+}
+
+.person {
+  padding: 15px 0;
+  border-bottom: 1px solid #edf1f7;
+}
+
+.person:last-child {
+  border-bottom: none;
+}
+
+.person-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.person-name {
+  font-size: 18px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.score {
+  color: #638ab9;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.details {
+  color: #8498b2;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.online {
+  color: #469b70;
+}
+
+.offline {
+  color: #9ca9ba;
+}
+
+.bar {
+  height: 10px;
+  background: #edf3fb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 8px 0 18px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #91b7df;
+  border-radius: 10px;
+}
+
+.error {
+  color: #d15b65;
+  margin-top: 12px;
+}
+
+[hidden] {
+  display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<section id="loginPage" class="card login">
+
+  <small>BLUE KINDERGARTEN</small>
+
+  <h1>My Little Grandkid 2048</h1>
+
+  <h2>ระบบหลังบ้าน</h2>
+
+  <form id="loginForm">
+
+    <input
+      id="password"
+      type="password"
+      placeholder="รหัสผ่านเจ้าของเกม"
+      autocomplete="current-password"
+      required
+    >
+
+    <button type="submit" id="loginButton">
+      เข้าสู่ระบบ
+    </button>
+
+  </form>
+
+  <div id="loginError" class="error"></div>
+
+</section>
+
+
+<section id="dashboard" hidden>
+
+  <div class="header">
+
+    <div>
+      <small>ADMIN DASHBOARD</small>
+      <h1>โรงเรียนอนุบาลสีฟ้า</h1>
+    </div>
+
+    <button id="logoutButton">
+      ออกจากระบบ
+    </button>
+
+  </div>
+
+  <p id="updatedAt">
+    กำลังโหลดข้อมูล...
+  </p>
+
+  <div id="dashboardError" class="error"></div>
+
+  <div class="grid">
+
+    <div class="stat">
+      <small>ผู้เข้าชมทั้งหมด</small>
+      <div class="number" id="visitors">0</div>
+    </div>
+
+    <div class="stat">
+      <small>ผู้ลงทะเบียน</small>
+      <div class="number" id="players">0</div>
+    </div>
+
+    <div class="stat">
+      <small>กำลังออนไลน์</small>
+      <div class="number online" id="online">0</div>
+    </div>
+
+    <div class="stat">
+      <small>จำนวนรอบที่เล่น</small>
+      <div class="number" id="games">0</div>
+    </div>
+
+  </div>
+
+
+  <div class="section">
+
+    <h2>หลานยอดนิยม</h2>
+
+    <div class="card" id="popularity"></div>
+
+  </div>
+
+
+  <div class="section">
+
+    <h2>รายชื่อผู้เล่นทั้งหมด</h2>
+
+    <input
+      id="search"
+      placeholder="ค้นหาชื่ออุนยาย น้องยาย แกรนนี่"
+    >
+
+    <br><br>
+
+    <div class="card" id="playerList"></div>
+
+  </div>
+
+
+  <div class="section">
+
+    <h2>ผู้เข้าชมล่าสุด</h2>
+
+    <div class="card" id="recent"></div>
+
+  </div>
+
+  <p style="text-align:center;color:#8498b2">
+    ออกแบบโดย ปังปุง
+  </p>
+
+</section>
+
+</main>
+
+<script>
+
+const names = {
+  polcasan: "โพก้าซัง",
+  nongnooong: "น้องนุ่ง",
+  mrsaturnworld: "มิสเตอร์ แซตเทิร์นเวิลด์",
+  permpoon: "เพิ่มพูน",
+  yuzumumu: "ยูซุมุมุ",
+  jaidee: "ใจดี",
+  tomafox: "โทมะฟ้อกซ์",
+  avocean: "อะโวเชี่ยน",
+  jummo: "จัมโม่",
+  babii: "เบบี๋",
+  lookkhunnoo: "ลูกคุณหนู",
+  samruay: "สำรวย",
+  kingman: "คิงแมน",
+  muvmuv: "เมิฟเมิฟ",
+  lykyou: "ไลค์ยู",
+  paody: "เปาดี้",
+  lunar: "ลูน่า",
+  domaii: "โดเมียร์",
+  domiia: "โดเมียร์",
+  neona: "นีโอน่า",
+  smyle: "สไมล์ลี่",
+  wesley: "เวสลีย์",
+  metaa: "เมต้า",
+  any: "เอนี่",
+  guinzly: "กวินซ์ลี่",
+  momo: "โมโม่",
+  ceri: "เซรี่",
+  nilknhake: "นิ้ลเน้ค",
+  rexxa: "เร็กซ่า",
+  vimmy: "วิมมี่",
+  jewel: "เจเวล",
+  ponpon: "ป้อนป้อน",
+  flarey: "แฟลรี่",
+  flaery: "แฟลรี่",
+  renjin: "เร็นจิน"
+};
+
+let adminPassword = "";
+let refreshTimer = null;
+let playerData = [];
+let loading = false;
+let sessionVersion = 0;
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    c => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[c]
+  );
+}
+
+function number(value) {
+  return Number(value || 0).toLocaleString("th-TH");
+}
+
+function mascotName(id) {
+  return names[id] || id || "ยังไม่ได้เลือกหลาน";
+}
+
+function formatDate(value) {
+  if (!value) return "ยังไม่มีข้อมูล";
+
+  return new Date(Number(value)).toLocaleString(
+    "th-TH",
+    {
+      timeZone: "Asia/Bangkok",
+      dateStyle: "short",
+      timeStyle: "short"
+    }
+  );
+}
+
+function isOnline(value) {
+  return value &&
+    Date.now() - Number(value) < 120000;
+}
+
+function playerName(p) {
+  return (
+    (p.playerTitle || "") +
+    (p.playerName || "")
+  ).trim() || "ผู้เข้าชมทั่วไป";
+}
+
+async function loadDashboard() {
+
+  if (!adminPassword || loading) return;
+
+  loading = true;
+
+  const version = sessionVersion;
+
+  try {
+
+    const response = await fetch("/api/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        password: adminPassword
+      })
+    });
+
+    const data = await response.json();
+
+    if (version !== sessionVersion) return;
+
+    if (response.status === 401) {
+      logout();
+      $("loginError").textContent =
+        "รหัสผ่านไม่ถูกต้อง";
+      return;
+    }
+
+    if (!response.ok || !data.ok) {
+      throw new Error("โหลดข้อมูลไม่สำเร็จ");
+    }
+
+    $("loginPage").hidden = true;
+    $("dashboard").hidden = false;
+
+    $("dashboardError").textContent = "";
+    $("loginError").textContent = "";
+
+    $("password").value = "";
+
+    $("visitors").textContent =
+      number(data.stats.visitors);
+
+    $("players").textContent =
+      number(data.stats.players);
+
+    $("online").textContent =
+      number(data.stats.online);
+
+    $("games").textContent =
+      number(data.stats.games);
+
+    $("updatedAt").textContent =
+      "อัปเดตล่าสุด " +
+      formatDate(data.updatedAt);
+
+    playerData = data.playerList || [];
+
+    renderPlayers();
+    renderPopularity(data.popularity || []);
+    renderRecent(data.recent || []);
+
+    if (!refreshTimer) {
+      refreshTimer = setInterval(
+        loadDashboard,
+        15000
+      );
+    }
+
+  } catch (error) {
+
+    if (version !== sessionVersion) return;
+
+    const target = $("dashboard").hidden
+      ? $("loginError")
+      : $("dashboardError");
+
+    target.textContent =
+      "ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่";
+
+  } finally {
+
+    loading = false;
+    $("loginButton").disabled = false;
+
+  }
+}
+
+function renderPlayers() {
+
+  const query = $("search").value
+    .trim()
+    .toLowerCase();
+
+  const filtered = playerData.filter(p =>
+    playerName(p).toLowerCase().includes(query)
+  );
+
+  $("playerList").innerHTML =
+    filtered.map(p => `
+
+      <div class="person">
+
+        <div class="person-head">
+
+          <div class="person-name">
+            ${escapeHTML(playerName(p))}
+          </div>
+
+          <div class="score">
+            ${number(p.bestScore)}
+          </div>
+
+        </div>
+
+        <div class="details">
+
+          <span class="${
+            isOnline(p.lastSeen)
+              ? "online"
+              : "offline"
+          }">
+
+            ${
+              isOnline(p.lastSeen)
+                ? "กำลังออนไลน์"
+                : "ออฟไลน์"
+            }
+
+          </span>
+
+          <br>
+
+          รูปโปรไฟล์:
+          ${escapeHTML(mascotName(p.avatarMascot))}
+
+          <br>
+
+          จำนวนรอบที่เล่น:
+          ${number(p.gamesPlayed)}
+
+          <br>
+
+          เข้าเล่นล่าสุด:
+          ${formatDate(p.lastSeen)}
+
+        </div>
+
+      </div>
+
+    `).join("") ||
+    "ไม่พบข้อมูลผู้เล่น";
+}
+
+function renderPopularity(items) {
+
+  const max = Math.max(
+    1,
+    ...items.map(p => Number(p.totalPlayers || 0))
+  );
+
+  $("popularity").innerHTML =
+    items.map((p, i) => `
+
+      <div>
+
+        <div class="person-head">
+
+          <strong>
+            ${i + 1}.
+            ${escapeHTML(mascotName(p.mascotId))}
+          </strong>
+
+          <span>
+            ${number(p.totalPlayers)} คน
+          </span>
+
+        </div>
+
+        <div class="bar">
+
+          <div
+            class="bar-fill"
+            style="width:${
+              Number(p.totalPlayers || 0) / max * 100
+            }%"
+          ></div>
+
+        </div>
+
+      </div>
+
+    `).join("") ||
+    "ยังไม่มีข้อมูล";
+}
+
+function renderRecent(items) {
+
+  $("recent").innerHTML =
+    items.map(p => `
+
+      <div class="person">
+
+        <div class="person-name">
+          ${escapeHTML(playerName(p))}
+        </div>
+
+        <div class="details">
+
+          <span class="${
+            isOnline(p.last_seen)
+              ? "online"
+              : "offline"
+          }">
+
+            ${
+              isOnline(p.last_seen)
+                ? "กำลังออนไลน์"
+                : "ออฟไลน์"
+            }
+
+          </span>
+
+          <br>
+
+          หลานที่เล่นล่าสุด:
+          ${escapeHTML(mascotName(p.mascot_id))}
+
+          <br>
+
+          จำนวนครั้งที่เข้าชม:
+          ${number(p.visit_count)}
+
+          <br>
+
+          จำนวนรอบที่เล่น:
+          ${number(p.games_played)}
+
+          <br>
+
+          เข้าครั้งแรก:
+          ${formatDate(p.first_seen)}
+
+          <br>
+
+          ล่าสุด:
+          ${formatDate(p.last_seen)}
+
+        </div>
+
+      </div>
+
+    `).join("") ||
+    "ยังไม่มีข้อมูลผู้เข้าชม";
+}
+
+function logout() {
+
+  sessionVersion++;
+
+  adminPassword = "";
+  playerData = [];
+
+  clearInterval(refreshTimer);
+  refreshTimer = null;
+
+  $("dashboard").hidden = true;
+  $("loginPage").hidden = false;
+
+  $("playerList").innerHTML = "";
+  $("recent").innerHTML = "";
+  $("popularity").innerHTML = "";
+
+  $("password").value = "";
+  $("loginError").textContent = "";
+
+}
+
+$("loginForm").addEventListener(
+  "submit",
+  event => {
+
+    event.preventDefault();
+
+    if (loading) return;
+
+    adminPassword = $("password").value;
+
+    $("loginButton").disabled = true;
+    $("loginError").textContent = "";
+
+    loadDashboard();
+
+  }
+);
+
+$("logoutButton").addEventListener(
+  "click",
+  logout
+);
+
+$("search").addEventListener(
+  "input",
+  renderPlayers
+);
+
+</script>
+
+</body>
+</html>
+
