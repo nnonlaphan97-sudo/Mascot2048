@@ -2049,6 +2049,26 @@ body.modal-locked { position:fixed; width:100%; overflow:hidden; }
   touch-action: manipulation;
 }
 
+
+#messageModal { isolation:isolate; }
+#messageModal .modal-card { position:relative; z-index:2; text-align:center; border-color:var(--theme); }
+#messageDecoration { width:min(100%,280px); height:auto; margin:0 auto 14px; position:relative; }
+#messageDecoration .win-photo { display:block; width:100%; aspect-ratio:1; object-fit:contain; border-radius:22px; background:color-mix(in srgb,var(--theme) 25%,white); animation:winPhotoIn .55s cubic-bezier(.2,.8,.3,1.2) both; }
+#messageDecoration .win-number { position:absolute; bottom:8px; right:8px; padding:5px 14px; border-radius:12px; background:#243447; color:white; font-size:24px; font-weight:bold; }
+.win-heart-rain { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:3; }
+.win-heart-rain svg { position:absolute; top:-40px; animation:winHeartFall var(--fall) linear var(--delay) both; filter:drop-shadow(0 1px 2px #0002); }
+@keyframes winHeartFall { 0%{transform:translate3d(0,-30px,0) rotate(-20deg);opacity:0} 10%{opacity:.95} 85%{opacity:.9} 100%{transform:translate3d(var(--drift),110dvh,0) rotate(65deg);opacity:0} }
+@keyframes winPhotoIn { from{transform:scale(.65);opacity:0} to{transform:scale(1);opacity:1} }
+@media(prefers-reduced-motion:reduce){.win-heart-rain{display:none} #messageDecoration .win-photo{animation:none}}
+
+
+#messageModal:not(.hidden){padding:0;align-items:stretch;justify-content:center;background:color-mix(in srgb,var(--theme) 35%,white);}
+#messageModal .modal-card{width:100%;max-width:none;height:100%;max-height:none;border:0;border-radius:0;box-shadow:none;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding: max(12px,env(safe-area-inset-top)) 2.5vw max(16px,env(safe-area-inset-bottom));gap:8px;overflow:auto;}
+#messageDecoration{width:min(95vw,65dvh);margin:0 auto;height:auto;flex-shrink:0;}
+#messageDecoration .win-photo{width:100%;max-height:65dvh;object-fit:contain;background:transparent;border-radius:12px;}
+#messageModal .primary-btn{max-width:420px;flex-shrink:0} #messageModal .modal-title{font-size:clamp(24px,6vw,36px)}
+#messageModal.record-mode{background:radial-gradient(ellipse at center,#354769,#111b32);color:white} #messageModal.record-mode .modal-title,#messageModal.record-mode .modal-text{color:#fff0c5} #messageModal.record-mode #messageDecoration{width:95%;max-width:420px;color:#fff0c5} .record-count{font-size:clamp(38px,10vw,65px);font-weight:bold;line-height:1.3} .record-caption{font-size:16px;color:#d7e3f5}
+html[data-mode="dark"] #messageModal:not(.record-mode){background:color-mix(in srgb,var(--theme) 25%,#20252d)}
 </style>
 </head>
 
@@ -2452,6 +2472,8 @@ body.modal-locked { position:fixed; width:100%; overflow:hidden; }
           onclick="newGame()"
           data-i18n="playAgain">
         </button>
+        <button id="shareScoreBtn" class="primary-btn" type="button" onclick="shareFinishedScore()" style="margin-top:8px;touch-action:manipulation">แชร์คะแนน</button>
+        <div id="shareScoreStatus" role="status" style="font-size:12px;margin-top:5px"></div>
 
       </div>
 
@@ -2998,10 +3020,10 @@ const LANG = {
 
     designer: "ออกแบบโดย ปังปุง",
 
-    winTitle: "ทำได้แล้ว!",
+    winTitle: "เก่งมากเลย!",
 
     winText:
-      "ปลดล็อกภาพระดับ 2048 สำเร็จ เล่นต่อเพื่อทำคะแนนสูงขึ้นได้เลย",
+      "พาหลานมาถึง 2048 แล้ว! เล่นต่อเพื่อทำคะแนนสูงขึ้นได้เลย",
 
     continue: "เล่นต่อ",
 
@@ -3113,10 +3135,10 @@ const LANG = {
 
     designer: "Designed by Pangpung",
 
-    winTitle: "You did it!",
+    winTitle: "Amazing job!",
 
     winText:
-      "You've unlocked the 2048 photo! Keep playing to reach a higher score.",
+      "Your grandkid reached 2048! Keep playing to reach a higher score.",
 
     continue: "Continue",
 
@@ -5302,9 +5324,11 @@ function normalizeGame(stored) {
     previous,
 
     won: Boolean(stored.won),
+    milestoneShown: Boolean(stored.milestoneShown || stored.won),
 
     over: Boolean(stored.over),
     celebrationBase: stored.celebrationBase || null,
+    personalCelebrated: Boolean(stored.personalCelebrated),
     periodSubmitted: Boolean(stored.periodSubmitted || stored.over),
     celebrationDone: Boolean(stored.celebrationDone || stored.over)
 
@@ -5370,9 +5394,11 @@ function saveGame() {
       : null,
 
     won: game.won,
+    milestoneShown: Boolean(game.milestoneShown),
 
     over: game.over,
     celebrationBase: game.celebrationBase || null,
+    personalCelebrated: Boolean(game.personalCelebrated),
     periodSubmitted: Boolean(game.periodSubmitted),
     celebrationDone: Boolean(game.celebrationDone),
 
@@ -5986,14 +6012,17 @@ async function performMove(direction) {
 
   checkGameOver();
 
-  if (!previouslyWon && game.won && !game.over) {
+  if (!previouslyWon && game.won && !game.milestoneShown) {
 
+    game.milestoneShown = true;
+    saveGame();
     showWinMessage();
 
     return;
 
   }
 
+  if (maybePersonalCelebration()) return;
   processQueue();
 
 }
@@ -6258,9 +6287,67 @@ function canMove() {
 
 }
 
+function maybePersonalCelebration(){
+  if(!game || currentPage!=="game" || hasOpenModal() || game.personalCelebrated || !(game.celebrationBase?.personal>0) || game.score<=game.celebrationBase.personal) return false;
+  game.personalCelebrated=true; saveGame(); clearQueue();
+  const th=currentLanguage==='th', old=game.celebrationBase.personal, score=game.score, modal=$("messageModal"), decoration=$("messageDecoration");
+  modal.classList.add('record-mode'); decoration.replaceChildren();
+  const caption=document.createElement('div');caption.className='record-caption';caption.textContent=(th?'สถิติเดิม · ':'Previous best · ')+formatScore(old);
+  const count=document.createElement('div');count.className='record-count';
+  const gain=document.createElement('div');gain.textContent='+'+formatScore(score-old)+(th?' คะแนน':' points');
+  decoration.append(caption,count,gain); $("messageTitle").textContent=th?'เก่งมากเลย!':'Amazing job!'; $("messageText").textContent=th?'หลานทำลายสถิติของตัวเองได้แล้ว':'You beat your personal best!';
+  openModal('messageModal'); celebrationEffect(2,currentMascot); const start=performance.now();
+  function tick(now){if(!count.isConnected || modal.classList.contains('hidden'))return;const t=Math.min(1,(now-start)/1200);count.textContent=formatScore(Math.round(old+(score-old)*(1-Math.pow(1-t,3))));if(t<1)requestAnimationFrame(tick)} requestAnimationFrame(tick);return true;
+}
+function reportGrade(v){return [[4096,'A+','ยอดเยี่ยมที่สุด','Outstanding'],[2048,'A','ยอดเยี่ยม','Excellent'],[1024,'B+','ดีมาก','Very good'],[512,'B','ดี','Good'],[256,'C+','ค่อนข้างดี','Fairly good'],[128,'C','ปานกลาง','Fair'],[64,'D+','พอใช้','Satisfactory'],[0,'D','กำลังพัฒนา','Developing']].find(r=>v>=r[0]);}
+
+async function shareFinishedScore() {
+  if (!game?.over || !currentMascot) return;
+  const button = $('shareScoreBtn'), status = $('shareScoreStatus');
+  if (button.disabled) return;
+  const mascot = currentMascot, score = game.score, th = currentLanguage === 'th';
+  const name = mascotName(mascot), guardian = playerDisplayName();
+  const url = 'https://mascot2048.pages.dev/';
+  button.disabled = true; status.textContent = th ? 'กำลังสร้างรูป...' : 'Creating image...';
+  try {
+    const canvas = document.createElement('canvas'); canvas.width=1080; canvas.height=1350;
+    const c=canvas.getContext('2d');
+    if (!c) throw Error('canvas');
+    const color=mascot.color || '#91bce5', ink='#263b51';
+    await document.fonts?.ready;
+    c.fillStyle='#fff';c.fillRect(0,0,1080,1350);c.strokeStyle=color;c.lineWidth=5;c.strokeRect(32,32,1016,1286);
+    const font='Srinakharinwirot, sans-serif';
+    function line(text,y,size,fill=ink,max=900,x=540,align='center'){c.font=`${size}px ${font}`;c.textAlign=align;c.fillStyle=fill;c.fillText(text,x,y,max);}
+    function rule(y){c.strokeStyle=color;c.lineWidth=4;c.beginPath();c.moveTo(75,y);c.lineTo(1005,y);c.stroke();}
+    line(th?'โรงเรียนอนุบาลสีฟ้า':'BLUE KINDERGARTEN',125,58);line('BLUE KINDERGARTEN',175,28);rule(205);
+    line(th?'ใบรายงานผลการเรียน':'STUDENT REPORT CARD',285,48);line('STUDENT REPORT CARD',325,25);
+    const highest=Math.max(2,...game.tiles.map(t=>t.value)), g=reportGrade(highest);
+    const photo=new Image();const load=src=>new Promise((resolve,reject)=>{photo.onload=resolve;photo.onerror=reject;photo.src=src;});
+    try{await load(imagePath(mascot.id,'profile'));}catch{await load(imagePath(mascot.id,'cover'));}
+    c.fillStyle=color;c.fillRect(80,370,224,264);const ratio=Math.min(214/photo.naturalWidth,254/photo.naturalHeight);const pw=photo.naturalWidth*ratio,ph=photo.naturalHeight*ratio;c.drawImage(photo,192-pw/2,502-ph/2,pw,ph);
+    line((th?'ชื่อนักเรียน : ':'Student : ')+name,435,37,ink,650,335,'left');line((th?'ผู้ปกครอง : ':'Guardian : ')+guardian,505,37,ink,650,335,'left');line((th?'วันที่ : ':'Date : ')+new Date().toLocaleDateString(th?'th-TH':'en-GB'),575,33,ink,650,335,'left');
+    c.fillStyle=color;c.globalAlpha=.27;c.fillRect(80,680,920,70);c.globalAlpha=1;c.strokeStyle=color;c.lineWidth=2;c.strokeRect(80,680,920,210);for(const y of [750,820]){c.beginPath();c.moveTo(80,y);c.lineTo(1000,y);c.stroke();}c.beginPath();c.moveTo(570,680);c.lineTo(570,890);c.stroke();
+    line(th?'รายการประเมิน':'Assessment',727,32,ink,450,325);line(th?'ผลการเรียน':'Result',727,32,ink,400,785);line(th?'ระดับที่ไปถึง':'Highest tile',797,32,ink,450,325);line(String(highest),797,34,ink,400,785);line(th?'ผลการประเมิน':'Evaluation',867,32,ink,450,325);line(g[th?2:3],867,32,ink,400,785);
+    line(th?'คะแนนที่ทำได้':'TOTAL SCORE',965,35,ink,500,340);line(formatScore(score),1055,85,ink,500,340);line('TOTAL SCORE',1100,24,ink,500,340);
+    c.save();c.translate(825,1020);c.rotate(-.19);c.strokeStyle='#b83c43';c.lineWidth=7;for(const r of [125,112]){c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.stroke();}line('BLUE KINDERGARTEN',-65,17,'#b83c43',190,0);line(g[1],40,90,'#b83c43',190,0);line('GRADE',82,23,'#b83c43',190,0);c.restore();rule(1170);line('MY LITTLE GRANDKID 2048',1230,32);line('mascot2048.pages.dev',1280,27);
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+    if(!blob) throw Error('image');
+    const file=new File([blob],'grandkid-2048-score.png',{type:'image/png'});
+    let shared=false;
+    if(navigator.share && navigator.canShare?.({files:[file]})) {
+      try {await navigator.share({files:[file],title:'My Little Grandkid 2048',text:name+' · '+formatScore(score)+'\n'+url});shared=true;} catch(e){if(e.name==='AbortError'){status.textContent='';return;}}
+    }
+    if(!shared){const link=document.createElement('a');const objectURL=URL.createObjectURL(blob);link.href=objectURL;link.download=file.name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectURL),60000);}
+    status.textContent='';
+  } catch(e){status.textContent=th?'สร้างรูปไม่สำเร็จ กรุณาลองใหม่':'Could not create image. Please try again.';}
+  finally{button.disabled=false;}
+}
+
 function renderGameMessage() {
 
   if (!game) return;
+  $("shareScoreBtn").textContent = currentLanguage === 'th' ? 'แชร์ใบเกรด' : 'Share report card';
+  if (!game.over) $("shareScoreStatus").textContent = '';
 
   $("gameMessage").classList.toggle(
 
@@ -6321,7 +6408,7 @@ async function celebrateFinishedGame() {
   const finished=game, mascot=currentMascot, session=gameSession, base=finished.celebrationBase;
   if(finished.celebrationDone || !base) return;
   finished.celebrationDone=true; saveGame();
-  let level=finished.score>base.personal?1:0;
+  let level=finished.score>base.personal && !finished.personalCelebrated && base.personal>0?1:0;
   if(base.online && save.onlineRegistered && finished.score>base.personal) {
     try {
       await onlinePost('score',{records:[{mascotId:mascot.id,score:finished.score}]});
@@ -6381,25 +6468,43 @@ function checkGameOver() {
 }
 
 function showWinMessage() {
-
   clearQueue();
-
-  $("messageDecoration").innerHTML =
-
-    DECORATIONS[
-      currentMascot.decorations?.[2]
-    ] || "";
-
-  $("messageTitle").textContent =
-
-    t("winTitle");
-
-  $("messageText").textContent =
-
-    t("winText");
-
+  const mascot = currentMascot;
+  $("messageModal").classList.remove("record-mode");
+  const decoration = $("messageDecoration");
+  decoration.replaceChildren();
+  const photo = document.createElement('img');
+  photo.className = 'win-photo';
+  photo.alt = mascotName(mascot) + ' 2048';
+  photo.src = imagePath(mascot.id, 2048);
+  photo.onerror = () => { photo.remove(); };
+  const number = document.createElement('span');
+  number.className = 'win-number'; number.textContent = '2048';
+  decoration.append(photo, number);
+  $("messageTitle").textContent = t("winTitle");
+  $("messageText").textContent = t("winText");
   openModal("messageModal");
-
+  const modal = $("messageModal");
+  modal.querySelector('.win-heart-rain')?.remove();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rain = document.createElement('div');
+  rain.className = 'win-heart-rain'; rain.setAttribute('aria-hidden','true');
+  const colors = [mascot.color || '#a8d4f5', tileColor(2), tileColor(4)];
+  for(let i=0;i<44;i++) {
+    const heart = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    heart.setAttribute('viewBox','0 0 24 24');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', i%9===0 ? 'M12 0 15 9 24 12 15 15 12 24 9 15 0 12 9 9Z' : 'M12 21S2 15 2 8a5.5 5.5 0 0 1 10-3 5.5 5.5 0 0 1 10 3c0 7-10 13-10 13Z');
+    path.setAttribute('fill',colors[i%colors.length]); heart.append(path);
+    heart.style.left = Math.random()*100+'%';
+    heart.style.width = 12+Math.random()*22+'px';
+    heart.style.setProperty('--fall',3+Math.random()*2+'s');
+    heart.style.setProperty('--delay',Math.random()*2+'s');
+    heart.style.setProperty('--drift',(Math.random()-.5)*100+'px');
+    rain.append(heart);
+  }
+  modal.append(rain);
+  setTimeout(()=>rain.remove(),7500);
 }
 
 
@@ -7196,6 +7301,8 @@ function openModal(id) {
   $(id).classList.remove('hidden');
 }
 function closeModal(id) {
+  const wasWin = id === "messageModal" && !$(id).classList.contains("record-mode");
+  if (id === 'messageModal') $(id).querySelector('.win-heart-rain')?.remove();
   $(id).classList.add('hidden');
   if (!hasOpenModal() && document.body.classList.contains('modal-locked')) {
     document.body.classList.remove('modal-locked');
@@ -7203,6 +7310,7 @@ function closeModal(id) {
     document.body.style.top = '';
     window.scrollTo(0, modalScrollY);
   }
+  if (wasWin) maybePersonalCelebration();
 }
 document.addEventListener('touchmove', event => {
   if (hasOpenModal() && !event.target.closest('.modal-card')) {
