@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -2004,6 +2005,35 @@ html[data-mode="dark"] body.renjin-theme{background:color-mix(in srgb,#303D78 30
 #gamePage .score-card :is(.score-label,.score-value,.score-champion-name){color:var(--card-contrast,#171619)!important;}
 #gamePage .score-label{font-weight:600;}
 html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;}
+
+.period-home { margin-top:14px; }
+.week-home { background:linear-gradient(135deg,#f0f7ff,#dceaff);box-shadow:0 5px 0 #c3d7ee; }
+.month-home { background:linear-gradient(135deg,#f7f1ff,#e9dff8);box-shadow:0 5px 0 #d5c5e9; }
+.week-home :is(.world-label,.world-score,.world-mascot,.world-caption){color:#527eac;}
+.month-home :is(.world-label,.world-score,.world-mascot,.world-caption){color:#8064a2;}
+html[data-mode="dark"] .period-home .world-label{color:#e4eaf3;}
+
+.champion-podium{position:relative;background:white;border:2px solid #dce9f7;border-radius:22px;padding:12px;overflow:hidden;box-shadow:0 4px 0 #dce7f3}
+.podium-title{text-align:center;font-size:17px;font-weight:700;color:#527eac;margin-bottom:20px;position:relative;z-index:1}
+.podium-decor{position:absolute;top:34px;left:4px;width:calc(100% - 8px);height:45%;pointer-events:none}
+.podium-grid{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.champion-podium .world-card{grid-column:span 2;aspect-ratio:1;min-width:0;margin:0;padding:5px;border-radius:14px;box-shadow:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;container-type:inline-size}
+.champion-podium .all-home{grid-column:2 / span 2;overflow:visible}
+.champion-podium .all-home::before{content:'';position:absolute;top:-13px;left:calc(50% - 18px);width:36px;height:17px;background:#eac66d;clip-path:polygon(0 15%,25% 48%,50% 0,75% 48%,100% 15%,88% 100%,12% 100%)}
+.champion-podium .world-card::after{display:none}
+.champion-podium .world-label{font-size:clamp(10px,9cqw,15px);letter-spacing:0;gap:3px;white-space:nowrap}
+.champion-podium .world-label svg{width:13px;height:13px}
+.champion-podium .world-content{position:relative;display:flex;flex-direction:column;gap:2px;margin:0;width:100%}
+.champion-podium .world-mascot-photo{order:-1;width:39%;aspect-ratio:1;background:#ffffff80;border-radius:10px}
+.champion-podium .world-mascot-photo .photo{width:100%;height:100%;border:2px solid white;border-radius:10px}
+.champion-podium .world-avatar{position:absolute;top:0;left:59%;width:22%;aspect-ratio:1;z-index:1;transform:translateY(85%)}
+.champion-podium .world-avatar .photo{width:100%;height:100%;border:2px solid white}
+.champion-podium .world-details{width:100%;text-align:center}
+.champion-podium .world-name,.champion-podium .world-mascot{font-size:clamp(9px,8cqw,13px);margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.champion-podium .world-score{font-size:clamp(16px,16cqw,27px);line-height:1.1;margin:1px 0}
+.champion-podium .world-caption{font-size:clamp(7px,6cqw,10px);margin:0;text-align:center;line-height:1.1;max-width:100%;overflow-wrap:anywhere}
+html[data-mode="dark"] .champion-podium{background:#303641;border-color:#46505d;box-shadow:none}html[data-mode="dark"] .podium-title{color:#e4eaf3}html[data-mode="dark"] .champion-podium .all-home{background:#55482d!important}html[data-mode="dark"] .champion-podium .month-home{background:#493c60!important}html[data-mode="dark"] .champion-podium .week-home{background:#344b65!important}
+.podium-star{animation:podiumTwinkle 3s ease-in-out infinite alternate}.podium-star:nth-child(even){animation-delay:1s}@keyframes podiumTwinkle{to{opacity:.35}}@media(prefers-reduced-motion:reduce){.podium-star{animation:none}}
 </style>
 </head>
 
@@ -2059,7 +2089,7 @@ html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;
 
   </header>
 
-  <div class="world-card">
+<section class="champion-podium"><div class="podium-title" data-i18n="topGrandkid"></div><svg class="podium-decor" viewBox="0 0 340 160" aria-hidden="true" preserveAspectRatio="none"><path d="M5 4 Q170 48 335 4" fill="none" stroke="#b5cce4"/><path d="M8 7 l18 3 -11 13Z" fill="#b6d6f5"/><path d="M35 13 l18 3 -11 13Z" fill="#f5d999"/><path d="M62 18 l18 3 -11 13Z" fill="#e0c9f1"/><path d="M89 22 l18 3 -11 13Z" fill="#f3c5d3"/><path d="M116 24 l18 3 -11 13Z" fill="#b6d6f5"/><path d="M143 26 l18 3 -11 13Z" fill="#f5d999"/><path d="M170 27 l18 3 -11 13Z" fill="#e0c9f1"/><path d="M197 26 l18 3 -11 13Z" fill="#f3c5d3"/><path d="M224 24 l18 3 -11 13Z" fill="#b6d6f5"/><path d="M251 22 l18 3 -11 13Z" fill="#f5d999"/><path d="M278 18 l18 3 -11 13Z" fill="#e0c9f1"/><path d="M305 13 l18 3 -11 13Z" fill="#f3c5d3"/><g transform="translate(15 55)"><path d="M15 0H49V23Q49 42 32 42Q15 42 15 23Z" fill="#eac66d"/><path d="M15 5H4V16Q4 29 19 29M49 5H60V16Q60 29 45 29M32 42V56M18 59H46" fill="none" stroke="#d9ad4e" stroke-width="5" stroke-linecap="round"/></g><g transform="translate(288 75) rotate(12)"><path d="M-12 8L-19 43 0 34 18 43 12 8" fill="#a6c9ef"/><circle r="23" fill="#e8d4a0" stroke="#f7eacb" stroke-width="4"/><path d="M0 -13L4 -4 14 -3 6 4 9 14 0 8 -9 14 -6 4 -14 -3 -4 -4Z" fill="#c6a052"/></g><path class="podium-star" transform="translate(20 45)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(70 45)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(20 130)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(65 145)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(270 42)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(320 44)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(270 135)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/><path class="podium-star" transform="translate(320 145)" d="M0 -7L2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z" fill="#eac66d"/></svg><div class="podium-grid">  <div class="world-card all-home">
 
     <div class="world-label">
 
@@ -2076,7 +2106,7 @@ html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;
 
       </svg>
 
-      <span data-i18n="topGrandkid"></span>
+      <span data-i18n="allPodium"></span>
 
     </div>
 
@@ -2110,11 +2140,124 @@ html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;
     </div>
 
     <div class="world-caption"
-      data-i18n="worldCaption">
+      data-i18n="allPodiumCaption">
     </div>
 
   </div>
 
+  <div class="world-card period-home month-home">
+
+    <div class="world-label">
+
+      <svg viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round">
+
+        <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
+        <path d="M7 5H3V8Q3 13 8 13"/>
+        <path d="M17 5H21V8Q21 13 16 13"/>
+        <path d="M12 15V21M7 21H17"/>
+
+      </svg>
+
+      <span data-i18n="monthPodium"></span>
+
+    </div>
+
+    <div class="world-content">
+
+      <div id="monthWorldAvatar"
+        class="world-avatar">
+      </div>
+
+      <div class="world-details">
+
+        <div id="monthWorldName"
+          class="world-name">
+        </div>
+
+        <div id="monthWorldMascot"
+          class="world-mascot">
+        </div>
+
+        <div id="monthWorldScore"
+          class="world-score">
+          0
+        </div>
+
+      </div>
+
+      <div id="monthWorldMascotPhoto"
+        class="world-mascot-photo">
+      </div>
+
+    </div>
+
+    <div class="world-caption"
+      id="monthWorldCaption">
+    </div>
+
+  </div>
+
+  <div class="world-card period-home week-home">
+
+    <div class="world-label">
+
+      <svg viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round">
+
+        <path d="M7 3H17V10A5 5 0 0 1 7 10Z"/>
+        <path d="M7 5H3V8Q3 13 8 13"/>
+        <path d="M17 5H21V8Q21 13 16 13"/>
+        <path d="M12 15V21M7 21H17"/>
+
+      </svg>
+
+      <span data-i18n="weekPodium"></span>
+
+    </div>
+
+    <div class="world-content">
+
+      <div id="weekWorldAvatar"
+        class="world-avatar">
+      </div>
+
+      <div class="world-details">
+
+        <div id="weekWorldName"
+          class="world-name">
+        </div>
+
+        <div id="weekWorldMascot"
+          class="world-mascot">
+        </div>
+
+        <div id="weekWorldScore"
+          class="world-score">
+          0
+        </div>
+
+      </div>
+
+      <div id="weekWorldMascotPhoto"
+        class="world-mascot-photo">
+      </div>
+
+    </div>
+
+    <div class="world-caption"
+      id="weekWorldCaption">
+    </div>
+
+  </div>
+
+</div></section>
   <h2 class="section-title"
     data-i18n="chooseMascot">
   </h2>
@@ -2388,6 +2531,8 @@ html[data-mode="dark"] #gamePage .score-card{border:1px solid #69717e!important;
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="M15 15L21 21"/></svg>
     <input id="rankingSearch" data-placeholder="searchMascot" autocomplete="off" aria-label="ค้นหาชื่อหลาน / Search grandkids" oninput="rankingFilter = 'all'; renderRanking()">
   </div>
+  <div id="rankingPeriods" class="filter-row" style="padding-bottom:6px"></div>
+  <div id="rankingPeriodDate" class="muted" style="font-size:12px;margin-bottom:10px"></div>
   <div id="rankingFilters"
     class="filter-row">
   </div>
@@ -2740,7 +2885,10 @@ const LANG = {
   th: {
 
     school: "โรงเรียนอนุบาลสีฟ้า",
-    topGrandkid: "หลานที่ได้คะแนนสูงสุด",
+    topGrandkid: "คะแนนสูงสุดตลอดกาล",
+    allPodiumCaption: "สถิติสูงสุด", allPodium: "ตลอดกาล", weekPodium: "ประจำสัปดาห์", monthPodium: "ประจำเดือน",
+    weekChampion: "คะแนนสูงสุดประจำสัปดาห์",
+    monthChampion: "คะแนนสูงสุดประจำเดือน",
 
     worldCaption:
       "คะแนนสูงสุดจากหลานทุกตัว",
@@ -2853,7 +3001,10 @@ const LANG = {
   en: {
 
     school: "Blue Kindergarten",
-    topGrandkid: "Highest-scoring grandkid",
+    topGrandkid: "All-time highest score",
+    allPodiumCaption: "All-time record", allPodium: "All time", weekPodium: "This week", monthPodium: "This month",
+    weekChampion: "Weekly highest score",
+    monthChampion: "Monthly highest score",
 
     worldCaption:
       "Highest score across all grandkids",
@@ -4018,6 +4169,62 @@ let tileCounter = 0;
 let queueFrame = null;
 
 let rankingFilter = "all";
+let rankingPeriod = "all";
+let periodRecords = [];
+let periodKey = "";
+let periodStatus = "idle";
+let periodRequest = 0;
+let periodPending = false;
+
+async function refreshPeriod() {
+  if (rankingPeriod === "all" || periodPending) return;
+  const selected = rankingPeriod;
+  const token = ++periodRequest;
+  periodPending = true;
+  try {
+    const response = await fetch('/api/leaderboard?period='+selected,{cache:'no-store'});
+    if (!response.ok) throw Error('offline');
+    const data = await response.json();
+    if (!Array.isArray(data.records) || data.period !== selected || !data.periodKey) throw Error('invalid');
+    if (token !== periodRequest || selected !== rankingPeriod) return;
+    periodRecords = data.records;
+    periodKey = data.periodKey;
+    periodStatus = "ready";
+  } catch(e) {
+    if (token !== periodRequest) return;
+    periodStatus = "error";
+    periodRecords = [];
+    periodKey = "";
+  } finally {
+    if (token === periodRequest) {
+      periodPending = false;
+      if (currentPage === 'ranking') renderRanking();
+    }
+  }
+}
+function setRankingPeriod(value) {
+  if (!['all','week','month'].includes(value)) return;
+  rankingPeriod = value;
+  periodRequest++;
+  periodPending = false;
+  periodRecords = [];
+  periodKey = "";
+  periodStatus = "loading";
+  renderRanking();
+  refreshPeriod();
+}
+function periodDateLabel() {
+  if (!periodKey || rankingPeriod === 'all') return '';
+  const start = new Date(periodKey + (rankingPeriod === 'month' ? '-01' : '') + 'T00:00:00+07:00');
+  const end = new Date(start);
+  if (rankingPeriod === 'week') end.setTime(start.getTime()+6*86400000);
+  else {
+    const [y,m] = periodKey.split('-').map(Number);
+    end.setTime(Date.UTC(y,m,0)-7*3600000);
+  }
+  const fmt = d => d.toLocaleDateString(currentLanguage==='th'?'th-TH':'en-GB',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'});
+  return fmt(start)+' – '+fmt(end)+(currentLanguage==='th'?' (เวลาไทย)':' (Thailand time)');
+}
 
 let rankingReturn = "home";
 
@@ -4350,9 +4557,10 @@ function showPage(page) {
     page === "game"
   );
 
-  if (page === "home") renderHome();
+  if (page === "home") { renderHome(); refreshHomePeriods(); }
 
   if (page === "ranking") renderRanking();
+    refreshPeriod();
 
   if (page === "profile") renderProfile();
 
@@ -4367,7 +4575,49 @@ function showPage(page) {
    10. HOME
 ======================================== */
 
+
+const homePeriods = {week:{status:'loading'},month:{status:'loading'}};
+let homePeriodBusy = false;
+async function refreshHomePeriods() {
+  if (homePeriodBusy) return;
+  homePeriodBusy = true;
+  try {
+    await Promise.all(['week','month'].map(async type => {
+      try {
+        const response = await fetch('/api/leaderboard?period='+type,{cache:'no-store'});
+        if (!response.ok) throw Error('offline');
+        const data = await response.json();
+        if (data.period !== type || !data.periodKey || !Array.isArray(data.records)) throw Error('invalid');
+        const records = data.records.filter(r=>MASCOTS.some(m=>m.id===r.mascotId)).sort((a,b)=>b.score-a.score||a.date-b.date);
+        homePeriods[type]={status:'ready',key:data.periodKey,champion:records[0]||null};
+      } catch(e) { homePeriods[type]={status:'error'}; }
+      if(currentPage==='home') renderHomeChampions();
+    }));
+  } finally { homePeriodBusy=false; }
+}
+function renderHomeChampions() {
+  const th=currentLanguage==='th';
+  for(const type of ['week','month']) {
+    const state=homePeriods[type], c=state.champion, prefix=type+'World';
+    $(prefix+'Name').textContent=c?(th?'อันดับ 1 · ':'No. 1 · ')+mascotName(getMascot(c.mascotId)):state.status==='loading'?(th?'กำลังโหลด...':'Loading...'):state.status==='error'?(th?'โหลดข้อมูลไม่ได้':'Unable to load'):t('noChampion');
+    $(prefix+'Mascot').textContent=c?taughtBy(c):state.status==='ready'?t('startPlaying'):'';
+    $(prefix+'Score').textContent=state.status==='ready'?formatScore(c?.score):'—';
+    $(prefix+'Avatar').innerHTML=c?photoHTML((c.playerId===save.playerId?save.avatarMascot:c.avatarMascot)||c.mascotId,'profile'):'';
+    $(prefix+'MascotPhoto').innerHTML=c?photoHTML(c.mascotId,'cover'):'';
+    let label='';
+    if(state.key){
+      const start=new Date(state.key+(type==='month'?'-01':'')+'T00:00:00+07:00');
+      const [y,m]=state.key.split('-').map(Number);
+      const end=new Date(type==='week'?start.getTime()+6*86400000:Date.UTC(y,m,0)-7*3600000);
+      const fmt=d=>d.toLocaleDateString(th?'th-TH':'en-GB',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'});
+      const short=d=>d.toLocaleDateString(th?'th-TH':'en-GB',{timeZone:'Asia/Bangkok',day:'numeric',month:'short'}); label=short(start)+' – '+short(end); $(prefix+'Caption').title=fmt(start)+' – '+fmt(end);
+    }
+    $(prefix+'Caption').textContent=label;
+  }
+}
+
 function renderHome() {
+  renderHomeChampions();
 
   $("homeAvatar").innerHTML =
 
@@ -5016,6 +5266,7 @@ function normalizeGame(stored) {
 
     over: Boolean(stored.over),
     celebrationBase: stored.celebrationBase || null,
+    periodSubmitted: Boolean(stored.periodSubmitted || stored.over),
     celebrationDone: Boolean(stored.celebrationDone || stored.over)
 
   };
@@ -5083,6 +5334,7 @@ function saveGame() {
 
     over: game.over,
     celebrationBase: game.celebrationBase || null,
+    periodSubmitted: Boolean(game.periodSubmitted),
     celebrationDone: Boolean(game.celebrationDone),
 
     unlocked:
@@ -6052,6 +6304,22 @@ async function celebrateFinishedGame() {
   celebrationEffect(level,mascot);
 }
 
+async function submitFinishedPeriod() {
+  const finished = game;
+  if (!finished || finished.periodSubmitted || !save.onlineRegistered || !currentMascot || !Number.isSafeInteger(finished.score) || finished.score <= 0) return;
+  const mascotId = currentMascot.id;
+  finished.periodSubmitted = true;
+  saveGame();
+  try {
+    await onlinePost('gameScore',{mascotId,score:finished.score});
+    refreshHomePeriods();
+    if (currentPage === 'ranking') refreshPeriod();
+  } catch(e) {
+    console.warn('Period score submission failed:',e.message);
+    // Do not replay old scores into a later competition period.
+  }
+}
+
 function checkGameOver() {
 
   if (!game) return;
@@ -6065,6 +6333,7 @@ function checkGameOver() {
     clearQueue();
 
     saveGame();
+    submitFinishedPeriod();
     celebrateFinishedGame();
 
   }
@@ -6400,6 +6669,10 @@ function setRankingFilter(id) {
 }
 
 function renderRanking() {
+  const th = currentLanguage === 'th';
+  const labels = {week:th?'สัปดาห์นี้':'This week',month:th?'เดือนนี้':'This month',all:th?'ตลอดกาล':'All time'};
+  $('rankingPeriods').innerHTML = ['week','month','all'].map(p => `<button class="filter-chip ${rankingPeriod===p?'active':''}" onclick="setRankingPeriod('${p}')" aria-pressed="${rankingPeriod===p}">${labels[p]}</button>`).join('');
+  $('rankingPeriodDate').textContent = periodDateLabel();
   const query = $("rankingSearch").value.trim().toLowerCase();
   const matches = [...MASCOTS].filter(m => (m.name + " " + m.en).toLowerCase().includes(query)).sort(byMascotName);
   const filters = [
@@ -6431,7 +6704,16 @@ function renderRanking() {
 
   const matchingIds = new Set(matches.map(m => m.id));
   const seen = new Set();
-  const records = getRecords(rankingFilter).filter(r => {
+  if (rankingPeriod !== 'all' && periodStatus !== 'ready') {
+    $('rankingList').textContent = '';
+    const msg = document.createElement('div');
+    msg.className = 'empty-state';
+    msg.textContent = periodStatus === 'error' ? (th?'โหลดอันดับไม่ได้ กรุณาลองใหม่':'Unable to load ranking. Please retry.') : (th?'กำลังโหลดอันดับ...':'Loading ranking...');
+    $('rankingList').append(msg);
+    return;
+  }
+  const source = rankingPeriod === 'all' ? getRecords(rankingFilter) : periodRecords.filter(r => MASCOTS.some(m=>m.id===r.mascotId) && (rankingFilter==='all'||r.mascotId===rankingFilter)).slice().sort((a,b)=>b.score-a.score||a.date-b.date);
+  const records = source.filter(r => {
     if (query && !matchingIds.has(r.mascotId)) return false;
     const nameKey = ((r.playerTitle || "") + (r.playerName || r.name || ""))
       .normalize("NFKC").toLowerCase().replace(/[\s\p{Cf}]/gu, "");
@@ -6970,9 +7252,10 @@ function reportActivity(event, mascotId = currentPage === 'game' ? currentMascot
 applyStaticLanguage();
 
 renderHome();
+refreshHomePeriods();
 refreshOnline();
 syncOnline();
-setInterval(()=>{syncOnline();refreshOnline();},15000);
+setInterval(()=>{syncOnline();refreshOnline();if(currentPage==='ranking')refreshPeriod();if(currentPage==='home')refreshHomePeriods();},15000);
 reportActivity('visit');
 setInterval(()=>{if(!document.hidden) reportActivity('heartbeat');},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden) reportActivity('heartbeat');});
