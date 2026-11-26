@@ -2037,6 +2037,12 @@ html[data-mode="dark"] .champion-podium{background:#303641;border-color:#46505d;
 
 #homePage { animation:none; overflow-anchor:none; }
 #mascotGrid { overflow-anchor:none; }
+
+/* Keep background stationary while a dialog is open. */
+html.modal-locked { overflow:hidden; overscroll-behavior:none; }
+body.modal-locked { position:fixed; width:100%; overflow:hidden; }
+.modal { overscroll-behavior:none; }
+.modal-card { overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch; }
 </style>
 </head>
 
@@ -2773,8 +2779,7 @@ html[data-mode="dark"] .champion-podium{background:#303641;border-color:#46505d;
     </div>
 
     <label for="playerTitleInput" data-i18n="playerTitleLabel"></label>
-    <input id="playerTitleInput" class="name-input" maxlength="24" data-placeholder="playerTitle" autocomplete="off" list="playerTitleSuggestions">
-    <datalist id="playerTitleSuggestions"><option value="อุนยาย"><option value="น้องยาย"><option value="แกรนนี่"></datalist>
+    <input id="playerTitleInput" class="name-input" maxlength="24" data-placeholder="playerTitle" autocomplete="off">
     <label for="playerNameInput" data-i18n="playerNameLabel"></label>
     <input id="playerNameInput"
       class="name-input"
@@ -2980,7 +2985,7 @@ const LANG = {
     studentNo: "เลขประจำตัวนักเรียน",
     birthday: "วันเกิด",
     surname: "นามสกุล",
-    playerTitle: "คำเรียก (เช่น อุนยาย น้องยาย แกรนนี่)",
+    playerTitle: "พิมพ์คำเรียกของคุณ",
     playerTitleLabel: "คำเรียก",
     playerNameLabel: "ชื่อของคุณ",
 
@@ -3094,7 +3099,7 @@ const LANG = {
     studentNo: "Student No.",
     birthday: "Birthday",
     surname: "Surname",
-    playerTitle: "Title (e.g. Granny)",
+    playerTitle: "Enter your title",
     playerTitleLabel: "Title",
     playerNameLabel: "Your name",
 
@@ -7143,19 +7148,31 @@ async function saveProfile() {
    29. MODALS
 ======================================== */
 
+let modalScrollY = 0;
 function openModal(id) {
-
   clearQueue();
-
-  $(id).classList.remove("hidden");
-
+  if (!hasOpenModal()) {
+    modalScrollY = window.scrollY;
+    document.body.style.top = `-${modalScrollY}px`;
+    document.documentElement.classList.add('modal-locked');
+    document.body.classList.add('modal-locked');
+  }
+  $(id).classList.remove('hidden');
 }
-
 function closeModal(id) {
-
-  $(id).classList.add("hidden");
-
+  $(id).classList.add('hidden');
+  if (!hasOpenModal() && document.body.classList.contains('modal-locked')) {
+    document.body.classList.remove('modal-locked');
+    document.documentElement.classList.remove('modal-locked');
+    document.body.style.top = '';
+    window.scrollTo(0, modalScrollY);
+  }
 }
+document.addEventListener('touchmove', event => {
+  if (hasOpenModal() && !event.target.closest('.modal-card')) {
+    if (event.cancelable) event.preventDefault();
+  }
+}, {passive:false});
 
 function hasOpenModal() {
 
