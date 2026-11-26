@@ -6333,16 +6333,17 @@ function maybePersonalCelebration(){
 function reportGrade(v){return [[4096,'A+','ยอดเยี่ยมที่สุด','Outstanding'],[2048,'A','ยอดเยี่ยม','Excellent'],[1024,'B+','ดีมาก','Very good'],[512,'B','ดี','Good'],[256,'C+','ค่อนข้างดี','Fairly good'],[128,'C','ปานกลาง','Fair'],[64,'D+','พอใช้','Satisfactory'],[0,'D','กำลังพัฒนา','Developing']].find(r=>v>=r[0]);}
 
 let reportView = null;
-function reportRanks(rows, mascotId, playerId){
-  if(!Array.isArray(rows))return ['—','—'];
-  const sorted=rows.slice().sort((a,b)=>Number(b.score)-Number(a.score)||Number(a.date)-Number(b.date)||String(a.playerId).localeCompare(String(b.playerId)));
-  const seen=new Set();const overall=sorted.filter(r=>!seen.has(r.playerId)&&seen.add(r.playerId));
-  const same=sorted.filter(r=>r.mascotId===mascotId);const a=overall.findIndex(r=>r.playerId===playerId),b=same.findIndex(r=>r.playerId===playerId);
-  return [a<0?'—':String(a+1),b<0?'—':String(b+1)];
+function reportRanks(rows, mascotId, playerId, score){
+  if(!Array.isArray(rows)||!playerId||!Number.isFinite(score))return ['—','—'];
+  // Compare the completed round against every stored player/mascot score.
+  // Exclude only the player's own entry for this mascot, not other mascots.
+  const rivals=rows.filter(r=>r && r.playerId && r.mascotId && Number.isFinite(Number(r.score)) && !(r.playerId===playerId && r.mascotId===mascotId));
+  const higher=r=>Number(r.score)>score;
+  return [String(1+rivals.filter(higher).length),String(1+rivals.filter(r=>r.mascotId===mascotId && higher(r)).length)];
 }
 async function makeReportCanvas(finished,mascot,th,rows){
  const score=finished.score,name=mascotName(mascot),guardian=playerDisplayName();
- const [schoolRank,mascotRank]=reportRanks(rows,mascot.id,save.playerId);
+ const [schoolRank,mascotRank]=reportRanks(rows,mascot.id,save.playerId,score);
     const canvas = document.createElement('canvas'); canvas.width=1080; canvas.height=1490;
     const c=canvas.getContext('2d');
     if (!c) throw Error('canvas');
