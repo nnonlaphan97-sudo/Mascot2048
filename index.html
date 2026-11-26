@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -4394,8 +4395,8 @@ function renderHome() {
 
     photoHTML(
 
-      champion?.mascotId
-      || save.avatarMascot,
+      (champion?.playerId === save.playerId ? save.avatarMascot : champion?.avatarMascot)
+      || champion?.mascotId || save.avatarMascot,
 
       "profile"
 
@@ -6812,9 +6813,11 @@ async function saveProfile() {
 
   });
 
+  onlineRecords = onlineRecords.map(record => record.playerId === save.playerId ? {...record, playerName:name, playerTitle:title, avatarMascot:selectedAvatar} : record);
   persist();
 
   closeModal("profileModal");
+  refreshOnline();
   syncOnline();
   renderHome();
 
