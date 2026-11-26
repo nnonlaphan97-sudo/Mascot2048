@@ -181,6 +181,15 @@ button:active {
 [hidden] {
   display: none !important;
 }
+select { font: inherit; color: #34465e; background: #edf3fb; border: 0; border-radius: 14px; padding: 12px; width: 100%; }
+.period-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.period-tabs button { flex: 1; padding: 10px 5px; background: #edf3fb; color: #34465e; }
+.period-tabs button[aria-pressed="true"] { background: #638ab9; color: white; }
+.champion { background: #f4f7fc; border-radius: 16px; padding: 14px; margin-bottom: 10px; }
+.champion:last-child { margin-bottom: 0; }
+#rankingList { margin-top: 12px; }
+.score { white-space: nowrap; }
+@media(max-width: 420px) { .header h1 { font-size: 23px; } .number { font-size: 26px; } .card { padding: 15px; } }
 </style>
 </head>
 
@@ -241,7 +250,7 @@ button:active {
   <div class="grid">
 
     <div class="stat">
-      <small>ผู้เข้าชมทั้งหมด</small>
+      <small>ผู้เข้าชมไม่ซ้ำ (เบราว์เซอร์)</small>
       <div class="number" id="visitors">0</div>
     </div>
 
@@ -264,8 +273,34 @@ button:active {
 
 
   <div class="section">
+    <div class="stat"><small>จำนวนครั้งที่เข้าชมทั้งหมด</small><div class="number" id="visits">0</div></div>
+  </div>
+  <div class="section">
+    <h2>แชมป์ประจำช่วงเวลา</h2>
+    <div class="card" id="champions"></div>
+  </div>
+  <div class="section">
+    <h2>ตารางจัดอันดับ</h2>
+    <div class="card">
+      <div class="period-tabs" id="periodTabs">
+        <button type="button" data-period="week" aria-pressed="true">สัปดาห์</button>
+        <button type="button" data-period="month" aria-pressed="false">เดือน</button>
+        <button type="button" data-period="all" aria-pressed="false">ตลอดกาล</button>
+      </div>
+      <p class="details" id="periodLabel"></p>
+      <select id="mascotFilter" aria-label="เลือกหลาน"><option value="all">หลานทุกตัว</option></select>
+      <div id="rankingList"></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2>ประวัติแชมป์ย้อนหลัง</h2>
+    <div class="card"><h3>ประจำสัปดาห์</h3><div id="weeklyHistory"></div></div>
+    <div class="card"><h3>ประจำเดือน</h3><div id="monthlyHistory"></div></div>
+  </div>
+  <div class="section">
 
     <h2>หลานยอดนิยม</h2>
+    <p class="details">จำนวนผู้เล่นที่มีคะแนนสะสมของหลานแต่ละตัว</p>
 
     <div class="card" id="popularity"></div>
 
@@ -347,6 +382,8 @@ const names = {
 let adminPassword = "";
 let refreshTimer = null;
 let playerData = [];
+let rankingData = null;
+let selectedPeriod = "week";
 let loading = false;
 let sessionVersion = 0;
 
@@ -458,6 +495,9 @@ async function loadDashboard() {
       "อัปเดตล่าสุด " +
       formatDate(data.updatedAt);
 
+    $("visits").textContent = number(data.stats.visits);
+    rankingData = data;
+    renderCompetition();
     playerData = data.playerList || [];
 
     renderPlayers();
@@ -489,6 +529,55 @@ async function loadDashboard() {
 
   }
 }
+
+function periodText(type, key) {
+  if (type === "all") return "คะแนนสะสมทั้งหมด";
+  if (!key) return "ยังไม่มีข้อมูลช่วงเวลา";
+  const date = new Date((type === "month" ? key + "-01" : key) + "T00:00:00+07:00");
+  if (!Number.isFinite(date.getTime())) return "ยังไม่มีข้อมูลช่วงเวลา";
+  if (type === "month") return date.toLocaleDateString("th-TH", {month:"long",year:"numeric",timeZone:"Asia/Bangkok"});
+  const end = new Date(date.getTime() + 6 * 86400000);
+  const fmt = d => d.toLocaleDateString("th-TH", {day:"numeric",month:"short",year:"numeric",timeZone:"Asia/Bangkok"});
+  return fmt(date) + " – " + fmt(end);
+}
+function scoreRow(p, label) {
+  return `<div class="person"><div class="person-head"><div class="person-name">${escapeHTML(label)} ${escapeHTML(playerName(p))}</div><div class="score">${number(p.score)}</div></div><div class="details">${escapeHTML(mascotName(p.mascotId))}<br>ทำคะแนนเมื่อ ${escapeHTML(formatDate(p.date))}</div></div>`;
+}
+function renderRanking() {
+  if (!rankingData) return;
+  const d = rankingData;
+  const type = selectedPeriod;
+  const key = type === "week" ? d.weekKey : d.monthKey;
+  $("periodLabel").textContent = periodText(type,key);
+  const records = type === "week" ? d.weeklyRanking : type === "month" ? d.monthlyRanking : d.allTimeRanking;
+  const filter = $("mascotFilter").value;
+  const seen = new Set();
+  const items = (records || []).filter(p => {
+    if (filter !== "all" && p.mascotId !== filter) return false;
+    const id = filter === "all" ? p.mascotId : p.playerId;
+    if (seen.has(id)) return false;
+    seen.add(id); return true;
+  });
+  $("rankingList").innerHTML = items.map((p,i)=>scoreRow(p,(i+1)+".")).join("") || "ยังไม่มีคะแนนในช่วงเวลานี้";
+}
+function renderCompetition() {
+  const d = rankingData;
+  $("champions").innerHTML = [["ประจำสัปดาห์","week",d.weekKey,d.weeklyChampion],["ประจำเดือน","month",d.monthKey,d.monthlyChampion],["ตลอดกาล","all",null,d.allTimeChampion]].map(([label,type,key,p])=>`<div class="champion"><strong>${label}</strong><div class="details">${escapeHTML(periodText(type,key))}</div>${p ? scoreRow(p,"") : '<p class="details">ยังไม่มีคะแนน</p>'}</div>`).join("");
+  for (const [id,type,items] of [["weeklyHistory","week",d.weeklyHistory],["monthlyHistory","month",d.monthlyHistory]]) {
+    $(id).innerHTML = (items || []).map(p=>`<div class="details">${escapeHTML(periodText(type,p.periodKey))}</div>${scoreRow(p,"")}`).join("") || "ยังไม่มีประวัติแชมป์";
+  }
+  renderRanking();
+}
+for (const [id,name] of Object.entries(names).filter(([id])=>!['domiia','flaery'].includes(id)).sort((a,b)=>a[1].localeCompare(b[1],"th"))) {
+  const option = document.createElement("option"); option.value=id; option.textContent=name; $("mascotFilter").append(option);
+}
+$("mascotFilter").addEventListener("change",renderRanking);
+$("periodTabs").addEventListener("click",e=>{
+  const button=e.target.closest("button[data-period]"); if(!button) return;
+  selectedPeriod=button.dataset.period;
+  for(const b of $("periodTabs").querySelectorAll("button")) b.setAttribute("aria-pressed",String(b===button));
+  renderRanking();
+});
 
 function renderPlayers() {
 
@@ -664,6 +753,9 @@ function logout() {
 
   adminPassword = "";
   playerData = [];
+  rankingData = null;
+  for (const id of ["champions","rankingList","weeklyHistory","monthlyHistory","periodLabel"]) $(id).textContent = "";
+  for (const id of ["visitors","visits","players","online","games"]) $(id).textContent = "0";
 
   clearInterval(refreshTimer);
   refreshTimer = null;
