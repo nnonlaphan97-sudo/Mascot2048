@@ -3589,7 +3589,7 @@ const MASCOTS = [
 {"id": "jewel", "name": "เจเวล", "en": "JEWEL", "color": "#D71930", "birthday": {"th": "25 พฤษภาคม 2569", "en": "25 May 2026"}, "surname": {"th": "ศุภทรัพย์ยู", "en": "Supasap Yu"}, "parents": [{"role": "คุณม๊า", "roleEn": "Ma", "name": "พลอยชมพู ศุภทรัพย์", "nameEn": "Ployshompoo Supasap"}, {"role": "คุณมัม", "roleEn": "Mum", "name": "วริศรา ยู", "nameEn": "Warissara Yu"}], "decorations": []},
 {"id": "ponpon", "name": "ป้อนป้อน", "en": "PONPON", "color": "#A65D2C", "birthday": {"th": "10 มิถุนายน 2569", "en": "10 June 2026"}, "surname": {"th": "สุวรรณสถิตย์ธรรมสังคีติ", "en": "Suwansathit Thamsangkeeti"}, "parents": [{"role": "เฮียม่อน", "roleEn": "Hia Mon", "name": "ภูมิสุวรรณ สุวรรณสถิตย์", "nameEn": "Phumisuwan Suwansathit"}, {"role": "โบร๋เก้ด", "roleEn": "Bro Ged", "name": "ภาสวิชญ์ ธรรมสังคีติ", "nameEn": "Pasawit Thamsangkeeti"}], "decorations": []},
 {"id": "flarey", "name": "แฟลรี่", "en": "FLAERY", "color": "#24232E", "birthday": {"th": "18 มิถุนายน 2569", "en": "18 June 2026"}, "surname": {"th": "เลิศรัตน์โกสุมภ์ไอย์ดึนเกียรตินิรันดร์พงศ์สถาปัตย์", "en": "Lertratkosum Aydin Kiatniran Pongsathaporn"}, "parents": [{"role": "", "roleEn": "", "name": "ณราวิชญ์ เลิศรัตน์โกสุมภ์", "nameEn": "Naravit Lertratkosum"}, {"role": "", "roleEn": "", "name": "อาเชน ไอย์ดึน", "nameEn": "Archen Aydin"}, {"role": "", "roleEn": "", "name": "ธนบูรณ์ เกียรตินิรันดร์", "nameEn": "Thanaboon Kiatniran"}, {"role": "", "roleEn": "", "name": "พงศภัค พงศ์สถาปัตย์", "nameEn": "Phongphat Pongsathaporn"}], "decorations": []},
-{"id": "renjin", "name": "เร็นจิน", "en": "RENJIN", "color": "#303D78", "birthday": {"th": "9 กันยายน 2569", "en": "8 September 2026"}, "surname": {"th": "สุทธิวณิชศักดิ์วิเทพานิชย์", "en": "Sutivanichsak Vitepanich"}, "parents": [{"role": "ท่านอาจารย์", "roleEn": "Master", "name": "จิรวรรตน์ สุทธิวณิชศักดิ์", "nameEn": "Jirawat Sutivanichsak"}, {"role": "ท่านอาจารย์", "roleEn": "Master", "name": "ธีรเดช วิเทพานิชย์", "nameEn": "Thiradet Vitepanich"}], "decorations": []}
+{"id": "renjin", "name": "เร็นจิน", "en": "RENJIN", "color": "#303D78", "birthday": {"th": "8 กันยายน 2569", "en": "8 September 2026"}, "surname": {"th": "สุทธิวณิชศักดิ์วิเทพานิชย์", "en": "Sutivanichsak Vitepanich"}, "parents": [{"role": "ท่านอาจารย์", "roleEn": "Master", "name": "จิรวรรตน์ สุทธิวณิชศักดิ์", "nameEn": "Jirawat Sutivanichsak"}, {"role": "ท่านอาจารย์", "roleEn": "Master", "name": "ธีรเดช วิเทพานิชย์", "nameEn": "Thiradet Vitepanich"}], "decorations": []}
 ];
 
 // Display-only student numbers; mascot IDs and saved scores are unchanged.
@@ -6350,7 +6350,17 @@ async function makeReportCanvas(finished,mascot,th,rows){
     await document.fonts?.ready;
     c.fillStyle='#fff';c.fillRect(0,0,1080,1490);c.fillStyle=color;c.fillRect(0,0,1080,24);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(32,40,1016,1418);c.globalAlpha=.12;c.fillRect(65,65,950,135);c.globalAlpha=1;
     const font='Srinakharinwirot, sans-serif';
-    function line(text,y,size,fill=ink,max=900,x=540,align='center'){c.font=`${size}px ${font}`;c.textAlign=align;c.fillStyle=fill;c.fillText(text,x,y,max);}
+    function line(text,y,size,fill=ink,max=900,x=540,align='center'){
+      text=String(text); c.save(); c.direction='ltr'; c.textAlign='left'; c.textBaseline='alphabetic';
+      // Avoid Safari's native centered Thai text and fillText(maxWidth) positioning.
+      c.font=`${size}px ${font}`;
+      let m=c.measureText(text);
+      while(size>12 && Math.max(m.width,(m.actualBoundingBoxLeft||0)+(m.actualBoundingBoxRight||0))>max){size--;c.font=`${size}px ${font}`;m=c.measureText(text);}
+      const left=Number.isFinite(m.actualBoundingBoxLeft)?-m.actualBoundingBoxLeft:0;
+      const right=Number.isFinite(m.actualBoundingBoxRight)&&m.actualBoundingBoxRight>0?m.actualBoundingBoxRight:m.width;
+      const start=align==='center'?x-(left+right)/2:align==='right'?x-right:x-left;
+      c.fillStyle=fill;c.fillText(text,start,y);c.restore();
+    }
     function rule(y){c.strokeStyle=color;c.lineWidth=4;c.beginPath();c.moveTo(75,y);c.lineTo(1005,y);c.stroke();}
     line(th?'โรงเรียนอนุบาลสีฟ้า':'BLUE KINDERGARTEN',125,58);line(th?'BLUE KINDERGARTEN':'MY LITTLE GRANDKID 2048',175,28);rule(205);
     line(th?'ใบรายงานผลการเรียน':'STUDENT REPORT CARD',285,48);line('STUDENT REPORT CARD',325,25);
@@ -6360,9 +6370,9 @@ async function makeReportCanvas(finished,mascot,th,rows){
     c.fillStyle=color;c.fillRect(80,370,224,264);if(photo.naturalWidth){const ratio=Math.min(214/photo.naturalWidth,254/photo.naturalHeight);const pw=photo.naturalWidth*ratio,ph=photo.naturalHeight*ratio;c.drawImage(photo,192-pw/2,502-ph/2,pw,ph);}
     line((th?'ชื่อนักเรียน : ':'Student : ')+name,435,37,ink,650,335,'left');line((th?'ผู้ปกครอง : ':'Guardian : ')+guardian,505,37,ink,650,335,'left');line((th?'วันที่ : ':'Date : ')+new Date().toLocaleDateString(th?'th-TH':'en-GB'),575,33,ink,650,335,'left');
     c.fillStyle=color;c.globalAlpha=.27;c.fillRect(80,680,920,70);c.globalAlpha=1;c.strokeStyle=color;c.lineWidth=2;c.strokeRect(80,680,920,350);for(const y of [750,820,890,960]){c.beginPath();c.moveTo(80,y);c.lineTo(1000,y);c.stroke();}c.beginPath();c.moveTo(570,680);c.lineTo(570,1030);c.stroke();
-    line(th?'รายการประเมิน':'Assessment',727,32,ink,450,325);line(th?'ผลการเรียน':'Result',727,32,ink,400,785);line(th?'ระดับที่ไปถึง':'Highest tile',797,32,ink,450,325);line(String(highest),797,34,ink,400,785);line(th?'ผลการประเมิน':'Evaluation',867,32,ink,450,325);line(g[th?2:3],867,32,ink,400,785);
-    line(th?'อันดับผู้เล่นทั้งโรงเรียน':'Overall player rank',937,32,ink,450,325);line(schoolRank,937,34,ink,400,785);line(th?'อันดับผู้เล่น '+name:name+' player rank',1007,32,ink,450,325);line(mascotRank,1007,34,ink,400,785);
-    c.globalAlpha=.12;c.fillStyle=color;c.fillRect(80,1060,570,220);c.globalAlpha=1;line(th?'คะแนนที่ทำได้':'TOTAL SCORE',1105,35,ink,500,340);line(formatScore(score),1195,85,ink,500,340);line('TOTAL SCORE',1240,24,ink,500,340);
+    line(th?'รายการประเมิน':'Assessment',727,32,ink,440,325);line(th?'ผลการเรียน':'Result',727,32,ink,400,785);line(th?'ระดับที่ไปถึง':'Highest tile',797,32,ink,440,325);line(String(highest),797,34,ink,400,785);line(th?'ผลการประเมิน':'Evaluation',867,32,ink,440,325);line(g[th?2:3],867,32,ink,400,785);
+    line(th?'อันดับผู้เล่นทั้งโรงเรียน':'Overall player rank',937,32,ink,440,325);line(schoolRank,937,34,ink,400,785);line(th?'อันดับผู้เล่น '+name:name+' player rank',1007,32,ink,440,325);line(mascotRank,1007,34,ink,400,785);
+    c.globalAlpha=.12;c.fillStyle=color;c.fillRect(80,1060,570,220);c.globalAlpha=1;line(th?'คะแนนที่ทำได้':'TOTAL SCORE',1105,35,ink,510,365);line(formatScore(score),1195,85,ink,510,365);line('TOTAL SCORE',1240,24,ink,510,365);
     c.save();c.translate(825,1160);c.rotate(-.19);c.strokeStyle='#b83c43';c.lineWidth=7;for(const r of [125,112]){c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.stroke();}line('BLUE KINDERGARTEN',-65,17,'#b83c43',190,0);line(g[1],40,90,'#b83c43',190,0);line('GRADE',82,23,'#b83c43',190,0);c.restore();rule(1310);line('MY LITTLE GRANDKID 2048',1370,32);line('mascot2048.pages.dev',1420,27);
  return canvas;
 }
