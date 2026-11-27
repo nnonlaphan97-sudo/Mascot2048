@@ -2673,6 +2673,11 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
 
   </div>
 
+  <div class="settings-row" style="display:block">
+    <div id="accountStatus" style="margin-bottom:10px"></div>
+    <div id="accountButtons" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+
   <div class="settings-row">
 
     <span data-i18n="language"></span><button type="button" class="dark-toggle" onclick="toggleDarkMode()" aria-label="Dark mode" aria-pressed="false"></button>
@@ -2810,6 +2815,23 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
 
 
 <!-- PROFILE MODAL -->
+
+<div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="accountHeading">
+ <div class="modal-card">
+  <h2 id="accountHeading" class="modal-title"></h2>
+  <p id="accountHint" class="modal-text"></p>
+  <form id="accountForm">
+   <label for="accountUser" id="accountUserLabel"></label>
+   <input id="accountUser" class="name-input" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="30">
+   <label for="accountPass" id="accountPassLabel"></label>
+   <input id="accountPass" class="name-input" type="password" required minlength="8" maxlength="128">
+   <div id="accountRecoveryRow" class="hidden"><label for="accountRecovery" id="accountRecoveryLabel"></label><input id="accountRecovery" class="name-input" autocomplete="off" autocapitalize="none" maxlength="80"></div>
+   <p id="accountError" role="alert" style="color:#b34b4b;overflow-wrap:anywhere;margin-bottom:12px"></p>
+   <div class="modal-actions"><button type="button" class="secondary-btn" id="accountCancel" onclick="if(!accountBusy)closeModal('accountModal')"></button><button type="submit" class="primary-btn" id="accountSubmit"></button></div>
+  </form>
+  <div id="accountCodeBox" class="hidden"><p id="accountCodeHint" class="modal-text"></p><input id="accountCode" class="name-input" readonly onclick="this.select()"><button class="primary-btn" style="width:100%" id="accountDone" onclick="closeModal('accountModal');renderProfile()"></button></div>
+ </div>
+</div>
 
 <div id="profileModal"
   class="modal hidden">
@@ -7144,6 +7166,7 @@ function renderCollection() {
 ======================================== */
 
 function renderProfile() {
+  renderAccount();
 
   $("profileAvatar").innerHTML =
 
@@ -7456,6 +7479,66 @@ function reportActivity(event, mascotId = currentPage === 'game' ? currentMascot
     } catch (_) { console.warn('Activity unavailable'); }
   });
 }
+
+
+let accountBusy=false, accountAction='login';
+const accountText=(th,en)=>currentLanguage==='th'?th:en;
+function renderAccount(){
+ const status=$('accountStatus'), buttons=$('accountButtons');
+ status.textContent=save.accountUsername?accountText('บัญชี: ','Account: ')+save.accountUsername:accountText('บัญชีผู้เยี่ยมชม','Guest profile');
+ buttons.replaceChildren();
+ const add=(th,en,fn)=>{const b=document.createElement('button');b.type='button';b.className='secondary-btn';b.textContent=accountText(th,en);b.onclick=fn;buttons.append(b);};
+ if(save.accountUsername){add('ออกจากระบบ','Sign out',signOutAccount);add('เข้าสู่ระบบใหม่','Sign in again',()=>openAccount('login'));}
+ else {add('สมัครสมาชิก','Register',()=>openAccount('register'));add('เข้าสู่ระบบ','Sign in',()=>openAccount('login'));}
+ add('ลืมรหัสผ่าน','Recover account',()=>openAccount('recover'));
+}
+function openAccount(action){
+ if(accountBusy||busy||profileBusy)return;
+ if(action==='register'&&!save.onlineRegistered){alert(accountText('กรุณาบันทึกโปรไฟล์ผู้ปกครองก่อนสมัครสมาชิก','Save your guardian profile before registering.'));openProfileModal();return;}
+ accountAction=action;
+ $('accountHeading').textContent=action==='register'?accountText('สมัครสมาชิก','Register'):action==='recover'?accountText('กู้คืนบัญชี','Recover account'):accountText('เข้าสู่ระบบ','Sign in');
+ $('accountHint').textContent=action==='register'?accountText('ผูกบัญชีกับโปรไฟล์เดิม คะแนนไม่หาย','Link your existing profile and scores.'):accountText('เข้าสู่บัญชีเดิมเพื่อเรียกคืนคะแนน','Restore your existing account and scores.');
+ $('accountUserLabel').textContent=accountText('ชื่อผู้ใช้ (a-z, 0-9, . และ _)','Username (a-z, 0-9, . and _)');
+ $('accountPassLabel').textContent=action==='recover'?accountText('รหัสผ่านใหม่','New password'):accountText('รหัสผ่าน (อย่างน้อย 8 ตัว)','Password (at least 8 characters)');
+ $('accountRecoveryLabel').textContent=accountText('รหัสกู้คืน','Recovery code');
+ $('accountCancel').textContent=accountText('ยกเลิก','Cancel');$('accountSubmit').textContent=$('accountHeading').textContent;
+ $('accountForm').reset();$('accountUser').value=save.accountUsername||'';$('accountPass').autocomplete=action==='login'?'current-password':'new-password';
+ $('accountRecoveryRow').classList.toggle('hidden',action!=='recover');$('accountRecovery').required=action==='recover';
+ $('accountError').textContent='';$('accountForm').classList.remove('hidden');$('accountCodeBox').classList.add('hidden');openModal('accountModal');
+}
+function archiveAccountSave(){const copy={...save};if(copy.accountUsername)delete copy.onlineSecret;localStorage.setItem(SAVE_KEY+'_backup_'+save.playerId,JSON.stringify(copy));}
+function installAccount(b){
+ let previous=save.playerId===b.id?save:null;
+ if(!previous){try{previous=JSON.parse(localStorage.getItem(SAVE_KEY+'_backup_'+b.id)||'null');}catch(e){}}
+ const p=b.player;
+ const records=(previous?.records||[]).filter(r=>r.playerId===b.id);
+ for(const r of b.scores||[]){const old=records.find(x=>x.mascotId===r.mascotId);if(!old||old.score<r.score){if(old)records.splice(records.indexOf(old),1);records.push({...r,playerId:b.id,playerName:p.playerName,playerTitle:p.playerTitle,avatarMascot:p.avatarMascot});}}
+ clearTimeout(syncTimer);syncTimer=null;
+ save={playerId:b.id,playerName:p.playerName,playerTitle:p.playerTitle,avatarMascot:p.avatarMascot,onlineRegistered:true,onlineSecret:b.secret,accountUsername:b.username,games:previous?.games||{},collections:previous?.collections||{},records};
+ persist();
+}
+function signOutAccount(){
+ if(accountBusy||onlineBusy||profileBusy)return;
+ if(!confirm(accountText('ออกจากระบบ? คะแนนที่บันทึกบนเซิร์ฟเวอร์จะยังอยู่','Sign out? Server scores will be retained.')))return;
+ try{archiveAccountSave();localStorage.removeItem(SAVE_KEY);localStorage.removeItem(SAVE_KEY+'_backup_'+save.playerId);location.reload();}catch(e){alert(accountText('ไม่สามารถบันทึกข้อมูลได้','Unable to save data.'));}
+}
+$('accountForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(accountBusy||profileBusy||onlineBusy)return;
+ const username=$('accountUser').value.trim().normalize('NFKC').toLowerCase();
+ if(!/^[a-z0-9_.]{4,30}$/.test(username)){$('accountError').textContent=accountText('ชื่อผู้ใช้ต้องมี 4–30 ตัว','Username must contain 4–30 valid characters.');return;}
+ if(accountAction!=='register'&&!confirm(accountText('เปลี่ยนไปใช้บัญชีนี้? คะแนนของโปรไฟล์เดิมจะไม่ถูกรวมเข้าบัญชีใหม่','Switch accounts? Scores from the current profile will not be merged.')))return;
+ accountBusy=true;$('accountSubmit').disabled=true;$('accountCancel').disabled=true;$('accountError').textContent='';
+ try{
+  if(accountAction!=='register')archiveAccountSave();
+  const response=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:accountAction,username,password:$('accountPass').value,recoveryCode:$('accountRecovery').value,id:save.playerId,secret:onlineSecret()})});
+  const b=await response.json();if(!response.ok||!b.ok)throw Error(b.error||'server');
+  if(accountAction==='register'){save.accountUsername=b.username;persist();}else installAccount(b);
+  $('accountForm').reset();renderProfile();
+  if(b.recoveryCode){$('accountForm').classList.add('hidden');$('accountCodeBox').classList.remove('hidden');$('accountCode').value=b.recoveryCode;$('accountCodeHint').textContent=accountText('เก็บรหัสนี้ไว้ในที่ปลอดภัย ใช้กู้คืนบัญชีเมื่อลืมรหัสผ่าน ระบบจะแสดงรหัสนี้ครั้งเดียว','Keep this recovery code somewhere safe. It is shown only once.');$('accountDone').textContent=accountText('บันทึกรหัสแล้ว','I saved my code');$('accountDone').onclick=()=>{ $('accountCode').value='';closeModal('accountModal');location.reload();};}
+  else {closeModal('accountModal');location.reload();}
+ }catch(err){const messages={wrongCredentials:['ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง','Incorrect username or password'],duplicateAccount:['ชื่อผู้ใช้นี้ถูกใช้แล้ว','Username already taken'],alreadyRegistered:['โปรไฟล์นี้มีบัญชีแล้ว กรุณาเข้าสู่ระบบ','This profile already has an account. Please sign in.'],rateLimit:['ลองหลายครั้งเกินไป กรุณารอ 15 นาที','Too many attempts. Wait 15 minutes.'],wrongRecoveryCode:['รหัสกู้คืนไม่ถูกต้อง','Incorrect recovery code'],auth:['ยืนยันโปรไฟล์ไม่ได้ กรุณาเข้าสู่ระบบใหม่','Profile authorization failed. Sign in again.']};const m=messages[err.message]||['ดำเนินการไม่สำเร็จ กรุณาลองใหม่','Unable to complete request. Try again.'];$('accountError').textContent=accountText(...m);}
+ finally{accountBusy=false;$('accountSubmit').disabled=false;$('accountCancel').disabled=false;}
+});
 
 applyStaticLanguage();
 
