@@ -7,16 +7,8 @@ const reply = (data, status = 200) =>
     }
   });
 
-// ========================================
-// THAILAND TIME
-// ========================================
-
 function getPeriods(now) {
-
-  const thai = new Date(
-    now + 7 * 60 * 60 * 1000
-  );
-
+  const thai = new Date(now + 7 * 3600000);
   const monday = new Date(thai);
 
   monday.setUTCDate(
@@ -28,12 +20,7 @@ function getPeriods(now) {
     week: monday.toISOString().slice(0, 10),
     month: thai.toISOString().slice(0, 7)
   };
-
 }
-
-// ========================================
-// ADMIN API
-// ========================================
 
 export async function onRequest({ request, env }) {
 
@@ -41,13 +28,11 @@ export async function onRequest({ request, env }) {
     return reply({ error: "method" }, 405);
   }
 
+  let stage = "request";
+
   try {
 
     const b = await request.json();
-
-    // ========================================
-    // ADMIN PASSWORD
-    // ========================================
 
     if (
       !env.ADMIN_PASSWORD ||
@@ -60,320 +45,291 @@ export async function onRequest({ request, env }) {
     const db = env.DB;
     const now = Date.now();
 
-    const periods = getPeriods(now);
+    stage = "database";
 
-    const weekKey = periods.week;
-    const monthKey = periods.month;
+    const {
+      week: weekKey,
+      month: monthKey
+    } = getPeriods(now);
+
+    async function first(label, sql, ...args) {
+
+      stage = label;
+
+      let stmt = db.prepare(sql);
+
+      if (args.length) {
+        stmt = stmt.bind(...args);
+      }
+
+      return await stmt.first();
+    }
+
+    async function all(label, sql, ...args) {
+
+      stage = label;
+
+      let stmt = db.prepare(sql);
+
+      if (args.length) {
+        stmt = stmt.bind(...args);
+      }
+
+      const result = await stmt.all();
+
+      return result.results || [];
+    }
 
     // ========================================
-    // TOTAL VISITORS
+    // VISITORS
     // ========================================
 
-    const visitors = await db.prepare(`
-      SELECT COUNT(*) AS total
-      FROM player_activity
-    `).first();
+    const visitors = await first(
+      "visitors",
+      `SELECT COUNT(*) AS total
+       FROM player_activity`
+    );
+
+    const visits = await first(
+      "visits",
+      `SELECT COALESCE(SUM(visit_count), 0) AS total
+       FROM player_activity`
+    );
+
+    const players = await first(
+      "players",
+      `SELECT COUNT(*) AS total
+       FROM players`
+    );
 
     // ========================================
-    // TOTAL VISITS
+    // ONLINE - 6 MINUTES
     // ========================================
 
-    const visits = await db.prepare(`
+    const online = await first(
+      "online",
+      `SELECT COUNT(*) AS total
+       FROM player_activity
+       WHERE last_seen >= ?`,
+      now - 360000
+    );
+
+    const games = await first(
+      "games",
+      `SELECT COALESCE(SUM(games_played), 0) AS total
+       FROM player_activity`
+    );
+
+    // ========================================
+    // PLAYER LIST
+    // ========================================
+
+    const playerList = await all(
+      "playerList",
+      `
       SELECT
-        COALESCE(SUM(visit_count), 0) AS total
-      FROM player_activity
-    `).first();
+        p.id,
+        p.playerName,
+        p.playerTitle,
+        p.avatarMascot,
 
-    // ========================================
-    // REGISTERED PLAYERS
-    // ========================================
+        COALESCE(MAX(s.score), 0) AS bestScore,
 
-    const players = await db.prepare(`
-      SELECT COUNT(*) AS total
-      FROM players
-    `).first();
+        (
+          SELECT MAX(a.last_seen)
+          FROM player_activity a
+          WHERE a.player_id = p.id
+        ) AS lastSeen,
 
-    // ========================================
-    // ONLINE PLAYERS
-    // ========================================
+        (
+          SELECT COALESCE(SUM(a.games_played), 0)
+          FROM player_activity a
+          WHERE a.player_id = p.id
+        ) AS gamesPlayed
 
-    const online = await db.prepare(`
-      SELECT COUNT(*) AS total
-      FROM player_activity
-      WHERE last_seen >= ?
-    `).bind(
-      now - 120000
-    ).first();
+      FROM players p
 
-    // ========================================
-    // TOTAL GAMES
-    // ========================================
+      LEFT JOIN scores s
+        ON s.playerId = p.id
 
-    const games = await db.prepare(`
-      SELECT
-        COALESCE(SUM(games_played), 0) AS total
-      FROM player_activity
-    `).first();
+      GROUP BY p.id
 
-    // ========================================
-    // REGISTERED PLAYER LIST
-    // ========================================
-
-    const { results: playerList } =
-      await db.prepare(`
-
-        SELECT
-          p.id,
-          p.playerName,
-          p.playerTitle,
-          p.avatarMascot,
-
-          COALESCE(MAX(s.score), 0)
-            AS bestScore,
-
-          (
-            SELECT MAX(a.last_seen)
-            FROM player_activity a
-            WHERE a.player_id = p.id
-          ) AS lastSeen,
-
-          (
-            SELECT COALESCE(
-              SUM(a.games_played), 0
-            )
-            FROM player_activity a
-            WHERE a.player_id = p.id
-          ) AS gamesPlayed
-
-        FROM players p
-
-        LEFT JOIN scores s
-          ON s.playerId = p.id
-
-        GROUP BY p.id
-
-        ORDER BY
-          lastSeen DESC,
-          bestScore DESC
-
-      `).all();
+      ORDER BY
+        lastSeen DESC,
+        bestScore DESC
+      `
+    );
 
     // ========================================
     // RECENT ACTIVITY
     // ========================================
 
-    const { results: recent } =
-      await db.prepare(`
+    const recent = await all(
+      "recent",
+      `
+      SELECT
+        a.visitor_id,
+        a.player_id,
+        a.mascot_id,
+        a.first_seen,
+        a.last_seen,
+        a.visit_count,
+        a.games_played,
+        p.playerName,
+        p.playerTitle,
+        p.avatarMascot
 
-        SELECT
-          a.visitor_id,
-          a.player_id,
-          a.mascot_id,
-          a.first_seen,
-          a.last_seen,
-          a.visit_count,
-          a.games_played,
-          p.playerName,
-          p.playerTitle,
-          p.avatarMascot
+      FROM player_activity a
 
-        FROM player_activity a
+      LEFT JOIN players p
+        ON p.id = a.player_id
 
-        LEFT JOIN players p
-          ON p.id = a.player_id
+      ORDER BY a.last_seen DESC
 
-        ORDER BY a.last_seen DESC
-
-        LIMIT 100
-
-      `).all();
+      LIMIT 100
+      `
+    );
 
     // ========================================
     // MASCOT POPULARITY
     // ========================================
 
-    const { results: popularity } =
-      await db.prepare(`
+    const popularity = await all(
+      "popularity",
+      `
+      SELECT
+        mascotId,
+        COUNT(DISTINCT playerId) AS totalPlayers,
+        MAX(score) AS bestScore
 
-        SELECT
-          mascotId,
+      FROM scores
 
-          COUNT(DISTINCT playerId)
-            AS totalPlayers,
+      GROUP BY mascotId
 
-          MAX(score)
-            AS bestScore
+      ORDER BY
+        totalPlayers DESC,
+        bestScore DESC
+      `
+    );
 
-        FROM scores
+    const fields = `
+      s.playerId,
+      s.mascotId,
+      s.score,
+      s.date,
+      p.playerName,
+      p.playerTitle,
+      p.avatarMascot
+    `;
 
-        GROUP BY mascotId
-
-        ORDER BY
-          totalPlayers DESC,
-          bestScore DESC
-
-      `).all();
+    const order = `
+      s.score DESC,
+      s.date ASC,
+      s.playerId ASC,
+      s.mascotId ASC
+    `;
 
     // ========================================
     // ALL TIME RANKING
     // ========================================
 
-    const { results: allTimeRanking } =
-      await db.prepare(`
+    const allTimeRanking = await all(
+      "allTimeRanking",
+      `
+      SELECT ${fields}
 
-        SELECT
-          s.playerId,
-          s.mascotId,
-          s.score,
-          s.date,
-          p.playerName,
-          p.playerTitle,
-          p.avatarMascot
+      FROM scores s
 
-        FROM scores s
+      JOIN players p
+        ON p.id = s.playerId
 
-        JOIN players p
-          ON p.id = s.playerId
-
-        ORDER BY
-          s.score DESC,
-          s.date ASC,
-          s.playerId ASC,
-          s.mascotId ASC
-
-      `).all();
+      ORDER BY ${order}
+      `
+    );
 
     // ========================================
-    // WEEKLY / MONTHLY RANKING
+    // WEEKLY / MONTHLY
     // ========================================
 
     async function getRanking(type, key) {
 
-      const { results } =
-        await db.prepare(`
+      return await all(
+        type + "Ranking",
+        `
+        SELECT ${fields}
+
+        FROM period_scores s
+
+        JOIN players p
+          ON p.id = s.playerId
+
+        WHERE s.period_type = ?
+          AND s.period_key = ?
+
+        ORDER BY ${order}
+        `,
+        type,
+        key
+      );
+    }
+
+    const weeklyRanking =
+      await getRanking("week", weekKey);
+
+    const monthlyRanking =
+      await getRanking("month", monthKey);
+
+    // ========================================
+    // CHAMPION HISTORY
+    // ========================================
+
+    async function getHistory(type, key) {
+
+      return await all(
+        type + "History",
+        `
+        WITH ranked AS (
 
           SELECT
-            s.playerId,
-            s.mascotId,
-            s.score,
-            s.date,
-            p.playerName,
-            p.playerTitle,
-            p.avatarMascot
+            s.period_key AS periodKey,
+
+            ${fields},
+
+            ROW_NUMBER() OVER (
+              PARTITION BY s.period_key
+              ORDER BY ${order}
+            ) AS rank
 
           FROM period_scores s
 
           JOIN players p
             ON p.id = s.playerId
 
-          WHERE
-            s.period_type = ?
-            AND s.period_key = ?
+          WHERE s.period_type = ?
+            AND s.period_key < ?
 
-          ORDER BY
-            s.score DESC,
-            s.date ASC,
-            s.playerId ASC,
-            s.mascotId ASC
+        )
 
-        `).bind(
-          type,
-          key
-        ).all();
+        SELECT *
 
-      return results;
+        FROM ranked
 
-    }
+        WHERE rank = 1
 
-    const weeklyRanking =
-      await getRanking(
-        "week",
-        weekKey
+        ORDER BY periodKey DESC
+
+        LIMIT 52
+        `,
+        type,
+        key
       );
-
-    const monthlyRanking =
-      await getRanking(
-        "month",
-        monthKey
-      );
-
-    // ========================================
-    // CHAMPION HISTORY
-    // ========================================
-
-    async function getHistory(type, currentKey) {
-
-      const { results } =
-        await db.prepare(`
-
-          WITH ranked AS (
-
-            SELECT
-
-              s.period_key AS periodKey,
-
-              s.playerId,
-              s.mascotId,
-              s.score,
-              s.date,
-
-              p.playerName,
-              p.playerTitle,
-              p.avatarMascot,
-
-              ROW_NUMBER() OVER (
-
-                PARTITION BY s.period_key
-
-                ORDER BY
-                  s.score DESC,
-                  s.date ASC,
-                  s.playerId ASC,
-                  s.mascotId ASC
-
-              ) AS rank
-
-            FROM period_scores s
-
-            JOIN players p
-              ON p.id = s.playerId
-
-            WHERE
-              s.period_type = ?
-              AND s.period_key < ?
-
-          )
-
-          SELECT *
-
-          FROM ranked
-
-          WHERE rank = 1
-
-          ORDER BY periodKey DESC
-
-          LIMIT 52
-
-        `).bind(
-          type,
-          currentKey
-        ).all();
-
-      return results;
-
     }
 
     const weeklyHistory =
-      await getHistory(
-        "week",
-        weekKey
-      );
+      await getHistory("week", weekKey);
 
     const monthlyHistory =
-      await getHistory(
-        "month",
-        monthKey
-      );
+      await getHistory("month", monthKey);
 
     // ========================================
     // RESPONSE
@@ -384,33 +340,22 @@ export async function onRequest({ request, env }) {
       ok: true,
 
       stats: {
-
         visitors: visitors?.total || 0,
-
         visits: visits?.total || 0,
-
         players: players?.total || 0,
-
         online: online?.total || 0,
-
         games: games?.total || 0
-
       },
 
       playerList,
-
       recent,
-
       popularity,
 
       weekKey,
-
       monthKey,
 
       allTimeRanking,
-
       weeklyRanking,
-
       monthlyRanking,
 
       allTimeChampion:
@@ -423,7 +368,6 @@ export async function onRequest({ request, env }) {
         monthlyRanking[0] || null,
 
       weeklyHistory,
-
       monthlyHistory,
 
       updatedAt: now
@@ -432,11 +376,20 @@ export async function onRequest({ request, env }) {
 
   } catch (e) {
 
-    console.error("Admin API error:", e);
+    console.error(
+      "Admin API error:",
+      stage,
+      e
+    );
 
-    return reply({
-      error: "server"
-    }, 503);
+    return reply(
+      {
+        error: stage === "request"
+          ? "invalid_request"
+          : "server:" + stage
+      },
+      stage === "request" ? 400 : 503
+    );
 
   }
 
