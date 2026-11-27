@@ -309,7 +309,7 @@ export async function onRequest({
     }
 
     // ========================================
-    // VALIDATE USERNAME
+    // VALIDATE USERNAME AND PASSWORD
     // ========================================
 
     const username = normalizeUsername(
@@ -366,7 +366,7 @@ export async function onRequest({
     }
 
     // ========================================
-    // REGISTER / LINK EXISTING PLAYER
+    // REGISTER
     // ========================================
 
     if (b.action === "register") {
@@ -402,15 +402,9 @@ export async function onRequest({
         salt
       );
 
-      const recoveryCode = randomHex(16);
-
-      const recoveryHash = await sha256(
-        recoveryCode
-      );
-
       try {
 
-        await db.prepare(`
+        const result = await db.prepare(`
           INSERT INTO player_accounts (
             player_id,
             username,
@@ -428,15 +422,17 @@ export async function onRequest({
           username,
           passwordHash,
           salt,
-          recoveryHash,
+          "",
           Date.now(),
           player.id,
           player.secret_hash
-        ).run().then(result => {
-          if (!result.meta.changes) {
-            throw new Error("AUTH_CHANGED");
-          }
-        });
+        ).run();
+
+        if (!result.meta.changes) {
+          return reply({
+            error: "auth"
+          }, 403);
+        }
 
       } catch (e) {
 
@@ -446,19 +442,12 @@ export async function onRequest({
           }, 409);
         }
 
-        if (String(e).includes("AUTH_CHANGED")) {
-          return reply({
-            error: "auth"
-          }, 403);
-        }
-
         throw e;
       }
 
       return reply({
         ok: true,
         username,
-        recoveryCode,
         id: player.id
       });
     }
@@ -545,37 +534,26 @@ export async function onRequest({
     }
 
     // ========================================
-    // RECOVER ACCOUNT
+    // FORGOT PASSWORD
+    // NO RECOVERY CODE
     // ========================================
 
     if (b.action === "recover") {
 
-      const code =
-        typeof b.recoveryCode === "string"
-          ? b.recoveryCode
-              .trim()
-              .toLowerCase()
-              .replace(/[\s-]/g, "")
-          : "";
-
-      if (!/^[a-f0-9]{32}$/.test(code)) {
-        return reply({
-          error: "wrongRecoveryCode"
-        }, 401);
-      }
-
-      const recoveryHash = await sha256(code);
+      const player = await verifyPlayer(
+        db,
+        b.id,
+        b.secret
+      );
 
       if (
         !account ||
-        !equal(
-          recoveryHash,
-          account.recovery_hash
-        )
+        !player ||
+        account.player_id !== player.id
       ) {
         return reply({
-          error: "wrongRecoveryCode"
-        }, 401);
+          error: "auth"
+        }, 403);
       }
 
       const salt = randomHex(32);
@@ -585,54 +563,28 @@ export async function onRequest({
         salt
       );
 
-      const newRecoveryCode = randomHex(16);
+      const result = await db.prepare(`
+        UPDATE player_accounts
+        SET password_hash = ?,
+            password_salt = ?,
+            recovery_hash = ''
+        WHERE player_id = ?
+          AND username = ?
+          AND EXISTS (
+            SELECT 1
+            FROM players
+            WHERE id = player_accounts.player_id
+              AND secret_hash = ?
+          )
+      `).bind(
+        passwordHash,
+        salt,
+        player.id,
+        username,
+        player.secret_hash
+      ).run();
 
-      const newRecoveryHash = await sha256(
-        newRecoveryCode
-      );
-
-      const secret = randomHex(32);
-      const secretHash = await sha256(secret);
-
-      const results = await db.batch([
-
-        db.prepare(`
-          UPDATE player_accounts
-          SET password_hash = ?,
-              password_salt = ?,
-              recovery_hash = ?
-          WHERE player_id = ?
-            AND recovery_hash = ?
-        `).bind(
-          passwordHash,
-          salt,
-          newRecoveryHash,
-          account.player_id,
-          recoveryHash
-        ),
-
-        db.prepare(`
-          UPDATE players
-          SET secret_hash = ?
-          WHERE id = ?
-            AND EXISTS (
-              SELECT 1
-              FROM player_accounts
-              WHERE player_id = players.id
-                AND recovery_hash = ?
-            )
-        `).bind(
-          secretHash,
-          account.player_id,
-          newRecoveryHash
-        )
-
-      ]);
-
-      if (
-        !results[0].meta.changes ||
-        !results[1].meta.changes
-      ) {
+      if (!result.meta.changes) {
         return reply({
           error: "auth"
         }, 403);
@@ -640,15 +592,14 @@ export async function onRequest({
 
       const data = await playerData(
         db,
-        account.player_id
+        player.id
       );
 
       return reply({
         ok: true,
         username,
-        id: account.player_id,
-        secret,
-        recoveryCode: newRecoveryCode,
+        id: player.id,
+        secret: b.secret,
         ...data
       });
     }
@@ -659,10 +610,11 @@ export async function onRequest({
 
   } catch (e) {
 
+    console.error("AUTH ERROR:", e.message);
+
     return reply({
       error: "server"
     }, 503);
 
   }
 }
-
