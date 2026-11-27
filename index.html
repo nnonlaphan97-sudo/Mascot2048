@@ -2089,6 +2089,28 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
 <style>
 #finishedReportModal{padding:12px;z-index:110;background:#17283b88}#finishedReportModal .report-sheet{width:min(100%,480px);max-width:480px;max-height:94dvh;padding:12px;border:0;border-radius:18px;background:#f5f7fa;overscroll-behavior:contain}#reportPreview canvas{display:block;width:100%;height:auto;box-shadow:0 3px 14px #20334b20}#reportLoading{text-align:center;padding:25px 8px}#finishedReportModal .report-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}#finishedReportModal button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 8px;background:#e5edf5;color:#344b69;touch-action:manipulation}#finishedReportModal #shareScoreBtn{grid-column:1/-1;background:var(--theme);color:#17283b}#finishedReportModal button:disabled{opacity:.5}html[data-mode="dark"] #finishedReportModal .report-sheet{background:#303641!important}
 </style>
+<style>
+/* Mobile width correction */
+html, body { width:100%; max-width:100%; overflow-x:clip; }
+#app { width:100%; max-width:520px; min-width:0; margin:0 auto; box-sizing:border-box; }
+.page { width:100%; min-width:0; }
+#homePage .header { width:100%; min-width:0; gap:8px; }
+#homePage .header > div:first-child { flex:1; min-width:0; }
+#homePage .brand-title { font-size:clamp(18px,5vw,28px); line-height:1.2; white-space:normal; overflow-wrap:normal; letter-spacing:-.5px; }
+#homePage .header-tools { flex-shrink:0; gap:5px; }
+#homePage .language-button { width:25px; height:28px; }
+#homePage .dark-toggle { width:32px; height:32px; }
+#homePage .avatar-button { width:38px; height:38px; }
+.champion-podium, .search-box, .mascot-grid { width:100%; min-width:0; max-width:100%; }
+.search-box input { flex:1; min-width:0; }
+.bottom-nav, .nav-button, .filter-chip { touch-action:manipulation; }
+@media(max-width:380px) {
+  #homePage .brand-title { font-size:18px; }
+  #homePage .header-tools { gap:4px; }
+  #homePage .language-button { width:23px; }
+  #homePage .avatar-button { width:34px; height:34px; }
+}
+</style>
 </head>
 
 <body>
