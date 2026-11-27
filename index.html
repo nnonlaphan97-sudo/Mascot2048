@@ -2825,7 +2825,7 @@ html[data-mode="dark"] #personalModal .record-card{background:#30303a;color:#f1e
    <input id="accountUser" class="name-input" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="30">
    <label for="accountPass" id="accountPassLabel"></label>
    <input id="accountPass" class="name-input" type="password" required minlength="8" maxlength="128">
-   <div id="accountRecoveryRow" class="hidden"><label for="accountRecovery" id="accountRecoveryLabel"></label><input id="accountRecovery" class="name-input" autocomplete="off" autocapitalize="none" maxlength="80"></div>
+   <div id="accountRecoveryRow" class="hidden"><label for="accountRecovery" id="accountRecoveryLabel"></label><input id="accountRecovery" class="name-input" type="password" autocomplete="new-password" maxlength="128" minlength="8"></div>
    <p id="accountError" role="alert" style="color:#b34b4b;overflow-wrap:anywhere;margin-bottom:12px"></p>
    <div class="modal-actions"><button type="button" class="secondary-btn" id="accountCancel" onclick="if(!accountBusy)closeModal('accountModal')"></button><button type="submit" class="primary-btn" id="accountSubmit"></button></div>
   </form>
@@ -3611,7 +3611,7 @@ const MASCOTS = [
 {"id": "jewel", "name": "เจเวล", "en": "JEWEL", "color": "#D71930", "birthday": {"th": "25 พฤษภาคม 2569", "en": "25 May 2026"}, "surname": {"th": "ศุภทรัพย์ยู", "en": "Supasap Yu"}, "parents": [{"role": "คุณม๊า", "roleEn": "Ma", "name": "พลอยชมพู ศุภทรัพย์", "nameEn": "Ployshompoo Supasap"}, {"role": "คุณมัม", "roleEn": "Mum", "name": "วริศรา ยู", "nameEn": "Warissara Yu"}], "decorations": []},
 {"id": "ponpon", "name": "ป้อนป้อน", "en": "PONPON", "color": "#A65D2C", "birthday": {"th": "10 มิถุนายน 2569", "en": "10 June 2026"}, "surname": {"th": "สุวรรณสถิตย์ธรรมสังคีติ", "en": "Suwansathit Thamsangkeeti"}, "parents": [{"role": "เฮียม่อน", "roleEn": "Hia Mon", "name": "ภูมิสุวรรณ สุวรรณสถิตย์", "nameEn": "Phumisuwan Suwansathit"}, {"role": "โบร๋เก้ด", "roleEn": "Bro Ged", "name": "ภาสวิชญ์ ธรรมสังคีติ", "nameEn": "Pasawit Thamsangkeeti"}], "decorations": []},
 {"id": "flarey", "name": "แฟลรี่", "en": "FLAERY", "color": "#24232E", "birthday": {"th": "18 มิถุนายน 2569", "en": "18 June 2026"}, "surname": {"th": "เลิศรัตน์โกสุมภ์ไอย์ดึนเกียรตินิรันดร์พงศ์สถาปัตย์", "en": "Lertratkosum Aydin Kiatniran Pongsathaporn"}, "parents": [{"role": "", "roleEn": "", "name": "ณราวิชญ์ เลิศรัตน์โกสุมภ์", "nameEn": "Naravit Lertratkosum"}, {"role": "", "roleEn": "", "name": "อาเชน ไอย์ดึน", "nameEn": "Archen Aydin"}, {"role": "", "roleEn": "", "name": "ธนบูรณ์ เกียรตินิรันดร์", "nameEn": "Thanaboon Kiatniran"}, {"role": "", "roleEn": "", "name": "พงศภัค พงศ์สถาปัตย์", "nameEn": "Phongphat Pongsathaporn"}], "decorations": []},
-{"id": "renjin", "name": "เร็นจิน", "en": "RENJIN", "color": "#303D78", "birthday": {"th": "9 กันยายน 2569", "en": "9 September 2026"}, "surname": {"th": "สุทธิวณิชศักดิ์วิเทพานิชย์", "en": "Sutivanichsak Vitepanich"}, "parents": [{"role": "ท่านอาจารย์", "roleEn": "Master", "name": "จิรวรรตน์ สุทธิวณิชศักดิ์", "nameEn": "Jirawat Sutivanichsak"}, {"role": "ท่านอาจารย์", "roleEn": "Master", "name": "ธีรเดช วิเทพานิชย์", "nameEn": "Thiradet Vitepanich"}], "decorations": []}
+{"id": "renjin", "name": "เร็นจิน", "en": "RENJIN", "color": "#303D78", "birthday": {"th": "9 กันยายน 2569", "en": "9 September 2026"}, "surname": {"th": "สุทธิวณิชศักดิ์วิถีพานิชย์", "en": "Sutivanichsak Vitheepanich"}, "parents": [{"role": "ท่านอาจารย์", "roleEn": "Master", "name": "จิรวรรตน์ สุทธิวณิชศักดิ์", "nameEn": "Jirawat Sutivanichsak"}, {"role": "ท่านอาจารย์", "roleEn": "Master", "name": "ธีรเดช วิถีพานิชย์", "nameEn": "Teeradech Vitheepanich"}], "decorations": []}
 ];
 
 // Display-only student numbers; mascot IDs and saved scores are unchanged.
@@ -7490,17 +7490,17 @@ function renderAccount(){
  const add=(th,en,fn)=>{const b=document.createElement('button');b.type='button';b.className='secondary-btn';b.textContent=accountText(th,en);b.onclick=fn;buttons.append(b);};
  if(save.accountUsername){add('ออกจากระบบ','Sign out',signOutAccount);add('เข้าสู่ระบบใหม่','Sign in again',()=>openAccount('login'));}
  else {add('สมัครสมาชิก','Register',()=>openAccount('register'));add('เข้าสู่ระบบ','Sign in',()=>openAccount('login'));}
- add('ลืมรหัสผ่าน','Recover account',()=>openAccount('recover'));
+ add('ลืมรหัสผ่าน','Forgot password',()=>openAccount('recover'));
 }
 function openAccount(action){
  if(accountBusy||busy||profileBusy)return;
  if(action==='register'&&!save.onlineRegistered){alert(accountText('กรุณาบันทึกโปรไฟล์ผู้ปกครองก่อนสมัครสมาชิก','Save your guardian profile before registering.'));openProfileModal();return;}
  accountAction=action;
- $('accountHeading').textContent=action==='register'?accountText('สมัครสมาชิก','Register'):action==='recover'?accountText('กู้คืนบัญชี','Recover account'):accountText('เข้าสู่ระบบ','Sign in');
+ $('accountHeading').textContent=action==='register'?accountText('สมัครสมาชิก','Register'):action==='recover'?accountText('ลืมรหัสผ่าน','Forgot password'):accountText('เข้าสู่ระบบ','Sign in');
  $('accountHint').textContent=action==='register'?accountText('ผูกบัญชีกับโปรไฟล์เดิม คะแนนไม่หาย','Link your existing profile and scores.'):accountText('เข้าสู่บัญชีเดิมเพื่อเรียกคืนคะแนน','Restore your existing account and scores.');
  $('accountUserLabel').textContent=accountText('ชื่อผู้ใช้ (a-z, 0-9, . และ _)','Username (a-z, 0-9, . and _)');
  $('accountPassLabel').textContent=action==='recover'?accountText('รหัสผ่านใหม่','New password'):accountText('รหัสผ่าน (อย่างน้อย 8 ตัว)','Password (at least 8 characters)');
- $('accountRecoveryLabel').textContent=accountText('รหัสกู้คืน','Recovery code');
+ $('accountRecoveryLabel').textContent=accountText('ยืนยันรหัสผ่านใหม่','Confirm new password');
  $('accountCancel').textContent=accountText('ยกเลิก','Cancel');$('accountSubmit').textContent=$('accountHeading').textContent;
  $('accountForm').reset();$('accountUser').value=save.accountUsername||'';$('accountPass').autocomplete=action==='login'?'current-password':'new-password';
  $('accountRecoveryRow').classList.toggle('hidden',action!=='recover');$('accountRecovery').required=action==='recover';
@@ -7526,17 +7526,18 @@ $('accountForm').addEventListener('submit',async e=>{
  e.preventDefault();if(accountBusy||profileBusy||onlineBusy)return;
  const username=$('accountUser').value.trim().normalize('NFKC').toLowerCase();
  if(!/^[a-z0-9_.]{4,30}$/.test(username)){$('accountError').textContent=accountText('ชื่อผู้ใช้ต้องมี 4–30 ตัว','Username must contain 4–30 valid characters.');return;}
- if(accountAction!=='register'&&!confirm(accountText('เปลี่ยนไปใช้บัญชีนี้? คะแนนของโปรไฟล์เดิมจะไม่ถูกรวมเข้าบัญชีใหม่','Switch accounts? Scores from the current profile will not be merged.')))return;
+ if(accountAction==='recover'&&$('accountPass').value!==$('accountRecovery').value){$('accountError').textContent=accountText('รหัสผ่านไม่ตรงกัน','Passwords do not match');return;}
+ if(accountAction==='login'&&!confirm(accountText('เปลี่ยนไปใช้บัญชีนี้? คะแนนของโปรไฟล์เดิมจะไม่ถูกรวมเข้าบัญชีใหม่','Switch accounts? Scores from the current profile will not be merged.')))return;
  accountBusy=true;$('accountSubmit').disabled=true;$('accountCancel').disabled=true;$('accountError').textContent='';
  try{
   if(accountAction!=='register')archiveAccountSave();
-  const response=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:accountAction,username,password:$('accountPass').value,recoveryCode:$('accountRecovery').value,id:save.playerId,secret:onlineSecret()})});
+  const response=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:accountAction,username,password:$('accountPass').value,id:save.playerId,secret:onlineSecret()})});
   const b=await response.json();if(!response.ok||!b.ok)throw Error(b.error||'server');
   if(accountAction==='register'){save.accountUsername=b.username;persist();}else installAccount(b);
   $('accountForm').reset();renderProfile();
-  if(b.recoveryCode){$('accountForm').classList.add('hidden');$('accountCodeBox').classList.remove('hidden');$('accountCode').value=b.recoveryCode;$('accountCodeHint').textContent=accountText('เก็บรหัสนี้ไว้ในที่ปลอดภัย ใช้กู้คืนบัญชีเมื่อลืมรหัสผ่าน ระบบจะแสดงรหัสนี้ครั้งเดียว','Keep this recovery code somewhere safe. It is shown only once.');$('accountDone').textContent=accountText('บันทึกรหัสแล้ว','I saved my code');$('accountDone').onclick=()=>{ $('accountCode').value='';closeModal('accountModal');location.reload();};}
-  else {closeModal('accountModal');location.reload();}
- }catch(err){const messages={wrongCredentials:['ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง','Incorrect username or password'],duplicateAccount:['ชื่อผู้ใช้นี้ถูกใช้แล้ว','Username already taken'],alreadyRegistered:['โปรไฟล์นี้มีบัญชีแล้ว กรุณาเข้าสู่ระบบ','This profile already has an account. Please sign in.'],rateLimit:['ลองหลายครั้งเกินไป กรุณารอ 15 นาที','Too many attempts. Wait 15 minutes.'],wrongRecoveryCode:['รหัสกู้คืนไม่ถูกต้อง','Incorrect recovery code'],auth:['ยืนยันโปรไฟล์ไม่ได้ กรุณาเข้าสู่ระบบใหม่','Profile authorization failed. Sign in again.']};const m=messages[err.message]||['ดำเนินการไม่สำเร็จ กรุณาลองใหม่','Unable to complete request. Try again.'];$('accountError').textContent=accountText(...m);}
+  if(accountAction==='recover')alert(accountText('เปลี่ยนรหัสผ่านแล้ว','Password changed'));
+  closeModal('accountModal');location.reload();
+ }catch(err){const messages={wrongCredentials:['ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง','Incorrect username or password'],duplicateAccount:['ชื่อผู้ใช้นี้ถูกใช้แล้ว','Username already taken'],alreadyRegistered:['โปรไฟล์นี้มีบัญชีแล้ว กรุณาเข้าสู่ระบบ','This profile already has an account. Please sign in.'],rateLimit:['ลองหลายครั้งเกินไป กรุณารอ 15 นาที','Too many attempts. Wait 15 minutes.'],wrongRecoveryCode:['รหัสกู้คืนไม่ถูกต้อง','Incorrect recovery code'],auth:['กรุณาใช้เครื่องที่ยังเข้าถึงบัญชีนี้ได้','Use a device that still has access to this account.']};const m=messages[err.message]||['ดำเนินการไม่สำเร็จ กรุณาลองใหม่','Unable to complete request. Try again.'];$('accountError').textContent=accountText(...m);}
  finally{accountBusy=false;$('accountSubmit').disabled=false;$('accountCancel').disabled=false;}
 });
 
