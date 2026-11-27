@@ -1,12 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+
 <title>Grandkid 2048 Admin</title>
 
 <style>
+
 @font-face {
   font-family: SWU;
   src: url("images/polcasan/Srinakharinwirot-Regular.ttf");
@@ -14,6 +17,7 @@
 
 * {
   box-sizing: border-box;
+  touch-action: manipulation;
 }
 
 body {
@@ -78,6 +82,11 @@ button {
 
 button:active {
   transform: scale(.97);
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: wait;
 }
 
 .login button {
@@ -176,6 +185,7 @@ button:active {
 .error {
   color: #d15b65;
   margin-top: 12px;
+  overflow-wrap: anywhere;
 }
 
 [hidden] {
@@ -184,6 +194,7 @@ button:active {
 
 select {
   font: inherit;
+  font-size: 16px;
   color: #34465e;
   background: #edf3fb;
   border: 0;
@@ -226,6 +237,7 @@ select {
 }
 
 @media(max-width: 420px) {
+
   .header h1 {
     font-size: 23px;
   }
@@ -237,7 +249,9 @@ select {
   .card {
     padding: 15px;
   }
+
 }
+
 </style>
 </head>
 
@@ -320,15 +334,23 @@ select {
   </div>
 
   <div class="section">
+
     <div class="stat">
+
       <small>จำนวนครั้งที่เข้าชมทั้งหมด</small>
+
       <div class="number" id="visits">0</div>
+
     </div>
+
   </div>
 
   <div class="section">
+
     <h2>แชมป์ประจำช่วงเวลา</h2>
+
     <div class="card" id="champions"></div>
+
   </div>
 
   <div class="section">
@@ -462,8 +484,8 @@ const names = {
   lunar: "ลูน่า",
   domaii: "โดเมียร์",
   domiia: "โดเมียร์",
-  neona: "นีโอน่า",
-  smyle: "สไมล์ลี่",
+  neona: "นีออนน่า",
+  smyle: "สไมล์",
   wesley: "เวสลีย์",
   metaa: "เมต้า",
   any: "เอนี่",
@@ -479,6 +501,9 @@ const names = {
   flaery: "แฟลรี่",
   renjin: "เร็นจิน"
 };
+
+const REFRESH_INTERVAL = 300000;
+const ONLINE_TIMEOUT = 360000;
 
 let adminPassword = "";
 let refreshTimer = null;
@@ -496,6 +521,7 @@ const $ = id => document.getElementById(id);
 // ========================================
 
 function escapeHTML(value) {
+
   return String(value ?? "").replace(
     /[&<>"']/g,
     c => ({
@@ -506,33 +532,57 @@ function escapeHTML(value) {
       "'": "&#39;"
     })[c]
   );
+
 }
 
 function number(value) {
-  return Number(value || 0).toLocaleString("th-TH");
+
+  return Number(value || 0)
+    .toLocaleString("th-TH");
+
 }
 
 function mascotName(id) {
-  return names[id] || id || "ยังไม่ได้เลือกหลาน";
+
+  return names[id] ||
+    id ||
+    "ยังไม่ได้เลือกหลาน";
+
 }
 
 function formatDate(value) {
 
-  if (!value) return "ยังไม่มีข้อมูล";
+  if (!value) {
+    return "ยังไม่มีข้อมูล";
+  }
 
-  return new Date(Number(value)).toLocaleString(
+  const date = new Date(Number(value));
+
+  if (!Number.isFinite(date.getTime())) {
+    return "ยังไม่มีข้อมูล";
+  }
+
+  return date.toLocaleString(
     "th-TH",
     {
       timeZone: "Asia/Bangkok",
-      dateStyle: "short",
-      timeStyle: "short"
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
     }
   );
+
 }
 
 function isOnline(value) {
-  return value &&
-    Date.now() - Number(value) < 120000;
+
+  return Boolean(
+    value &&
+    Date.now() - Number(value) < ONLINE_TIMEOUT
+  );
+
 }
 
 function playerName(p) {
@@ -544,24 +594,34 @@ function playerName(p) {
 
 }
 
+function onlineStatus(value) {
+
+  return isOnline(value)
+    ? '<span class="online">กำลังออนไลน์</span>'
+    : '<span class="offline">ออฟไลน์</span>';
+
+}
+
 
 // ========================================
 // โหลดข้อมูลหลังบ้าน
 // ========================================
 
-async function loadDashboard() {
-
-  // ไม่เรียก API ซ้ำหรือขณะพักหน้าจอ
+async function loadDashboard(force = false) {
 
   if (
     !adminPassword ||
     loading ||
-    document.hidden
-  ) return;
+    (!force && document.hidden)
+  ) {
+    return;
+  }
 
   loading = true;
 
   const version = sessionVersion;
+
+  let stage = "เชื่อมต่อ API";
 
   try {
 
@@ -581,32 +641,65 @@ async function loadDashboard() {
 
     });
 
-    const data = await response.json();
-
-    if (version !== sessionVersion) return;
+    if (version !== sessionVersion) {
+      return;
+    }
 
     if (response.status === 401) {
 
       logout();
 
       $("loginError").textContent =
-        "รหัสผ่านไม่ถูกต้อง";
+        "รหัสผ่านไม่ถูกต้อง หรือ ADMIN_PASSWORD ยังไม่ได้ตั้งค่า";
 
       return;
 
     }
 
-    if (!response.ok || !data.ok) {
-      throw new Error("โหลดข้อมูลไม่สำเร็จ");
+    stage = "อ่านข้อมูลจาก API";
+
+    const raw = await response.text();
+
+    let data;
+
+    try {
+
+      data = JSON.parse(raw);
+
+    } catch {
+
+      throw new Error(
+        "HTTP " + response.status +
+        " | API ไม่ได้ส่ง JSON"
+      );
+
     }
 
-    $("loginPage").hidden = true;
-    $("dashboard").hidden = false;
+    if (version !== sessionVersion) {
+      return;
+    }
 
-    $("dashboardError").textContent = "";
-    $("loginError").textContent = "";
+    if (!response.ok || !data.ok) {
 
-    $("password").value = "";
+      throw new Error(
+        "HTTP " + response.status +
+        " | " +
+        (data.error || "Unknown error")
+      );
+
+    }
+
+    stage = "ตรวจสอบข้อมูล";
+
+    if (!data.stats) {
+
+      throw new Error(
+        "API ไม่มีข้อมูล stats"
+      );
+
+    }
+
+    stage = "แสดงสถิติ";
 
     $("visitors").textContent =
       number(data.stats.visitors);
@@ -627,43 +720,74 @@ async function loadDashboard() {
       "อัปเดตล่าสุด " +
       formatDate(data.updatedAt);
 
+    stage = "แสดงตารางจัดอันดับ";
+
     rankingData = data;
 
     renderCompetition();
+
+    stage = "แสดงรายชื่อผู้เล่น";
 
     playerData = data.playerList || [];
 
     renderPlayers();
 
-    renderPopularity(data.popularity || []);
+    stage = "แสดงหลานยอดนิยม";
 
-    renderRecent(data.recent || []);
+    renderPopularity(
+      data.popularity || []
+    );
 
+    stage = "แสดงผู้เข้าชมล่าสุด";
 
-    // ====================================
-    // รีเฟรชอัตโนมัติทุก 5 นาที
-    // 300000 milliseconds
-    // ====================================
+    renderRecent(
+      data.recent || []
+    );
+
+    // เปิด Dashboard เมื่อแสดงข้อมูลสำเร็จ
+
+    $("loginPage").hidden = true;
+
+    $("dashboard").hidden = false;
+
+    $("dashboardError").textContent = "";
+
+    $("loginError").textContent = "";
+
+    $("password").value = "";
+
+    // รีเฟรชทุก 5 นาที
 
     if (!refreshTimer) {
 
       refreshTimer = setInterval(
-        loadDashboard,
-        300000
+        () => loadDashboard(),
+        REFRESH_INTERVAL
       );
 
     }
 
   } catch (error) {
 
-    if (version !== sessionVersion) return;
+    if (version !== sessionVersion) {
+      return;
+    }
 
     const target = $("dashboard").hidden
       ? $("loginError")
       : $("dashboardError");
 
     target.textContent =
-      "ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่";
+      "เกิดข้อผิดพลาด: " +
+      stage +
+      " | " +
+      error.message;
+
+    console.error(
+      "Admin Dashboard:",
+      stage,
+      error
+    );
 
   } finally {
 
@@ -671,13 +795,16 @@ async function loadDashboard() {
 
     $("loginButton").disabled = false;
 
+    $("loginButton").textContent =
+      "เข้าสู่ระบบ";
+
   }
 
 }
 
 
 // ========================================
-// แสดงช่วงเวลาการแข่งขัน
+// ช่วงเวลาการแข่งขัน
 // ========================================
 
 function periodText(type, key) {
@@ -744,12 +871,16 @@ function scoreRow(p, label) {
       <div class="person-head">
 
         <div class="person-name">
+
           ${escapeHTML(label)}
           ${escapeHTML(playerName(p))}
+
         </div>
 
         <div class="score">
+
           ${number(p.score)}
+
         </div>
 
       </div>
@@ -806,13 +937,17 @@ function renderRanking() {
     if (
       filter !== "all" &&
       p.mascotId !== filter
-    ) return false;
+    ) {
+      return false;
+    }
 
     const id = filter === "all"
       ? p.mascotId
       : p.playerId;
 
-    if (seen.has(id)) return false;
+    if (seen.has(id)) {
+      return false;
+    }
 
     seen.add(id);
 
@@ -832,12 +967,14 @@ function renderRanking() {
 
 
 // ========================================
-// แชมป์ประจำช่วงเวลาและประวัติย้อนหลัง
+// แชมป์ประจำช่วงเวลา
 // ========================================
 
 function renderCompetition() {
 
   const d = rankingData;
+
+  if (!d) return;
 
   $("champions").innerHTML = [
 
@@ -869,7 +1006,9 @@ function renderCompetition() {
       <strong>${label}</strong>
 
       <div class="details">
+
         ${escapeHTML(periodText(type, key))}
+
       </div>
 
       ${
@@ -881,7 +1020,6 @@ function renderCompetition() {
     </div>
 
   `).join("");
-
 
   for (const [id, type, items] of [
 
@@ -904,7 +1042,9 @@ function renderCompetition() {
       (items || []).map(p => `
 
         <div class="details">
+
           ${escapeHTML(periodText(type, p.periodKey))}
+
         </div>
 
         ${scoreRow(p, "")}
@@ -921,7 +1061,7 @@ function renderCompetition() {
 
 
 // ========================================
-// ตัวกรองรายชื่อหลาน
+// ตัวกรองหลาน
 // ========================================
 
 for (const [id, name] of Object.entries(names)
@@ -1008,30 +1148,22 @@ function renderPlayers() {
         <div class="person-head">
 
           <div class="person-name">
+
             ${escapeHTML(playerName(p))}
+
           </div>
 
           <div class="score">
+
             ${number(p.bestScore)}
+
           </div>
 
         </div>
 
         <div class="details">
 
-          <span class="${
-            isOnline(p.lastSeen)
-              ? "online"
-              : "offline"
-          }">
-
-            ${
-              isOnline(p.lastSeen)
-                ? "กำลังออนไลน์"
-                : "ออฟไลน์"
-            }
-
-          </span>
+          ${onlineStatus(p.lastSeen)}
 
           <br>
 
@@ -1046,7 +1178,7 @@ function renderPlayers() {
           <br>
 
           เข้าเล่นล่าสุด:
-          ${formatDate(p.lastSeen)}
+          ${escapeHTML(formatDate(p.lastSeen))}
 
         </div>
 
@@ -1133,24 +1265,14 @@ function renderRecent(items) {
       <div class="person">
 
         <div class="person-name">
+
           ${escapeHTML(playerName(p))}
+
         </div>
 
         <div class="details">
 
-          <span class="${
-            isOnline(p.last_seen)
-              ? "online"
-              : "offline"
-          }">
-
-            ${
-              isOnline(p.last_seen)
-                ? "กำลังออนไลน์"
-                : "ออฟไลน์"
-            }
-
-          </span>
+          ${onlineStatus(p.last_seen)}
 
           <br>
 
@@ -1170,12 +1292,12 @@ function renderRecent(items) {
           <br>
 
           เข้าครั้งแรก:
-          ${formatDate(p.first_seen)}
+          ${escapeHTML(formatDate(p.first_seen))}
 
           <br>
 
           ล่าสุด:
-          ${formatDate(p.last_seen)}
+          ${escapeHTML(formatDate(p.last_seen))}
 
         </div>
 
@@ -1208,7 +1330,11 @@ function logout() {
     "rankingList",
     "weeklyHistory",
     "monthlyHistory",
-    "periodLabel"
+    "periodLabel",
+    "playerList",
+    "recent",
+    "popularity",
+    "dashboardError"
 
   ]) {
 
@@ -1238,15 +1364,14 @@ function logout() {
 
   $("loginPage").hidden = false;
 
-  $("playerList").innerHTML = "";
-
-  $("recent").innerHTML = "";
-
-  $("popularity").innerHTML = "";
-
   $("password").value = "";
 
   $("loginError").textContent = "";
+
+  $("loginButton").disabled = false;
+
+  $("loginButton").textContent =
+    "เข้าสู่ระบบ";
 
 }
 
@@ -1267,11 +1392,16 @@ $("loginForm").addEventListener(
 
     adminPassword = $("password").value;
 
+    if (!adminPassword) return;
+
     $("loginButton").disabled = true;
+
+    $("loginButton").textContent =
+      "กำลังเข้าสู่ระบบ...";
 
     $("loginError").textContent = "";
 
-    loadDashboard();
+    loadDashboard(true);
 
   }
 
